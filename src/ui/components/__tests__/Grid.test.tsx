@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
 import { Grid } from '../Grid';
-import { SpreadsheetProvider } from '../../SpreadsheetContext';
+import { SpreadsheetProvider } from '../../contexts/SpreadsheetContext';
 
 describe('Grid', () => {
   const setup = (rows = 5, cols = 3) => {

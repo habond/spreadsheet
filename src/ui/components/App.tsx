@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { SpreadsheetProvider, useSpreadsheet } from '../SpreadsheetContext';
+import { SpreadsheetProvider, useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { Grid } from './Grid';
 import { FormulaBar } from './FormulaBar';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';

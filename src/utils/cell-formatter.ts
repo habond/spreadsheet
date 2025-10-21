@@ -1,15 +1,23 @@
-import { CellFormat } from '../core/types';
+import { CellFormat } from '../types/core';
+
+/**
+ * Helper to convert value to number with fallback
+ * Returns null if value cannot be converted to a valid number
+ */
+function toNumberOrFallback(value: number | string | null): number | null {
+  if (value === null) return null;
+  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
+  return isNaN(numValue) ? null : numValue;
+}
 
 /**
  * Format a number with thousands separator and two decimal places
  */
 function formatAsNumber(value: number | string | null): string {
-  if (value === null) return '';
-
-  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(numValue)) {
+  const numValue = toNumberOrFallback(value);
+  if (numValue === null) {
     // If not a valid number, fall back to Raw formatting
-    return String(value);
+    return String(value === null ? '' : value);
   }
 
   return numValue.toLocaleString(undefined, {
@@ -22,12 +30,10 @@ function formatAsNumber(value: number | string | null): string {
  * Format a number as currency (uses browser locale)
  */
 function formatAsCurrency(value: number | string | null): string {
-  if (value === null) return '';
-
-  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(numValue)) {
+  const numValue = toNumberOrFallback(value);
+  if (numValue === null) {
     // If not a valid number, fall back to Raw formatting
-    return String(value);
+    return String(value === null ? '' : value);
   }
 
   // Use USD as default currency (can be made configurable in the future)
@@ -41,12 +47,10 @@ function formatAsCurrency(value: number | string | null): string {
  * Format a number as a percentage (multiply by 100 and add %)
  */
 function formatAsPercentage(value: number | string | null): string {
-  if (value === null) return '';
-
-  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(numValue)) {
+  const numValue = toNumberOrFallback(value);
+  if (numValue === null) {
     // If not a valid number, fall back to Raw formatting
-    return String(value);
+    return String(value === null ? '' : value);
   }
 
   return (
@@ -61,12 +65,10 @@ function formatAsPercentage(value: number | string | null): string {
  * Format a Unix timestamp (in milliseconds) as a date (uses browser locale)
  */
 function formatAsDate(value: number | string | null): string {
-  if (value === null) return '';
-
-  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(numValue)) {
+  const numValue = toNumberOrFallback(value);
+  if (numValue === null) {
     // If not a valid number, fall back to Raw formatting
-    return String(value);
+    return String(value === null ? '' : value);
   }
 
   const date = new Date(numValue);
@@ -86,12 +88,10 @@ function formatAsDate(value: number | string | null): string {
  * Format a Unix timestamp (in milliseconds) as time (uses browser locale)
  */
 function formatAsTime(value: number | string | null): string {
-  if (value === null) return '';
-
-  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(numValue)) {
+  const numValue = toNumberOrFallback(value);
+  if (numValue === null) {
     // If not a valid number, fall back to Raw formatting
-    return String(value);
+    return String(value === null ? '' : value);
   }
 
   const date = new Date(numValue);

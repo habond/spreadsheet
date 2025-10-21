@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { SUPPORTED_FUNCTIONS } from '../../core/evaluation/formula-calculator';
+import { SUPPORTED_FUNCTIONS } from '../../evaluator/formula-evaluator';
 import { useClickOutside } from '../hooks/useClickOutside';
 
 interface FunctionMenuProps {
@@ -11,7 +11,11 @@ export function FunctionMenu({ onFunctionSelect }: FunctionMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => setIsOpen(false), []);
-  useClickOutside(menuRef, isOpen ? handleClose : () => {});
+  const handleClickOutside = useCallback(() => {
+    if (isOpen) handleClose();
+  }, [isOpen, handleClose]);
+
+  useClickOutside(menuRef, handleClickOutside);
 
   const handleFunctionClick = (functionName: string) => {
     onFunctionSelect(functionName);

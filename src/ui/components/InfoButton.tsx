@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { useSpreadsheet } from '../SpreadsheetContext';
+import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 
 export function InfoButton() {

@@ -117,9 +117,14 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 
 ```
 =SUM(A1, B1, C1)           Sum of values
+=SUM(A1:A10)               Sum of range (all cells from A1 to A10)
+=SUM(A1:B3, C1)            Sum of range plus individual cell
 =AVERAGE(A1, B1, C1)       Average of values (alias: AVG)
+=AVERAGE(A1:A10)           Average of range
 =MIN(A1, B1, C1)           Minimum value
+=MIN(A1:B10)               Minimum value in range
 =MAX(A1, B1, C1)           Maximum value
+=MAX(A1:B10)               Maximum value in range
 =ADD(A1, B1)               Add two values
 =SUB(A1, B1)               Subtract two values
 =MUL(A1, B1)               Multiply two values (alias: MULTIPLY)
@@ -138,6 +143,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 
 ```
 =COUNT(A1, B1, C1, "text")        Count numeric values (returns 3)
+=COUNT(A1:A10)                     Count numeric values in range
 ```
 
 #### String Functions
@@ -163,18 +169,34 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 =DATEDIF(start, end, "Y")             Calculate difference in Years
 ```
 
+### Range Syntax
+
+Cell ranges allow you to operate on multiple cells at once:
+
+```
+=SUM(A1:A10)                       Sum cells A1 through A10
+=AVERAGE(B1:B5)                    Average cells B1 through B5
+=MAX(A1:C3)                        Maximum value in 2D range (A1, A2, A3, B1, B2, B3, C1, C2, C3)
+=SUM(A1:A5, B1:B5)                 Sum multiple ranges
+=AVERAGE(A1:A10, C1)               Mix ranges and individual cells
+=MIN(A1:J20)                       Works with any valid range
+```
+
+**Note**: Ranges can only be used as function arguments. You cannot use ranges directly in arithmetic expressions (e.g., `=A1:A3 + 5` is invalid, but `=SUM(A1:A3) + 5` is valid).
+
 ### Complex Formulas
 
 ```
-=SUM(A1, B1) + C1 * 2
-=AVERAGE(A1, B1, C1) - MIN(D1, E1)
-=ADD(SUM(A1, B1), MUL(C1, 2))
-=IF(A1 > 100, "Large", "Small")
+=SUM(A1:A10) + C1 * 2
+=AVERAGE(A1:B5) - MIN(D1:D10)
+=SUM(A1:A5, B1:B5) / 2
+=IF(SUM(A1:A10) > 100, "Large", "Small")
 =IF(A1 >= 90, "A", IF(A1 >= 80, "B", "C"))
-=CONCATENATE("Total: ", SUM(A1, A2, A3))
+=CONCATENATE("Total: ", SUM(A1:A5))
 =DATEDIF(DATE(2024, 1, 1), DATE(2024, 12, 31), "D")
 =UPPER(CONCATENATE(A1, " ", A2))
 =IF(LEFT(A1, 3) = "ABC", "Match", "No match")
+=MAX(A1:A10, B1:B10, 100)
 ```
 
 ## Architecture
@@ -183,21 +205,43 @@ The spreadsheet is built with a clean, layered architecture:
 
 ```
 src/
-├── core/                       # Business logic (framework-agnostic)
-│   ├── evaluation/             # Formula engine
-│   │   ├── formula-parser.ts   - Tokenization & cell references
-│   │   ├── formula-calculator.ts - Expression evaluation
-│   │   └── dependency-graph.ts - Dependency tracking & cycle detection
-│   ├── eval-engine.ts          # Main orchestrator
-│   ├── errors.ts               # Custom error types
-│   └── types.ts                # Type definitions
-├── data/                       # Data storage
-│   ├── spreadsheet.ts          # Cell data & navigation
-│   ├── cell-result-store.ts    # Evaluation results
-│   └── local-storage.ts        # Browser localStorage persistence
+├── types/                      # Type definitions (no index.ts)
+│   ├── core.ts                 - Core types (CellID, EvalResult, FunctionInfo, CellFormat)
+│   └── ast.ts                  - AST node types & type guards
+├── errors/                     # Custom error classes (one per file)
+│   ├── CircularDependencyError.ts
+│   ├── FormulaParseError.ts
+│   ├── CellReferenceError.ts
+│   ├── DivisionByZeroError.ts
+│   ├── FunctionArgumentError.ts
+│   └── InvalidFunctionError.ts
+├── constants/                  # Application constants
+│   └── app-constants.ts        - Sizing and default values
+├── parser/                     # Formula parsing (pure, stateless)
+│   ├── tokenizer.ts            - Lexical analysis
+│   ├── ast-parser.ts           - Builds AST from tokens
+│   └── formula-parser.ts       - parse(), extractCellReferences()
+├── evaluator/                  # Formula evaluation (stateless)
+│   ├── formula-evaluator.ts    - Evaluates AST nodes
+│   └── functions/              # Function implementations (one per file)
+│       ├── sum.ts, average.ts, min.ts, max.ts, count.ts
+│       ├── add.ts, sub.ts, mul.ts, div.ts
+│       ├── if.ts               - Logic functions
+│       ├── concatenate.ts, left.ts, right.ts, trim.ts, upper.ts, lower.ts
+│       ├── now.ts, today.ts, date.ts, datedif.ts
+│       ├── helpers.ts          - Validation & conversion utilities
+│       └── function-registry.ts - Function registry, metadata, executor
+├── engine/                     # Evaluation orchestration
+│   ├── dependency-graph.ts     - Tracks cell dependencies
+│   └── eval-engine.ts          - Main orchestrator
 ├── utils/                      # Pure utility functions
-│   ├── constants.ts            # Shared constants (sizing, defaults)
-│   └── cell-formatter.ts       # Cell formatting utilities
+│   ├── column-utils.ts         - Column letter/number conversion
+│   ├── range-helpers.ts        - Range operations (expandRange)
+│   └── cell-formatter.ts       - Display formatting
+├── model/                      # Data model layer
+│   ├── spreadsheet.ts          - Cell storage & navigation
+│   ├── cell-result-store.ts    - Evaluation cache
+│   └── local-storage.ts        - Browser persistence
 ├── ui/                         # React UI layer
 │   ├── components/             # React components
 │   │   ├── App.tsx             - Main app layout with ErrorBoundary
@@ -207,16 +251,18 @@ src/
 │   │   ├── FunctionMenu.tsx    - Dropdown menu of functions
 │   │   ├── InfoButton.tsx      - Info popover with cell display
 │   │   └── ErrorBoundary.tsx   - Error handling component
-│   ├── hooks/                  # Custom hooks
-│   │   ├── useKeyboardNavigation.tsx
-│   │   ├── useClickOutside.tsx - Click-outside detection
-│   │   └── useDebounce.tsx     - Debounce hook
-│   └── SpreadsheetContext.tsx  # React Context for state
+│   ├── contexts/               # React contexts
+│   │   └── SpreadsheetContext.tsx - Main spreadsheet state
+│   └── hooks/                  # Custom hooks
+│       ├── useKeyboardNavigation.tsx
+│       ├── useClickOutside.tsx - Click-outside detection
+│       └── useDebounce.tsx     - Debounce hook
 └── main.tsx                    # React entry point
 ```
 
 **Key Features:**
 
+- **AST-Based Evaluation**: Formulas are parsed into Abstract Syntax Trees for clean separation of concerns
 - **Dependency Tracking**: Automatically updates dependent cells
 - **Cycle Detection**: Prevents infinite loops with clear error messages
 - **Operator Precedence**: Correctly evaluates `2 + 3 * 4` as `14`
@@ -228,11 +274,12 @@ src/
 
 When you type a formula:
 
-1. **Parse**: Formula is tokenized into components
-2. **Evaluate**: Recursive descent parser evaluates with correct precedence
-3. **Track**: Dependencies between cells are tracked
-4. **Update**: Dependent cells automatically recalculate in topological order
-5. **Display**: UI updates with new values
+1. **Tokenize**: Formula is broken into tokens (numbers, operators, functions, cell refs)
+2. **Parse**: Tokens are converted into an Abstract Syntax Tree (AST)
+3. **Evaluate**: AST is recursively evaluated with correct precedence
+4. **Track**: Dependencies between cells are tracked
+5. **Update**: Dependent cells automatically recalculate in topological order
+6. **Display**: UI updates with new values
 
 ## Example Usage
 
@@ -262,6 +309,29 @@ A3: =A1 + A2   → displays 15
 (Change A1 to 20)
 A1: 20
 A3: =A1 + A2   → automatically updates to 30
+```
+
+### Range Examples
+
+```
+A1: 10
+A2: 20
+A3: 30
+B1: =SUM(A1:A3)     → displays 60
+
+(Change A2 to 50)
+A2: 50
+B1: =SUM(A1:A3)     → automatically updates to 90
+```
+
+```
+A1: 5, A2: 10, A3: 15
+B1: 2, B2: 4,  B3: 6
+
+C1: =AVERAGE(A1:B3)  → displays 7 (average of all 6 values)
+C2: =MAX(A1:A3)      → displays 15
+C3: =MIN(B1:B3)      → displays 2
+C4: =COUNT(A1:B3)    → displays 6
 ```
 
 ### Complex Dependencies
@@ -321,6 +391,8 @@ The spreadsheet provides clear error messages:
 - **Invalid function**: `"Unknown function: FOO"`
 - **Syntax errors**: `"Unexpected character: @"`
 - **Type errors**: `"Cannot convert 'abc' to number"`
+- **Invalid range**: `"Invalid range: start must be before end in B2:A1"`
+- **Range misuse**: `"Ranges cannot be used directly in expressions or comparisons"`
 
 ## User Interface
 
@@ -378,8 +450,7 @@ The spreadsheet automatically saves all data to browser localStorage:
 
 Potential additions to explore:
 
-- **Cell ranges**: `=SUM(A1:A10)` for range operations
-- **Range-based functions**: `VLOOKUP`, `COUNTIF`, `SUMIF` (requires range support)
+- **Range-based functions**: `VLOOKUP`, `COUNTIF`, `SUMIF`, `SUMIFS`
 - **Conditional formatting**: Color cells based on values
 - **Advanced cell formatting**: Colors, fonts, alignment, custom number formats
 - **Multiple sheets**: Tabs for different worksheets

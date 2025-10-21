@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
 import { useKeyboardNavigation } from '../useKeyboardNavigation';
-import { SpreadsheetProvider } from '../../SpreadsheetContext';
+import { SpreadsheetProvider } from '../../contexts/SpreadsheetContext';
 
 // Test component that uses the hook
 function TestComponent({ inputRef }: { inputRef: React.RefObject<HTMLInputElement | null> }) {

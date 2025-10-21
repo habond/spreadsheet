@@ -14,21 +14,42 @@ A TypeScript spreadsheet with formula evaluation, dependency tracking, and cycle
 
 ```
 src/
-├── core/                    # Business logic
-│   ├── evaluation/          # Formula engine
-│   │   ├── formula-parser.ts
-│   │   ├── formula-calculator.ts
-│   │   └── dependency-graph.ts
-│   ├── eval-engine.ts       # Main orchestrator
-│   ├── errors.ts            # Custom error types
-│   └── types.ts             # Shared types
-├── data/                    # Data layer
-│   ├── spreadsheet.ts       # Cell storage
+├── types/                   # Type definitions (no index.ts)
+│   ├── core.ts              # Core types (CellID, EvalResult, FunctionInfo, etc.)
+│   └── ast.ts               # AST node types & type guards
+├── errors/                  # Custom error classes (one per file)
+│   ├── CircularDependencyError.ts
+│   ├── FormulaParseError.ts
+│   ├── CellReferenceError.ts
+│   ├── DivisionByZeroError.ts
+│   ├── FunctionArgumentError.ts
+│   └── InvalidFunctionError.ts
+├── constants/               # Application constants
+│   └── app-constants.ts     # Sizing and default values
+├── parser/                  # Formula parsing (pure, stateless)
+│   ├── tokenizer.ts         # Lexical analysis
+│   ├── ast-parser.ts        # Builds AST from tokens
+│   └── formula-parser.ts    # parse(), extractCellReferences()
+├── evaluator/               # Formula evaluation (stateless)
+│   ├── formula-evaluator.ts # Evaluates AST nodes
+│   └── functions/           # Function implementations (one per file)
+│       ├── sum.ts, average.ts, min.ts, max.ts, add.ts, sub.ts, mul.ts, div.ts, count.ts
+│       ├── if.ts            # Logic functions
+│       ├── concatenate.ts, left.ts, right.ts, trim.ts, upper.ts, lower.ts
+│       ├── now.ts, today.ts, date.ts, datedif.ts
+│       ├── helpers.ts       # flattenArgs, toNumber, toBoolean
+│       └── function-registry.ts  # Function registry, metadata, executor
+├── engine/                  # Evaluation orchestration
+│   ├── dependency-graph.ts  # Tracks cell dependencies
+│   └── eval-engine.ts       # Main orchestrator
+├── utils/                   # Pure utility functions
+│   ├── column-utils.ts      # Column letter/number conversion (columnToNumber, numberToColumn)
+│   ├── range-helpers.ts     # Range operations (expandRange)
+│   └── cell-formatter.ts    # Display formatting
+├── model/                   # Data model layer
+│   ├── spreadsheet.ts       # Cell storage & navigation
 │   ├── cell-result-store.ts # Evaluation cache with JSDoc
 │   └── local-storage.ts     # LocalStorage persistence
-├── utils/                   # Pure utility functions
-│   ├── constants.ts         # Shared constants (sizing, defaults)
-│   └── cell-formatter.ts    # Cell formatting utilities
 ├── ui/                      # React UI layer
 │   ├── components/          # React components
 │   │   ├── App.tsx          # Main app layout with ErrorBoundary
@@ -36,13 +57,14 @@ src/
 │   │   ├── Cell.tsx         # Individual cell
 │   │   ├── FormulaBar.tsx   # Formula input with function & format menus
 │   │   ├── FunctionMenu.tsx # Function dropdown with useClickOutside
-│   │   ├── InfoButton.tsx   # Info popover with cell display (uses useClickOutside)
+│   │   ├── InfoButton.tsx   # Info popover with cell display
 │   │   └── ErrorBoundary.tsx # Error handling component
-│   ├── hooks/               # Custom hooks
-│   │   ├── useKeyboardNavigation.tsx
-│   │   ├── useClickOutside.tsx  # Reusable click-outside handler
-│   │   └── useDebounce.tsx      # Debounce hook for performance
-│   └── SpreadsheetContext.tsx # React context with memoization
+│   ├── contexts/            # React contexts
+│   │   └── SpreadsheetContext.tsx  # Main spreadsheet state
+│   └── hooks/               # Custom hooks
+│       ├── useKeyboardNavigation.tsx
+│       ├── useClickOutside.tsx  # Reusable click-outside handler
+│       └── useDebounce.tsx      # Debounce hook for performance
 └── main.tsx                 # React entry point
 ```
 
@@ -58,35 +80,91 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 ### Architecture Layers
 
-- **Data**: Pure storage (Spreadsheet, CellResultStore, localStorage)
-- **Core**: Business logic (EvalEngine, parsers, evaluators, custom errors, function metadata)
-- **Utils**: Pure utility functions (constants, cell formatting)
-- **UI**: React components (App with ErrorBoundary, Grid with memoization, Cell, FormulaBar, FunctionMenu with dropdown, InfoButton with popover)
+- **Types**: Centralized type definitions (CellID, EvalResult, AST nodes)
+- **Errors**: Custom error classes (one per file)
+- **Constants**: Application-wide configuration values
+- **Parser**: Pure parsing logic (tokenization → AST)
+- **Evaluator**: Pure evaluation logic (AST → result, function implementations - one per file)
+- **Engine**: Orchestration (dependency tracking, evaluation order)
+- **Utils**: Pure utility functions (range operations, formatting)
+- **Model**: Data model layer (Spreadsheet, CellResultStore, localStorage)
+- **UI**: React components (App, Grid, Cell, FormulaBar, FunctionMenu, InfoButton, ErrorBoundary)
 - **Hooks**: Reusable custom hooks (useKeyboardNavigation, useClickOutside, useDebounce)
-- **State**: React Context (SpreadsheetContext with memoized values and debounced persistence)
-- **Entry**: main.tsx initialization
+- **Contexts**: React Context providers (SpreadsheetContext with memoized values and debounced persistence)
+
+**Dependency Flow**: `types` → `errors` → `constants` → `utils` → `parser` → `evaluator` → `engine` → `model` → `ui`
 
 ### Formula Evaluation
 
-1. **Parse**: Tokenize formula string
-2. **Evaluate**: Recursive descent parser with operator precedence
-3. **Dependencies**: Track cell references, detect cycles
-4. **Update**: Topological sort for correct evaluation order
+The formula evaluation system uses a three-phase architecture:
+
+1. **Tokenization** (`formula-parser.ts`): Convert formula string into tokens
+   - Lexical analysis: numbers, strings, operators, cell refs, ranges, functions
+   - Pattern matching for cell references (A1, AA10) and ranges (A1:B3)
+
+2. **Parsing** (`ast-parser.ts`): Build Abstract Syntax Tree (AST) from tokens
+   - Recursive descent parser with operator precedence
+   - Creates structured tree representation (NumberNode, BinaryOpNode, FunctionCallNode, etc.)
+   - Proper precedence: Comparison < Addition/Subtraction < Multiplication/Division
+   - Supports parenthesized expressions and unary operators
+
+3. **Evaluation** (`formula-evaluator.ts`): Walk the AST to compute results
+   - Evaluates AST nodes recursively
+   - Resolves cell references from pre-computed results
+   - Executes functions via `function-registry.ts`
+   - Type checking and error handling
+
+4. **Dependency Management** (`dependency-graph.ts`): Track cell dependencies
+   - Extracts cell references from formulas
+   - Detects circular dependencies
+   - Topological sort for correct evaluation order
+
+**Key Benefits of AST Architecture:**
+- Clear separation of concerns (tokenization, parsing, evaluation)
+- Can inspect/optimize formulas before evaluation
+- Easier to add new features (formula visualization, static analysis)
+- More maintainable and testable
 
 ## Code Conventions
 
-### Import Paths
+### Import Paths & Module Organization
 
-- Use relative paths with layers: `../core/types`, `../data/spreadsheet`, `../utils/constants`
+**IMPORTANT: No index.ts Pattern**
+- ❌ **Never use index.ts files** - They create ambiguity and complicate navigation
+- ✅ **Always import directly from specific files**
+- ✅ **One concept per file**: Each error, function, class, or type module has its own file
+- ✅ **Explicit is better than implicit**: Always know exactly where code comes from
+
+**Why avoid index.ts:**
+1. IDE "Go to Definition" takes you to the actual implementation, not a re-export file
+2. No confusion about what's exported from a directory
+3. Better tree-shaking - bundlers can eliminate unused code more effectively
+4. Clearer dependency tracking - you see exactly what files depend on what
+5. Easier refactoring - moving files doesn't break index-based re-exports
+6. No circular dependency risks from index files importing from each other
+
+**Import Examples:**
+- Types: `import { CellID } from '../types/core'`
+- Errors: `import { FormulaParseError } from '../errors/FormulaParseError'`
+- Parser: `import { parse } from '../parser/formula-parser'`
+- Evaluator: `import { FormulaEvaluator } from '../evaluator/formula-evaluator'`
+- Functions: `import { sum } from '../evaluator/functions/sum'`
+- Function Registry: `import { FunctionName } from '../evaluator/functions/function-registry'`
+- Engine: `import { EvalEngine } from '../engine/eval-engine'`
+- Constants: `import { DEFAULT_COLUMN_WIDTH } from '../constants/app-constants'`
+- Utils: `import { columnToNumber } from '../utils/column-utils'`
+- Model: `import { Spreadsheet } from '../model/spreadsheet'`
+
+**Other conventions:**
 - React components use `.tsx` extension
 - No need for `.js` extensions in imports (Vite handles this)
-- Import constants from `utils/constants.ts` for consistency
+- Use relative paths: `../types/types`, not absolute paths
 
 ### TypeScript
 
 - Strict mode enabled
 - `noUnusedLocals` and `noUnusedParameters` enforced
-- All types in `core/types.ts`
+- All types in `types/core.ts`
 - Add JSDoc comments for public APIs
 
 ### React Best Practices
@@ -125,13 +203,18 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 ### Add a New Function
 
-1. Add function metadata to `SUPPORTED_FUNCTIONS` array in `formula-calculator.ts`
-2. Add constant to `FunctionName` object for type safety
-3. Add case to `executeFunction()` switch statement
-4. Write tests in `formula-calculator.test.ts`
-5. Update README.md formula list
+1. Create a new file in `src/evaluator/functions/` (e.g., `my-function.ts`)
+2. Implement the function using helpers from `helpers.ts`:
+   - Use `requireExactly()`, `requireAtLeastOne()`, etc. for argument validation
+   - Use `toNumber()`, `toBoolean()` for type conversion
+   - Use `createBinaryOperation()` or `createUnaryStringOperation()` for simple operations
+3. Add function metadata to `SUPPORTED_FUNCTIONS` array in `formula-evaluator.ts`
+4. Add constant to `FunctionName` object in `function-registry.ts` for type safety
+5. Import and add to `executeFunction()` in `function-registry.ts`
+6. Write tests in `formula-evaluator.test.ts`
+7. Update README.md formula list
 
-**Important**: Function definitions are centralized in `formula-calculator.ts`. The `SUPPORTED_FUNCTIONS` array is the single source of truth for UI and validation.
+**Important**: Each function has its own file. Use the helper factories in `helpers.ts` to reduce boilerplate.
 
 ### Add a New Component
 
@@ -144,9 +227,10 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 ### Add a New Module
 
-1. Place in appropriate layer (`core/`, `data/`, or `ui/`)
-2. Import types from `core/types.ts`
-3. Maintain separation of concerns
+1. Place in appropriate layer (types, errors, constants, parser, evaluator, engine, utils, model, or ui)
+2. Import types from `types/core.ts`
+3. Follow the dependency flow: types → errors → constants → utils → parser → evaluator → engine → model → ui
+4. Maintain separation of concerns
 
 ### Refactor Imports
 
@@ -311,10 +395,110 @@ LocalStorage integration for automatic state persistence:
 ❌ Don't ignore ESLint warnings (especially react-hooks/exhaustive-deps)
 ❌ Don't forget to memoize expensive calculations in components
 ❌ Don't manually implement patterns that have custom hooks (useClickOutside, useDebounce)
+❌ Don't add counts to documentation (line counts, test counts) - they change frequently and become stale
 
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Final Code Organization Refinements**: Maximum granularity for clarity and maintainability
+  - **One function per file**: Split all function implementations into individual files
+    - 23 individual function files: `sum.ts`, `average.ts`, `min.ts`, `if.ts`, `concatenate.ts`, etc.
+    - Each function is now independently importable and testable
+    - Function registry (`function-registry.ts`) imports from individual files
+  - **Renamed data → model**: Better semantic naming
+    - `src/data/` → `src/model/` (more accurate - it's the data model layer)
+  - **Documented 'no index.ts' best practice**: Added comprehensive rationale to CLAUDE.md
+    - 6 specific reasons why index.ts should be avoided
+    - Clear import examples for all module types
+  - **Benefits**:
+    - Each function is a complete, isolated module
+    - IDE can jump directly to function implementation
+    - Better code splitting and tree-shaking
+    - Easier to find, understand, and modify individual functions
+    - No ambiguity about module boundaries
+
+### Previous
+
+- **Code Organization Improvements**: Further refined structure for maximum clarity
+  - **Eliminated index.ts pattern**: All imports are now explicit and direct
+  - **One error per file**: Split `errors/index.ts` into individual files
+  - **Moved constants**: `utils/constants.ts` → `constants/constants.ts` (top-level)
+  - **Added contexts directory**: `ui/SpreadsheetContext.tsx` → `ui/contexts/SpreadsheetContext.tsx`
+
+### Previous
+
+- **Directory Reorganization**: Completely restructured codebase for better modularity and clarity
+  - **Eliminated overloaded `core/` directory**: Replaced with focused, single-responsibility modules
+  - **New flat structure**: `types/`, `errors/`, `parser/`, `evaluator/`, `engine/`, `constants/`, `utils/`, `data/`, `ui/`
+  - **Function categorization**: Split function-executor into categorized files (math, logic, string, datetime, helpers)
+  - **Clear dependency flow**: Linear dependencies from types → errors → constants → utils → parser → evaluator → engine → data → UI
+  - **All 378 tests passing** ✅
+
+### Previous
+
+- **AST-Based Formula Evaluation**: Refactored formula evaluation to use proper Abstract Syntax Tree
+  - **Created `ast-types.ts`**: Type-safe AST node definitions
+    - Node types: NumberNode, StringNode, CellRefNode, RangeNode, BinaryOpNode, UnaryOpNode, FunctionCallNode
+    - Type guards for safe AST traversal (isNumberNode, isBinaryOpNode, etc.)
+    - Clear representation of formula structure
+  - **Created `ast-parser.ts`**: Dedicated parser that builds AST from tokens
+    - Recursive descent parser with proper operator precedence
+    - Converts flat token stream into hierarchical tree structure
+    - Clean separation from tokenization logic
+  - **Refactored `formula-parser.ts`**: Now only handles tokenization
+    - Lexical analysis: numbers, strings, operators, cell refs, ranges, functions
+    - New `parse()` method that delegates to ASTParser
+    - Maintains backwards compatibility with existing APIs
+  - **Refactored `formula-calculator.ts`**: Now evaluates AST nodes instead of tokens
+    - `evaluate()` method recursively walks AST
+    - Type-safe node handling using type guards
+    - Cleaner separation of parsing and evaluation concerns
+  - **Architecture improvements**:
+    ```
+    formula-parser.ts → tokenize() → [Token]
+                     ↓
+    ast-parser.ts    → parse()    → ASTNode (tree structure)
+                     ↓
+    formula-calculator.ts → evaluate() → number | string | array
+    ```
+  - **Benefits**:
+    - Clear separation between parsing and evaluation
+    - Can inspect/transform AST before evaluation
+    - Easier to add features like formula visualization or optimization
+    - More maintainable and testable architecture
+  - **Added comprehensive tests**: New test suite for `parse()` method validates AST structure
+  - **All tests passing** ✅ (513 tests)
+  - **No functional changes** - Pure architectural refactoring
+
+### Previous
+
+- **Module Refactoring**: Split large files into focused, maintainable modules
+  - Created `range-utils.ts` for range operations
+  - Created `function-executor.ts` for function implementations
+  - Reduced `formula-calculator.ts` and `formula-parser.ts` complexity
+  - Clear module boundaries and dependencies
+
+### Previous
+
+- **Range Expressions**: Full support for cell ranges in formulas
+  - **Range syntax**: `A1:B3` expands to all cells in the rectangular region
+  - **Tokenization**: Added `RANGE` token type to formula-parser.ts
+  - **Range expansion**: `expandRange()` converts `A1:B3` into array of cell IDs (column-by-column order)
+  - **Column conversion utilities**: `columnToNumber()` and `numberToColumn()` for A↔1, Z↔26, AA↔27, etc.
+  - **Dependency tracking**: `extractCellReferences()` automatically expands ranges for dependency graph
+  - **Function support**: SUM, AVERAGE, MIN, MAX, COUNT accept ranges as arguments
+  - **Mixed arguments**: Functions can accept both ranges and individual cells: `SUM(A1:A5, B1, C1:C3)`
+  - **Multiple ranges**: Functions can accept multiple ranges: `AVERAGE(A1:A5, B1:B5)`
+  - **Empty cell handling**: Empty cells in ranges are skipped (don't contribute to calculations)
+  - **Error handling**: Clear errors for invalid ranges (reversed, malformed) and misuse (ranges in expressions)
+  - **Type safety**: ParseResult now supports arrays for range values
+  - **Flattening**: `flattenArgs()` helper automatically flattens nested arrays from ranges
+  - **Restrictions**: Ranges can only be used as function arguments, not directly in arithmetic/comparisons
+  - **Comprehensive tests**: 60+ tests covering tokenization, expansion, functions, error handling
+  - **Documentation**: Updated README.md with range syntax, examples, and error messages
+
+### Previous
 
 - **Keyboard Deletion Enhancement**: Improved cell deletion behavior
   - **Delete/Backspace keys**: When a cell is focused (but formula bar is NOT focused), pressing Delete or Backspace now immediately clears the entire cell contents

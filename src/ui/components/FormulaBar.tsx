@@ -1,8 +1,8 @@
 import { useState, useEffect, forwardRef } from 'react';
-import { useSpreadsheet } from '../SpreadsheetContext';
+import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { FunctionMenu } from './FunctionMenu';
 import { InfoButton } from './InfoButton';
-import { CellFormat } from '../../core/types';
+import { CellFormat } from '../../types/core';
 
 export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_props, ref) {
   const { spreadsheet, selectedCell, setCellFormat, clearSpreadsheet } = useSpreadsheet();

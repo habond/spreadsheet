@@ -1,5 +1,5 @@
-import { CellID } from '../../core/types';
-import { useSpreadsheet } from '../SpreadsheetContext';
+import { CellID } from '../../types/core';
+import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 
 interface CellProps {
   cellId: CellID;

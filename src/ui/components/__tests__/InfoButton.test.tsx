@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
 import { InfoButton } from '../InfoButton';
-import { SpreadsheetProvider } from '../../SpreadsheetContext';
+import { SpreadsheetProvider } from '../../contexts/SpreadsheetContext';
 
 describe('InfoButton', () => {
   const setup = () => {

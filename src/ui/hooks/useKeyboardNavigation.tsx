@@ -1,5 +1,5 @@
 import { useEffect, RefObject } from 'react';
-import { useSpreadsheet } from '../SpreadsheetContext';
+import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 
 export function useKeyboardNavigation(formulaInputRef: RefObject<HTMLInputElement | null> | null) {
   const { spreadsheet, selectCell, selectedCell, updateCell } = useSpreadsheet();

@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
 import { Cell } from '../Cell';
-import { SpreadsheetProvider } from '../../SpreadsheetContext';
+import { SpreadsheetProvider } from '../../contexts/SpreadsheetContext';
 
 describe('Cell', () => {
   const mockRef = createRef<HTMLInputElement>();

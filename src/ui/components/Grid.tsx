@@ -1,5 +1,5 @@
 import { useState, MouseEvent, useMemo } from 'react';
-import { useSpreadsheet } from '../SpreadsheetContext';
+import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { Cell } from './Cell';
 
 export function Grid() {
