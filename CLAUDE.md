@@ -353,19 +353,25 @@ LocalStorage integration for automatic state persistence:
 ### Previous
 
 - **Cell Formatting**: Format cells to control display
-  - **Format types**: Raw (default), Date (mm/dd/yyyy), Boolean (1→True, 0→False)
-  - **Date format**: Converts Unix timestamps (ms) to readable dates
-  - **Boolean format**: Displays comparison results (1/0) as True/False
-  - **Format dropdown**: Dynamically enumerated from CellFormat enum in formula bar
+  - **Format types**: Raw (default), Number, Currency, Percentage, Date, Time, Boolean
+    - **Raw**: Display values as-is
+    - **Number**: Thousands separator with 2 decimals (1,234.56)
+    - **Currency**: Dollar format with symbol ($1,234.56)
+    - **Percentage**: Multiply by 100 and add % (0.75 → 75.00%)
+    - **Date**: Format timestamps using browser locale (toLocaleDateString)
+    - **Time**: Format timestamps as time using browser locale (toLocaleTimeString)
+    - **Boolean**: Display 1 as "True", 0 as "False"
+  - **Locale support**: All formatters use browser locale (undefined) for internationalization
+  - **Format dropdown**: Grouped dropdown with visual separators in formula bar
   - **Format persistence**: Saved in localStorage with cell data
-  - **Fallback handling**: Invalid dates/booleans fall back to Raw formatting
+  - **Fallback handling**: Invalid values fall back to Raw formatting
   - Created `cell-formatter.ts` utility with `formatCellValue()` function
-  - Added `CellFormat` enum in types.ts (Raw, Date, Boolean)
+  - Added `CellFormat` enum in types.ts with all format types
   - Updated `CellResultStore` to use formatter utility
   - Updated `Spreadsheet` class with `getCellFormat()` and `setCellFormat()`
   - Added `setCellFormat()` to SpreadsheetContext
-  - Added 21 test cases for formatting functionality (280 total tests)
-  - Professional CSS styling for format dropdown with custom arrow
+  - Added 43 test cases for formatting functionality (318 total tests)
+  - Professional CSS styling for format dropdown with grouped options
   - Updated InfoDisplay to show raw value, display value, and errors
 
 - **New Functions & Operators**: Expanded formula capabilities

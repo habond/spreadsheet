@@ -17,7 +17,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Dependency tracking** with automatic cascading updates
 - **Circular dependency detection** with clear error messages
 - **Comprehensive error handling** for all edge cases
-- **Cell formatting**: Raw, Date (mm/dd/yyyy), Boolean (1→True, 0→False)
+- **Cell formatting**: Number (1,234.56), Currency ($1,234.56), Percentage (75.00%), Date, Time, Boolean (1→True, 0→False)
 
 ### User Interface
 
@@ -66,7 +66,14 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
    - Cell A1 is automatically selected and the formula bar is focused
    - Type a value or formula in the formula bar
    - Click the **ƒx button** to insert a function from the menu
-   - **Cell formatting**: Use the dropdown to format cells as "Raw" (default), "Date" (mm/dd/yyyy), or "Boolean" (1→True, 0→False)
+   - **Cell formatting**: Use the dropdown to format cells:
+     - **Raw**: Display values as-is (default)
+     - **Number**: Thousands separator with 2 decimals (1,234.56)
+     - **Currency**: Dollar format with symbol ($1,234.56)
+     - **Percentage**: Multiply by 100 and add % (0.75 → 75.00%)
+     - **Date**: Format timestamps as localized date
+     - **Time**: Format timestamps as localized time
+     - **Boolean**: Display 1 as "True", 0 as "False"
    - Click the **ⓘ button** to view current cell information
    - Press Enter to commit and move down
    - Press Tab to commit and move right
@@ -272,17 +279,28 @@ A4: =A3 * 2         → automatically updates to 40
 A5: =SUM(A3, A4)    → automatically updates to 60
 ```
 
-### Date Formatting
+### Cell Formatting Examples
 
 ```
-A1: =NOW()              → displays timestamp (e.g., 1704067200000)
-(Set A1 format to Date) → displays formatted date (e.g., 01/01/2024)
+A1: 1234567.89
+(Set format to Number)     → displays 1,234,567.89
+(Set format to Currency)   → displays $1,234,567.89
 
-A2: =DATE(2024, 3, 15)  → displays timestamp
-(Set A2 format to Date) → displays 03/15/2024
+A2: 0.75
+(Set format to Percentage) → displays 75.00%
 
-A3: =TODAY()            → displays current date timestamp
-(Set A3 format to Date) → displays current date as mm/dd/yyyy
+A3: =NOW()
+(Set format to Date)       → displays localized date (e.g., 01/01/2024)
+(Set format to Time)       → displays localized time (e.g., 2:30:45 PM)
+
+A4: =DATE(2024, 3, 15)
+(Set format to Date)       → displays 03/15/2024
+
+A5: =5 > 3
+(Set format to Boolean)    → displays True
+
+A6: =TODAY()
+(Set format to Date)       → displays current date in localized format
 ```
 
 ### Circular Dependency Detection
@@ -308,10 +326,14 @@ The spreadsheet provides clear error messages:
 ### Formula Bar
 
 - **Function Menu (ƒx)**: Click to see all supported functions and insert them into formulas
-- **Format Dropdown**: Select cell format (Raw, Date, or Boolean)
+- **Format Dropdown**: Select cell format with grouped options
   - **Raw**: Display values as-is (default)
-  - **Date**: Format Unix timestamps (ms) as mm/dd/yyyy
-  - **Boolean**: Display 1 as "True", 0 as "False", other values as-is
+  - **Number**: Thousands separator with 2 decimals (1,234.56)
+  - **Currency**: Dollar format with symbol ($1,234.56)
+  - **Percentage**: Multiply by 100 and add % (0.75 → 75.00%)
+  - **Date**: Format timestamps using browser locale
+  - **Time**: Format timestamps as time using browser locale
+  - **Boolean**: Display 1 as "True", 0 as "False"
 - **Info Button (ⓘ)**: Click to view current cell information in a popover
 - **Clear Button**: Red button to reset all spreadsheet data (with confirmation dialog)
 - **Formula Input**: Type values or formulas directly, with autocomplete disabled for better control
@@ -358,7 +380,7 @@ Potential additions to explore:
 - **Cell ranges**: `=SUM(A1:A10)` for range operations
 - **Range-based functions**: `VLOOKUP`, `COUNTIF`, `SUMIF` (requires range support)
 - **Conditional formatting**: Color cells based on values
-- **Cell formatting**: Number formats, colors, fonts, alignment
+- **Advanced cell formatting**: Colors, fonts, alignment, custom number formats
 - **Multiple sheets**: Tabs for different worksheets
 - **Undo/redo**: History management for changes
 - **Copy/paste**: Cell and formula copying

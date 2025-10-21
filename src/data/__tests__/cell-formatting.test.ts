@@ -125,6 +125,154 @@ describe('Cell Formatting', () => {
     });
   });
 
+  describe('Number format', () => {
+    it('should format numbers with thousands separator and 2 decimals', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Number);
+      cellResultStore.set('A1', { value: 1234567.89, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('1,234,567.89');
+    });
+
+    it('should add .00 for whole numbers', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Number);
+      cellResultStore.set('A1', { value: 1234, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('1,234.00');
+    });
+
+    it('should round to 2 decimal places', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Number);
+      cellResultStore.set('A1', { value: 1234.5678, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('1,234.57');
+    });
+
+    it('should handle negative numbers', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Number);
+      cellResultStore.set('A1', { value: -1234.56, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('-1,234.56');
+    });
+
+    it('should fall back to Raw for non-numeric values', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Number);
+      cellResultStore.set('A1', { value: 'not a number', error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('not a number');
+    });
+  });
+
+  describe('Currency format', () => {
+    it('should format numbers as USD currency', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Currency);
+      cellResultStore.set('A1', { value: 1234.56, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('$1,234.56');
+    });
+
+    it('should handle negative amounts', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Currency);
+      cellResultStore.set('A1', { value: -1234.56, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('-$1,234.56');
+    });
+
+    it('should add .00 for whole numbers', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Currency);
+      cellResultStore.set('A1', { value: 100, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('$100.00');
+    });
+
+    it('should handle zero', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Currency);
+      cellResultStore.set('A1', { value: 0, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('$0.00');
+    });
+
+    it('should fall back to Raw for non-numeric values', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Currency);
+      cellResultStore.set('A1', { value: 'not a number', error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('not a number');
+    });
+  });
+
+  describe('Percentage format', () => {
+    it('should multiply by 100 and add % sign', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Percentage);
+      cellResultStore.set('A1', { value: 0.75, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('75.00%');
+    });
+
+    it('should handle whole numbers', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Percentage);
+      cellResultStore.set('A1', { value: 1, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('100.00%');
+    });
+
+    it('should handle values greater than 1', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Percentage);
+      cellResultStore.set('A1', { value: 2.5, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('250.00%');
+    });
+
+    it('should handle negative percentages', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Percentage);
+      cellResultStore.set('A1', { value: -0.25, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('-25.00%');
+    });
+
+    it('should round to 2 decimal places', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Percentage);
+      cellResultStore.set('A1', { value: 0.12345, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('12.35%');
+    });
+
+    it('should fall back to Raw for non-numeric values', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Percentage);
+      cellResultStore.set('A1', { value: 'not a number', error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('not a number');
+    });
+  });
+
+  describe('Time format', () => {
+    it('should format timestamps as 12-hour time', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Time);
+      // Create a timestamp for 2:30:45 PM
+      const date = new Date(2024, 0, 1, 14, 30, 45);
+      cellResultStore.set('A1', { value: date.getTime(), error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('2:30:45 PM');
+    });
+
+    it('should handle midnight', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Time);
+      const date = new Date(2024, 0, 1, 0, 0, 0);
+      cellResultStore.set('A1', { value: date.getTime(), error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('12:00:00 AM');
+    });
+
+    it('should handle noon', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Time);
+      const date = new Date(2024, 0, 1, 12, 0, 0);
+      cellResultStore.set('A1', { value: date.getTime(), error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('12:00:00 PM');
+    });
+
+    it('should work with NOW() function results', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Time);
+      const now = new Date();
+      cellResultStore.set('A1', { value: now.getTime(), error: null });
+
+      // Just check that it has the right format
+      const displayValue = cellResultStore.getDisplayValue('A1');
+      expect(displayValue).toMatch(/^\d{1,2}:\d{2}:\d{2} (AM|PM)$/);
+    });
+
+    it('should fall back to Raw for non-numeric values', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Time);
+      cellResultStore.set('A1', { value: 'not a number', error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('not a number');
+    });
+
+    it('should fall back to Raw for invalid dates', () => {
+      spreadsheet.setCellFormat('A1', CellFormat.Time);
+      cellResultStore.set('A1', { value: NaN, error: null });
+      expect(cellResultStore.getDisplayValue('A1')).toBe('NaN');
+    });
+  });
+
   describe('Boolean format', () => {
     it('should format 1 as True', () => {
       spreadsheet.setCellFormat('A1', CellFormat.Boolean);

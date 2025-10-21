@@ -27,6 +27,10 @@ export interface FunctionInfo {
  */
 export enum CellFormat {
   Raw = 'Raw',
+  Number = 'Number',
+  Currency = 'Currency',
+  Percentage = 'Percentage',
   Date = 'Date',
+  Time = 'Time',
   Boolean = 'Boolean',
 }

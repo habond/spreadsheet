@@ -93,11 +93,16 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
         onChange={handleFormatChange}
         title="Cell format"
       >
-        {Object.values(CellFormat).map(format => (
-          <option key={format} value={format}>
-            {format}
-          </option>
-        ))}
+        <option value={CellFormat.Raw}>{CellFormat.Raw}</option>
+        <option disabled>──────────</option>
+        <option value={CellFormat.Number}>{CellFormat.Number}</option>
+        <option value={CellFormat.Currency}>{CellFormat.Currency}</option>
+        <option value={CellFormat.Percentage}>{CellFormat.Percentage}</option>
+        <option disabled>──────────</option>
+        <option value={CellFormat.Date}>{CellFormat.Date}</option>
+        <option value={CellFormat.Time}>{CellFormat.Time}</option>
+        <option disabled>──────────</option>
+        <option value={CellFormat.Boolean}>{CellFormat.Boolean}</option>
       </select>
       <input
         ref={ref}
