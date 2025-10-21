@@ -1,5 +1,5 @@
 import { FormulaParseError } from '../errors/FormulaParseError';
-import { expandRange } from '../utils/range-helpers';
+import { expandRange } from './helpers';
 import type { Token, TokenType } from './tokenizer';
 import {
   ASTNode,

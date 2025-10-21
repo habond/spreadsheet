@@ -1,6 +1,6 @@
 import { CellID } from '../types/core';
 import { FormulaParseError } from '../errors/FormulaParseError';
-import { columnToNumber, numberToColumn } from './column-utils';
+import { columnToNumber, numberToColumn } from '../utils/column-utils';
 
 /**
  * Pure utility functions for working with cell ranges

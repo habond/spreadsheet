@@ -3,7 +3,7 @@
  */
 
 import { CellID } from '../types/core';
-import { expandRange } from '../utils/range-helpers';
+import { expandRange } from './helpers';
 import { ASTNode } from '../types/ast';
 import { tokenize } from './tokenizer';
 import { ASTParser } from './ast-parser';

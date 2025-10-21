@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { expandRange } from '../range-helpers';
-import { columnToNumber, numberToColumn } from '../column-utils';
+import { expandRange } from '../helpers';
+import { columnToNumber, numberToColumn } from '../../utils/column-utils';
 import { FormulaParseError } from '../../errors/FormulaParseError';
 
 describe('range-helpers', () => {

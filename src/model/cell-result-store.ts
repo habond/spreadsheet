@@ -1,5 +1,5 @@
 import { CellID, EvalResult, CellFormat } from '../types/core';
-import { formatCellValue } from '../utils/cell-formatter';
+import { formatCellValue } from '../formatter/cell-formatter';
 
 /**
  * Manages evaluation results for all cells in the spreadsheet.

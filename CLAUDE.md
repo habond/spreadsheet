@@ -29,7 +29,8 @@ src/
 ├── parser/                  # Formula parsing (pure, stateless)
 │   ├── tokenizer.ts         # Lexical analysis
 │   ├── ast-parser.ts        # Builds AST from tokens
-│   └── formula-parser.ts    # parse(), extractCellReferences()
+│   ├── formula-parser.ts    # parse(), extractCellReferences()
+│   └── helpers.ts           # expandRange utility
 ├── evaluator/               # Formula evaluation (stateless)
 │   ├── formula-evaluator.ts # Evaluates AST nodes
 │   └── functions/           # Function implementations (one per file)
@@ -43,9 +44,17 @@ src/
 │   ├── dependency-graph.ts  # Tracks cell dependencies
 │   └── eval-engine.ts       # Main orchestrator
 ├── utils/                   # Pure utility functions
-│   ├── column-utils.ts      # Column letter/number conversion (columnToNumber, numberToColumn)
-│   ├── range-helpers.ts     # Range operations (expandRange)
-│   └── cell-formatter.ts    # Display formatting
+│   └── column-utils.ts      # Column letter/number conversion (columnToNumber, numberToColumn)
+├── formatter/               # Cell formatting (one per format type)
+│   ├── helpers.ts           # toNumberOrFallback helper
+│   ├── format-raw.ts        # Raw format (no formatting)
+│   ├── format-number.ts     # Number format (1,234.56)
+│   ├── format-currency.ts   # Currency format ($1,234.56)
+│   ├── format-percentage.ts # Percentage format (75.00%)
+│   ├── format-date.ts       # Date format
+│   ├── format-time.ts       # Time format
+│   ├── format-boolean.ts    # Boolean format (True/False)
+│   └── cell-formatter.ts    # Main formatter orchestrator
 ├── model/                   # Data model layer
 │   ├── spreadsheet.ts       # Cell storage & navigation
 │   ├── cell-result-store.ts # Evaluation cache with JSDoc
@@ -83,16 +92,17 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 - **Types**: Centralized type definitions (CellID, EvalResult, AST nodes)
 - **Errors**: Custom error classes (one per file)
 - **Constants**: Application-wide configuration values
-- **Parser**: Pure parsing logic (tokenization → AST)
+- **Parser**: Pure parsing logic (tokenization → AST, range expansion)
 - **Evaluator**: Pure evaluation logic (AST → result, function implementations - one per file)
 - **Engine**: Orchestration (dependency tracking, evaluation order)
-- **Utils**: Pure utility functions (range operations, formatting)
+- **Utils**: Pure utility functions (column conversions)
+- **Formatter**: Cell formatting functions (one per format type)
 - **Model**: Data model layer (Spreadsheet, CellResultStore, localStorage)
 - **UI**: React components (App, Grid, Cell, FormulaBar, FunctionMenu, InfoButton, ErrorBoundary)
 - **Hooks**: Reusable custom hooks (useKeyboardNavigation, useClickOutside, useDebounce)
 - **Contexts**: React Context providers (SpreadsheetContext with memoized values and debounced persistence)
 
-**Dependency Flow**: `types` → `errors` → `constants` → `utils` → `parser` → `evaluator` → `engine` → `model` → `ui`
+**Dependency Flow**: `types` → `errors` → `constants` → `utils` → `parser` → `evaluator` → `engine` → `formatter` → `model` → `ui`
 
 ### Formula Evaluation
 
@@ -153,6 +163,8 @@ The formula evaluation system uses a three-phase architecture:
 - Engine: `import { EvalEngine } from '../engine/eval-engine'`
 - Constants: `import { DEFAULT_COLUMN_WIDTH } from '../constants/app-constants'`
 - Utils: `import { columnToNumber } from '../utils/column-utils'`
+- Formatters: `import { formatAsNumber } from '../formatter/format-number'`
+- Formatter Main: `import { formatCellValue } from '../formatter/cell-formatter'`
 - Model: `import { Spreadsheet } from '../model/spreadsheet'`
 
 **Other conventions:**
@@ -216,6 +228,20 @@ The formula evaluation system uses a three-phase architecture:
 
 **Important**: Each function has its own file. Use the helper factories in `helpers.ts` to reduce boilerplate.
 
+### Add a New Formatter
+
+1. Create a new file in `src/formatter/` (e.g., `format-scientific.ts`)
+2. Implement the formatter function:
+   - Use `toNumberOrFallback()` from `helpers.ts` if you need numeric validation
+   - Return formatted string or fall back to raw display for invalid values
+   - Handle null values appropriately
+3. Add new format type to `CellFormat` enum in `types/core.ts`
+4. Import and add case to `formatCellValue()` switch in `cell-formatter.ts`
+5. Write tests in `__tests__/format-scientific.test.ts`
+6. Add format option to dropdown in `FormulaBar.tsx`
+
+**Important**: Each formatter has its own file. Follow the same pattern as existing formatters (format-number.ts, format-currency.ts, etc.).
+
 ### Add a New Component
 
 1. Create `.tsx` file in `ui/components/`
@@ -227,9 +253,9 @@ The formula evaluation system uses a three-phase architecture:
 
 ### Add a New Module
 
-1. Place in appropriate layer (types, errors, constants, parser, evaluator, engine, utils, model, or ui)
+1. Place in appropriate layer (types, errors, constants, parser, evaluator, engine, utils, formatter, model, or ui)
 2. Import types from `types/core.ts`
-3. Follow the dependency flow: types → errors → constants → utils → parser → evaluator → engine → model → ui
+3. Follow the dependency flow: types → errors → constants → utils → parser → evaluator → engine → formatter → model → ui
 4. Maintain separation of concerns
 
 ### Refactor Imports
@@ -400,6 +426,37 @@ LocalStorage integration for automatic state persistence:
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Parser Module Consolidation**: Moved range-helpers into parser module
+  - **Moved `range-helpers.ts` → `parser/helpers.ts`**: Range expansion is parser-specific functionality
+    - Only used by `ast-parser.ts` and `formula-parser.ts`
+    - `expandRange()` is a parsing utility, not a general-purpose utility
+  - **Updated imports**: Changed `../utils/range-helpers` → `./helpers` in parser files
+  - **Updated tests**: Moved test file to `parser/__tests__/helpers.test.ts`
+  - **Simplified utils/**: Now only contains `column-utils.ts` (truly general-purpose)
+  - **Benefits**:
+    - Better encapsulation - parser utilities live with parser code
+    - Clearer module boundaries - utils/ is now only for cross-cutting utilities
+    - Easier to understand parser dependencies at a glance
+
+- **Formatter Module Refactoring**: Reorganized cell formatting with one formatter per file
+  - **Created `src/formatter/` directory**: New top-level module for cell formatting
+    - 8 individual formatter files: `format-raw.ts`, `format-number.ts`, `format-currency.ts`, `format-percentage.ts`, `format-date.ts`, `format-time.ts`, `format-boolean.ts`
+    - `helpers.ts` with shared `toNumberOrFallback()` utility
+    - `cell-formatter.ts` as main orchestrator (formatCellValue function)
+  - **Individual test files**: Each formatter has its own test file with comprehensive coverage
+    - Split tests from `model/__tests__/cell-formatting.test.ts` into 7 individual test files
+    - Integration tests remain in model layer, unit tests in formatter layer
+  - **Updated imports**: Changed `../utils/cell-formatter` → `../formatter/cell-formatter`
+  - **Removed old file**: Deleted `src/utils/cell-formatter.ts`
+  - **Benefits**:
+    - Consistent with function implementations pattern (one per file)
+    - Each formatter is independently testable and importable
+    - Clear separation between formatting logic and data model
+    - Easier to add new formatters (just add a new file)
+    - Better code organization following established patterns
+
+### Previous
 
 - **Final Code Organization Refinements**: Maximum granularity for clarity and maintainability
   - **One function per file**: Split all function implementations into individual files

@@ -220,7 +220,8 @@ src/
 ├── parser/                     # Formula parsing (pure, stateless)
 │   ├── tokenizer.ts            - Lexical analysis
 │   ├── ast-parser.ts           - Builds AST from tokens
-│   └── formula-parser.ts       - parse(), extractCellReferences()
+│   ├── formula-parser.ts       - parse(), extractCellReferences()
+│   └── helpers.ts              - Range expansion utilities
 ├── evaluator/                  # Formula evaluation (stateless)
 │   ├── formula-evaluator.ts    - Evaluates AST nodes
 │   └── functions/              # Function implementations (one per file)
@@ -235,9 +236,17 @@ src/
 │   ├── dependency-graph.ts     - Tracks cell dependencies
 │   └── eval-engine.ts          - Main orchestrator
 ├── utils/                      # Pure utility functions
-│   ├── column-utils.ts         - Column letter/number conversion
-│   ├── range-helpers.ts        - Range operations (expandRange)
-│   └── cell-formatter.ts       - Display formatting
+│   └── column-utils.ts         - Column letter/number conversion
+├── formatter/                  # Cell formatting (one per format type)
+│   ├── helpers.ts              - Shared formatting utilities
+│   ├── format-raw.ts           - Raw format (no formatting)
+│   ├── format-number.ts        - Number format (1,234.56)
+│   ├── format-currency.ts      - Currency format ($1,234.56)
+│   ├── format-percentage.ts    - Percentage format (75.00%)
+│   ├── format-date.ts          - Date format
+│   ├── format-time.ts          - Time format
+│   ├── format-boolean.ts       - Boolean format (True/False)
+│   └── cell-formatter.ts       - Main formatter orchestrator
 ├── model/                      # Data model layer
 │   ├── spreadsheet.ts          - Cell storage & navigation
 │   ├── cell-result-store.ts    - Evaluation cache
