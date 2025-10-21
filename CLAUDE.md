@@ -224,6 +224,24 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **Cell Formatting**: Format cells to control display
+  - **Format types**: Raw (default), Date (mm/dd/yyyy), Boolean (1→True, 0→False)
+  - **Date format**: Converts Unix timestamps (ms) to readable dates
+  - **Boolean format**: Displays comparison results (1/0) as True/False
+  - **Format dropdown**: Dynamically enumerated from CellFormat enum in formula bar
+  - **Format persistence**: Saved in localStorage with cell data
+  - **Fallback handling**: Invalid dates/booleans fall back to Raw formatting
+  - Created `cell-formatter.ts` utility with `formatCellValue()` function
+  - Added `CellFormat` enum in types.ts (Raw, Date, Boolean)
+  - Updated `CellResultStore` to use formatter utility
+  - Updated `Spreadsheet` class with `getCellFormat()` and `setCellFormat()`
+  - Added `setCellFormat()` to SpreadsheetContext
+  - Added 21 test cases for formatting functionality (280 total tests)
+  - Professional CSS styling for format dropdown with custom arrow
+  - Updated InfoDisplay to show raw value, display value, and errors
+
+### Previous
+
 - **New Functions & Operators**: Expanded formula capabilities
   - **String functions**: `CONCATENATE`/`CONCAT`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`
   - **Logical functions**: `IF` for conditional logic
@@ -236,8 +254,6 @@ LocalStorage integration for automatic state persistence:
   - Comparison precedence below arithmetic operations
   - Comparisons return 1 (true) or 0 (false) like Excel
   - Added 90+ new test cases for all new functions and operators
-
-### Previous
 
 - **LocalStorage Persistence**: Automatic save/restore of all spreadsheet data
   - Auto-save on every change (cells, column widths, row heights)
