@@ -8,7 +8,7 @@ interface CellProps {
 }
 
 export function Cell({ cellId, row, col }: CellProps) {
-  const { cellResultStore, selectedCell, selectCell } = useSpreadsheet();
+  const { cellResultStore, selectedCell, selectCell, formulaInputRef } = useSpreadsheet();
 
   const result = cellResultStore.get(cellId);
   const displayValue = cellResultStore.getDisplayValue(cellId);
@@ -16,6 +16,12 @@ export function Cell({ cellId, row, col }: CellProps) {
 
   const handleClick = () => {
     selectCell(cellId);
+  };
+
+  const handleDoubleClick = () => {
+    if (formulaInputRef?.current) {
+      formulaInputRef.current.focus();
+    }
   };
 
   return (
@@ -26,6 +32,7 @@ export function Cell({ cellId, row, col }: CellProps) {
       data-col={col}
       data-testid={`cell-${cellId}`}
       onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       title={result?.error || ''}
     >
       {displayValue}

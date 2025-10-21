@@ -38,7 +38,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Type-safe function definitions** with centralized metadata
 - **Performance optimized** with memoization and debouncing
 - **ESLint** with React and React Hooks rules
-- **Comprehensive test coverage**: 295 tests with Vitest + React Testing Library
+- **Comprehensive test coverage** with Vitest + React Testing Library
 
 ## Getting Started
 
@@ -63,10 +63,11 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
    - `npm run test:run` - Run tests once
 
 3. **Use the spreadsheet:**
-   - Cell A1 is automatically selected and the formula bar is focused
-   - Type a value or formula in the formula bar
-   - Click the **ƒx button** to insert a function from the menu
-   - **Cell formatting**: Use the dropdown to format cells:
+   - Cell A1 is automatically selected
+   - **Editing**: Click a cell or start typing to edit in the formula bar
+   - **Double-click**: Double-click a cell to focus the formula bar for editing
+   - **Function menu**: Click the **ƒx button** to insert a function from the dropdown menu
+   - **Cell formatting**: Use the format dropdown to style cell values:
      - **Raw**: Display values as-is (default)
      - **Number**: Thousands separator with 2 decimals (1,234.56)
      - **Currency**: Dollar format with symbol ($1,234.56)
@@ -74,14 +75,15 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
      - **Date**: Format timestamps as localized date
      - **Time**: Format timestamps as localized time
      - **Boolean**: Display 1 as "True", 0 as "False"
-   - Click the **ⓘ button** to view current cell information
-   - Press Enter to commit and move down
-   - Press Tab to commit and move right
-   - Use arrow keys to navigate between cells
-   - **Resize columns**: Hover over column header edge and drag
-   - **Resize rows**: Hover over row header edge and drag
-   - **Data persistence**: All changes are automatically saved to browser localStorage
-   - **Clear data**: Click the red "Clear" button to reset all data (with confirmation)
+   - **Cell info**: Click the **ⓘ button** to view current cell details (raw value, display value, errors)
+   - **Keyboard navigation**:
+     - **Arrow keys**: Navigate between cells (works anytime, even while editing)
+     - **Enter**: Save value and move down (Shift+Enter moves up)
+     - **Tab**: Save value and move right (Shift+Tab moves left)
+     - **Delete/Backspace**: Clear cell contents (when cell is focused but formula bar is not)
+   - **Resizing**: Hover over column/row header edges and drag to resize
+   - **Persistence**: All changes auto-save to browser localStorage
+   - **Clear data**: Click the red "Clear" button to reset all data (requires confirmation)
 
 ## Formula Syntax
 
@@ -203,8 +205,7 @@ src/
 │   │   ├── Cell.tsx            - Individual cell component
 │   │   ├── FormulaBar.tsx      - Formula input with function & format menu
 │   │   ├── FunctionMenu.tsx    - Dropdown menu of functions
-│   │   ├── InfoButton.tsx      - Info popover button
-│   │   ├── InfoDisplay.tsx     - Cell information display
+│   │   ├── InfoButton.tsx      - Info popover with cell display
 │   │   └── ErrorBoundary.tsx   - Error handling component
 │   ├── hooks/                  # Custom hooks
 │   │   ├── useKeyboardNavigation.tsx

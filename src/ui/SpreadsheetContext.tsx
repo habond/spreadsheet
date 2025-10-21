@@ -6,6 +6,7 @@ import {
   useEffect,
   useMemo,
   ReactNode,
+  RefObject,
 } from 'react';
 import { Spreadsheet } from '../data/spreadsheet';
 import { EvalEngine } from '../core/eval-engine';
@@ -30,6 +31,7 @@ interface SpreadsheetContextType {
   setCellFormat: (cellId: CellID, format: CellFormat) => void;
   clearSpreadsheet: () => void;
   forceUpdate: () => void;
+  formulaInputRef: RefObject<HTMLInputElement | null> | null;
 }
 
 const SpreadsheetContext = createContext<SpreadsheetContextType | undefined>(undefined);
@@ -38,9 +40,15 @@ interface SpreadsheetProviderProps {
   children: ReactNode;
   rows?: number;
   cols?: number;
+  formulaInputRef: RefObject<HTMLInputElement | null> | null;
 }
 
-export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: SpreadsheetProviderProps) {
+export function SpreadsheetProvider({
+  children,
+  rows = 20,
+  cols = 10,
+  formulaInputRef,
+}: SpreadsheetProviderProps) {
   const [updateTrigger, setUpdateTrigger] = useState(0);
   const forceUpdate = useCallback(() => setUpdateTrigger(prev => prev + 1), []);
 
@@ -168,6 +176,7 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
       setCellFormat,
       clearSpreadsheet,
       forceUpdate,
+      formulaInputRef,
     }),
     [
       state,
@@ -180,6 +189,7 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
       setCellFormat,
       clearSpreadsheet,
       forceUpdate,
+      formulaInputRef,
     ]
   );
 

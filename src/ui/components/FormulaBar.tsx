@@ -1,12 +1,11 @@
-import { useState, useEffect, forwardRef, KeyboardEvent } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { useSpreadsheet } from '../SpreadsheetContext';
 import { FunctionMenu } from './FunctionMenu';
 import { InfoButton } from './InfoButton';
 import { CellFormat } from '../../core/types';
 
 export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_props, ref) {
-  const { spreadsheet, selectedCell, updateCell, selectCell, setCellFormat, clearSpreadsheet } =
-    useSpreadsheet();
+  const { spreadsheet, selectedCell, setCellFormat, clearSpreadsheet } = useSpreadsheet();
   const [formulaValue, setFormulaValue] = useState('');
   const [currentFormat, setCurrentFormat] = useState<CellFormat>(CellFormat.Raw);
 
@@ -17,43 +16,8 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
       const format = spreadsheet.getCellFormat(selectedCell);
       setFormulaValue(content);
       setCurrentFormat(format);
-      // Focus the input if it's a ref object
-      if (ref && typeof ref !== 'function' && ref.current) {
-        ref.current.focus();
-      }
     }
-  }, [selectedCell, spreadsheet, ref]);
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === 'Tab') {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
-
-  const handleSubmit = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (!selectedCell) return;
-
-    // Update the cell content
-    updateCell(selectedCell, formulaValue);
-
-    // Navigate to next cell
-    let nextCellId: string | null = null;
-
-    if (e.key === 'Enter') {
-      nextCellId = spreadsheet.navigateDown();
-    } else if (e.key === 'Tab') {
-      if (e.shiftKey) {
-        nextCellId = spreadsheet.navigateLeft();
-      } else {
-        nextCellId = spreadsheet.navigateRight();
-      }
-    }
-
-    if (nextCellId) {
-      selectCell(nextCellId);
-    }
-  };
+  }, [selectedCell, spreadsheet]);
 
   const handleFunctionSelect = (functionName: string) => {
     setFormulaValue(`=${functionName}()`);
@@ -111,7 +75,6 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
         placeholder="Enter value or formula (e.g., =ADD(A1, B2))"
         value={formulaValue}
         onChange={e => setFormulaValue(e.target.value)}
-        onKeyDown={handleKeyDown}
         autoComplete="off"
       />
       <InfoButton />

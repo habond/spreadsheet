@@ -2,10 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
+import { createRef } from 'react';
 import { Cell } from '../Cell';
 import { SpreadsheetProvider } from '../../SpreadsheetContext';
 
 describe('Cell', () => {
+  const mockRef = createRef<HTMLInputElement>();
+
   const defaultProps = {
     cellId: 'A1',
     row: 0,
@@ -14,7 +17,7 @@ describe('Cell', () => {
 
   const renderCell = (props = defaultProps) => {
     return render(
-      <SpreadsheetProvider>
+      <SpreadsheetProvider rows={20} cols={10} formulaInputRef={mockRef}>
         <Cell {...props} />
       </SpreadsheetProvider>
     );

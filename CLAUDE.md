@@ -36,8 +36,7 @@ src/
 │   │   ├── Cell.tsx         # Individual cell
 │   │   ├── FormulaBar.tsx   # Formula input with function & format menus
 │   │   ├── FunctionMenu.tsx # Function dropdown with useClickOutside
-│   │   ├── InfoButton.tsx   # Info popover with useClickOutside
-│   │   ├── InfoDisplay.tsx  # Cell info display
+│   │   ├── InfoButton.tsx   # Info popover with cell display (uses useClickOutside)
 │   │   └── ErrorBoundary.tsx # Error handling component
 │   ├── hooks/               # Custom hooks
 │   │   ├── useKeyboardNavigation.tsx
@@ -62,7 +61,7 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 - **Data**: Pure storage (Spreadsheet, CellResultStore, localStorage)
 - **Core**: Business logic (EvalEngine, parsers, evaluators, custom errors, function metadata)
 - **Utils**: Pure utility functions (constants, cell formatting)
-- **UI**: React components (App with ErrorBoundary, Grid with memoization, Cell, FormulaBar, FunctionMenu, InfoButton)
+- **UI**: React components (App with ErrorBoundary, Grid with memoization, Cell, FormulaBar, FunctionMenu with dropdown, InfoButton with popover)
 - **Hooks**: Reusable custom hooks (useKeyboardNavigation, useClickOutside, useDebounce)
 - **State**: React Context (SpreadsheetContext with memoized values and debounced persistence)
 - **Entry**: main.tsx initialization
@@ -171,7 +170,7 @@ npm run test:coverage  # Generate coverage report
 - Unit tests: `src/**/__tests__/**/*.test.ts`
 - Component tests: `src/ui/components/__tests__/**/*.test.tsx`
 - Hook tests: `src/ui/hooks/__tests__/**/*.test.tsx`
-- Current test count: **295 tests** (280 core/data + 15 UI/hooks)
+- Comprehensive test coverage for all core logic, data layer, UI components, and custom hooks
 
 **Testing Tools:**
 
@@ -317,6 +316,20 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **Keyboard Deletion Enhancement**: Improved cell deletion behavior
+  - **Delete/Backspace keys**: When a cell is focused (but formula bar is NOT focused), pressing Delete or Backspace now immediately clears the entire cell contents
+  - Calls `updateCell(selectedCell, '')` to persist the deletion
+  - Formula bar remains unfocused after deletion
+  - When formula bar IS focused, Delete/Backspace perform normal text editing (single character deletion)
+  - Added 4 comprehensive tests in `useKeyboardNavigation.test.tsx` covering all scenarios
+  - Matches standard spreadsheet behavior (Excel/Google Sheets)
+
+- **Component Consolidation**: Simplified component architecture
+  - **Merged InfoButton + InfoDisplay**: Combined two tightly-coupled components into single InfoButton component
+  - Improved maintainability by co-locating popover UI logic with cell display logic
+  - Consolidated related tests into organized test suites
+  - No functional changes - all tests passing
+
 - **Performance & Code Quality Improvements**: Major refactoring for optimization and maintainability
   - **Custom hooks**: Created `useClickOutside` and `useDebounce` hooks to eliminate code duplication
   - **Performance optimization**:
@@ -334,9 +347,9 @@ LocalStorage integration for automatic state persistence:
       - `InvalidFunctionError` - Used for unknown function names
   - **UI Testing**: Added comprehensive React component and hook tests
     - Installed React Testing Library, user-event, and jest-dom
-    - Added 15 new UI/hook tests (295 total tests)
     - Configured Vitest with jsdom environment for React testing
-    - Tests for ErrorBoundary, Cell component, useClickOutside, useDebounce
+    - Full test coverage for all components: ErrorBoundary, Cell, FormulaBar, FunctionMenu, InfoButton, Grid
+    - Full test coverage for all custom hooks: useClickOutside, useDebounce, useKeyboardNavigation
   - **Code quality**:
     - Extracted magic numbers to named constants (DEFAULT_COLUMN_WIDTH, MIN_ROW_HEIGHT, etc.)
     - Added comprehensive JSDoc comments to CellResultStore
@@ -370,9 +383,8 @@ LocalStorage integration for automatic state persistence:
   - Updated `CellResultStore` to use formatter utility
   - Updated `Spreadsheet` class with `getCellFormat()` and `setCellFormat()`
   - Added `setCellFormat()` to SpreadsheetContext
-  - Added 43 test cases for formatting functionality (318 total tests)
   - Professional CSS styling for format dropdown with grouped options
-  - Updated InfoDisplay to show raw value, display value, and errors
+  - InfoButton displays raw value, display value, and errors
 
 - **New Functions & Operators**: Expanded formula capabilities
   - **String functions**: `CONCATENATE`/`CONCAT`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`
@@ -385,7 +397,6 @@ LocalStorage integration for automatic state persistence:
   - Comparison operators tokenized as `COMPARISON` type
   - Comparison precedence below arithmetic operations
   - Comparisons return 1 (true) or 0 (false) like Excel
-  - Added 90+ new test cases for all new functions and operators
 
 - **LocalStorage Persistence**: Automatic save/restore of all spreadsheet data
   - Auto-save on every change (cells, column widths, row heights)
@@ -404,13 +415,13 @@ LocalStorage integration for automatic state persistence:
 ### Earlier
 
 - **Converted to React**: Replaced vanilla JS with React components
-- **Added React Context**: SpreadsheetContext for state management
-- **Created React components**: App, Grid, Cell, FormulaBar, InfoDisplay
-- **Added custom hooks**: useKeyboardNavigation for keyboard handling
-- **Removed old UI files**: ui-renderer.ts, event-handlers.ts, app.ts
-- **Updated build config**: Added React plugin to Vite, updated tsconfig.json
-- Organized into layered directory structure (core/, data/, ui/)
-- Encapsulated Spreadsheet properties
+  - Added React Context (SpreadsheetContext) for state management
+  - Created React components: App, Grid, Cell, FormulaBar, InfoButton
+  - Added custom hooks: useKeyboardNavigation for keyboard handling
+  - Removed old UI files: ui-renderer.ts, event-handlers.ts, app.ts
+  - Updated build config: Added React plugin to Vite, updated tsconfig.json
+  - Organized into layered directory structure (core/, data/, ui/)
+  - Encapsulated Spreadsheet properties
 
 ## Getting Help
 
