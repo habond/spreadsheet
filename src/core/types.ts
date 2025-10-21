@@ -21,3 +21,12 @@ export interface FunctionInfo {
   description: string;
   aliases?: string[];
 }
+
+/**
+ * Cell formatting options
+ */
+export enum CellFormat {
+  Raw = 'Raw',
+  Date = 'Date',
+  Boolean = 'Boolean',
+}

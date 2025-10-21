@@ -63,6 +63,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
    - Cell A1 is automatically selected and the formula bar is focused
    - Type a value or formula in the formula bar
    - Click the **ƒx button** to insert a function from the menu
+   - **Cell formatting**: Use the dropdown to format cells as "Raw" (default), "Date" (mm/dd/yyyy), or "Boolean" (1→True, 0→False)
    - Click the **ⓘ button** to view current cell information
    - Press Enter to commit and move down
    - Press Tab to commit and move right
@@ -261,6 +262,19 @@ A4: =A3 * 2         → automatically updates to 40
 A5: =SUM(A3, A4)    → automatically updates to 60
 ```
 
+### Date Formatting
+
+```
+A1: =NOW()              → displays timestamp (e.g., 1704067200000)
+(Set A1 format to Date) → displays formatted date (e.g., 01/01/2024)
+
+A2: =DATE(2024, 3, 15)  → displays timestamp
+(Set A2 format to Date) → displays 03/15/2024
+
+A3: =TODAY()            → displays current date timestamp
+(Set A3 format to Date) → displays current date as mm/dd/yyyy
+```
+
 ### Circular Dependency Detection
 
 ```
@@ -284,6 +298,10 @@ The spreadsheet provides clear error messages:
 ### Formula Bar
 
 - **Function Menu (ƒx)**: Click to see all supported functions and insert them into formulas
+- **Format Dropdown**: Select cell format (Raw, Date, or Boolean)
+  - **Raw**: Display values as-is (default)
+  - **Date**: Format Unix timestamps (ms) as mm/dd/yyyy
+  - **Boolean**: Display 1 as "True", 0 as "False", other values as-is
 - **Info Button (ⓘ)**: Click to view current cell information in a popover
 - **Clear Button**: Red button to reset all spreadsheet data (with confirmation dialog)
 - **Formula Input**: Type values or formulas directly, with autocomplete disabled for better control

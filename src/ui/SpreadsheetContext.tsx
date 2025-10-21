@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect, ReactNode 
 import { Spreadsheet } from '../data/spreadsheet';
 import { EvalEngine } from '../core/eval-engine';
 import { CellResultStore } from '../data/cell-result-store';
-import { CellID } from '../core/types';
+import { CellID, CellFormat } from '../core/types';
 import {
   loadSpreadsheetState,
   saveSpreadsheetState,
@@ -18,6 +18,7 @@ interface SpreadsheetContextType {
   updateCell: (cellId: CellID, content: string) => void;
   setColumnWidth: (colIndex: number, width: number) => void;
   setRowHeight: (rowIndex: number, height: number) => void;
+  setCellFormat: (cellId: CellID, format: CellFormat) => void;
   clearSpreadsheet: () => void;
   forceUpdate: () => void;
 }
@@ -37,7 +38,7 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
   // Initialize core components (only once)
   const [state] = useState(() => {
     const spreadsheet = new Spreadsheet(rows, cols);
-    const cellResultStore = new CellResultStore();
+    const cellResultStore = new CellResultStore(cellId => spreadsheet.getCellFormat(cellId));
 
     // Load saved state from localStorage
     const savedState = loadSpreadsheetState();
@@ -112,6 +113,14 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     [state.spreadsheet, forceUpdate]
   );
 
+  const setCellFormat = useCallback(
+    (cellId: CellID, format: CellFormat) => {
+      state.spreadsheet.setCellFormat(cellId, format);
+      forceUpdate();
+    },
+    [state.spreadsheet, forceUpdate]
+  );
+
   const clearSpreadsheet = useCallback(() => {
     state.spreadsheet.clear();
     state.cellResultStore.clear();
@@ -133,6 +142,7 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     updateCell,
     setColumnWidth,
     setRowHeight,
+    setCellFormat,
     clearSpreadsheet,
     forceUpdate,
   };

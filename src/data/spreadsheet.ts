@@ -3,7 +3,7 @@
  * Simple data store for cell content - does NOT handle evaluation
  */
 
-import { CellID } from '../core/types';
+import { CellID, CellFormat } from '../core/types';
 
 export interface CellData {
   content: string;
@@ -20,6 +20,7 @@ export class Spreadsheet {
   private selectedCell: CellID | null;
   private columnWidths: Map<number, number>;
   private rowHeights: Map<number, number>;
+  private cellFormats: Map<CellID, CellFormat>;
   private defaultColumnWidth = 100;
   private defaultRowHeight = 32;
 
@@ -30,6 +31,7 @@ export class Spreadsheet {
     this.selectedCell = null;
     this.columnWidths = new Map();
     this.rowHeights = new Map();
+    this.cellFormats = new Map();
   }
 
   /**
@@ -178,6 +180,20 @@ export class Spreadsheet {
   }
 
   /**
+   * Get the format of a cell (returns Raw if not set)
+   */
+  getCellFormat(cellId: CellID): CellFormat {
+    return this.cellFormats.get(cellId) ?? CellFormat.Raw;
+  }
+
+  /**
+   * Set the format of a cell
+   */
+  setCellFormat(cellId: CellID, format: CellFormat): void {
+    this.cellFormats.set(cellId, format);
+  }
+
+  /**
    * Get all column widths for grid rendering
    */
   getAllColumnWidths(): number[] {
@@ -207,6 +223,7 @@ export class Spreadsheet {
       cells: { ...this.cells },
       columnWidths: Array.from(this.columnWidths.entries()),
       rowHeights: Array.from(this.rowHeights.entries()),
+      cellFormats: Array.from(this.cellFormats.entries()),
       selectedCell: this.selectedCell,
     };
   }
@@ -218,11 +235,13 @@ export class Spreadsheet {
     cells: CellMap;
     columnWidths: Array<[number, number]>;
     rowHeights: Array<[number, number]>;
+    cellFormats?: Array<[CellID, CellFormat]>;
     selectedCell: CellID | null;
   }): void {
     this.cells = { ...state.cells };
     this.columnWidths = new Map(state.columnWidths);
     this.rowHeights = new Map(state.rowHeights);
+    this.cellFormats = new Map(state.cellFormats ?? []);
     this.selectedCell = state.selectedCell;
   }
 
@@ -233,6 +252,7 @@ export class Spreadsheet {
     this.cells = {};
     this.columnWidths.clear();
     this.rowHeights.clear();
+    this.cellFormats.clear();
     this.selectedCell = 'A1';
   }
 }

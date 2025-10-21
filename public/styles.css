@@ -170,6 +170,37 @@ h1 {
   outline-offset: -2px;
 }
 
+/* Format Dropdown */
+.format-dropdown {
+  padding: 8px 32px 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"%3E%3Cpath fill="%23666" d="M6 8L0 0h12z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 10px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.format-dropdown:hover {
+  border-color: #999;
+  background-color: #f8f9fa;
+}
+
+.format-dropdown:focus {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+  border-color: #1a73e8;
+}
+
 #current-cell {
   font-weight: bold;
   color: #1a73e8;

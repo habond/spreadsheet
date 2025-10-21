@@ -2,9 +2,11 @@ import { useState, useEffect, forwardRef, KeyboardEvent } from 'react';
 import { useSpreadsheet } from '../SpreadsheetContext';
 import { FunctionMenu } from './FunctionMenu';
 import { InfoButton } from './InfoButton';
+import { CellFormat } from '../../core/types';
 
 export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_props, ref) {
-  const { spreadsheet, selectedCell, updateCell, selectCell, clearSpreadsheet } = useSpreadsheet();
+  const { spreadsheet, selectedCell, updateCell, selectCell, setCellFormat, clearSpreadsheet } =
+    useSpreadsheet();
   const [formulaValue, setFormulaValue] = useState('');
 
   // Update formula value when selected cell changes
@@ -72,9 +74,29 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
     }
   };
 
+  const handleFormatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!selectedCell) return;
+    const format = e.target.value as CellFormat;
+    setCellFormat(selectedCell, format);
+  };
+
+  const currentFormat = selectedCell ? spreadsheet.getCellFormat(selectedCell) : CellFormat.Raw;
+
   return (
     <div className="formula-bar">
       <FunctionMenu onFunctionSelect={handleFunctionSelect} />
+      <select
+        className="format-dropdown"
+        value={currentFormat}
+        onChange={handleFormatChange}
+        title="Cell format"
+      >
+        {Object.values(CellFormat).map(format => (
+          <option key={format} value={format}>
+            {format}
+          </option>
+        ))}
+      </select>
       <input
         ref={ref}
         type="text"
