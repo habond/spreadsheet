@@ -9,6 +9,8 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 
 ## Features
 
+### Core Functionality
+
 - **20x10 grid** of cells (A-J columns, 1-20 rows)
 - **Formula support** with Excel-like syntax
 - **Arithmetic operators**: `+`, `-`, `*`, `/` with proper precedence
@@ -16,8 +18,22 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Dependency tracking** with automatic cascading updates
 - **Circular dependency detection** with clear error messages
 - **Comprehensive error handling** for all edge cases
-- **Keyboard navigation** with arrow keys
-- Full **TypeScript type safety**
+
+### User Interface
+
+- **Function menu** (ƒx button) - Quick access to all supported functions
+- **Info popover** (ⓘ button) - View current cell information
+- **Resizable columns** - Drag column header edges to resize
+- **Resizable rows** - Drag row header edges to resize
+- **Keyboard navigation** - Arrow keys, Enter, Tab for efficient editing
+- **Clean, modern UI** - Streamlined interface with popovers for additional info
+
+### Technical
+
+- Full **TypeScript type safety** with strict mode
+- **React 19** with Context API for state management
+- **Type-safe function definitions** with centralized metadata
+- **184 passing tests** with comprehensive test coverage
 
 ## Getting Started
 
@@ -44,9 +60,13 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 3. **Use the spreadsheet:**
    - Cell A1 is automatically selected and the formula bar is focused
    - Type a value or formula in the formula bar
+   - Click the **ƒx button** to insert a function from the menu
+   - Click the **ⓘ button** to view current cell information
    - Press Enter to commit and move down
    - Press Tab to commit and move right
    - Use arrow keys to navigate between cells
+   - **Resize columns**: Hover over column header edge and drag
+   - **Resize rows**: Hover over row header edge and drag
 
 ## Formula Syntax
 
@@ -100,8 +120,13 @@ src/
 │   └── cell-result-store.ts    # Evaluation results
 ├── ui/                         # React UI layer
 │   ├── components/             # React components
-│   │   ├── App.tsx, Grid.tsx, Cell.tsx
-│   │   ├── FormulaBar.tsx, InfoDisplay.tsx
+│   │   ├── App.tsx             - Main app layout
+│   │   ├── Grid.tsx            - Spreadsheet grid with resize logic
+│   │   ├── Cell.tsx            - Individual cell component
+│   │   ├── FormulaBar.tsx      - Formula input with function menu
+│   │   ├── FunctionMenu.tsx    - Dropdown menu of functions
+│   │   ├── InfoButton.tsx      - Info popover button
+│   │   └── InfoDisplay.tsx     - Cell information display
 │   ├── hooks/                  # Custom hooks
 │   │   └── useKeyboardNavigation.tsx
 │   └── SpreadsheetContext.tsx  # React Context for state
@@ -191,7 +216,21 @@ The spreadsheet provides clear error messages:
 - **Syntax errors**: `"Unexpected character: @"`
 - **Type errors**: `"Cannot convert 'abc' to number"`
 
-## Keyboard Shortcuts
+## User Interface
+
+### Formula Bar
+
+- **Function Menu (ƒx)**: Click to see all supported functions and insert them into formulas
+- **Info Button (ⓘ)**: Click to view current cell information in a popover
+- **Formula Input**: Type values or formulas directly, with autocomplete disabled for better control
+
+### Grid Interaction
+
+- **Column Resize**: Hover over the right edge of any column header until the cursor changes to `↔`, then click and drag
+- **Row Resize**: Hover over the bottom edge of any row header until the cursor changes to `↕`, then click and drag
+- **Minimum Size**: Columns and rows enforce a minimum size of 20px
+
+### Keyboard Shortcuts
 
 - **Enter** - Commit value and move down
 - **Tab** - Commit value and move right
@@ -212,16 +251,18 @@ Install the [React DevTools](https://react.dev/learn/react-developer-tools) brow
 
 Potential additions to explore:
 
-- **Cell ranges**: `=SUM(A1:A10)`
-- **More functions**: `IF`, `VLOOKUP`, `CONCATENATE`
-- **String operations**: `CONCAT`, `LEFT`, `RIGHT`, `TRIM`
-- **Date/time functions**: `NOW`, `TODAY`, `DATE`
-- **Conditional formatting**
-- **Cell formatting** (number formats, colors, fonts)
-- **Multiple sheets**
-- **Undo/redo**
-- **Copy/paste**
-- **Export to CSV/Excel**
+- **Cell ranges**: `=SUM(A1:A10)` for range operations
+- **More functions**: `IF`, `VLOOKUP`, `CONCATENATE`, `COUNT`, `COUNTIF`
+- **String operations**: `CONCAT`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`
+- **Date/time functions**: `NOW`, `TODAY`, `DATE`, `DATEDIF`
+- **Conditional formatting**: Color cells based on values
+- **Cell formatting**: Number formats, colors, fonts, alignment
+- **Multiple sheets**: Tabs for different worksheets
+- **Undo/redo**: History management for changes
+- **Copy/paste**: Cell and formula copying
+- **Export to CSV/Excel**: Download spreadsheet data
+- **Column/row insertion/deletion**: Dynamic grid sizing
+- **Freeze panes**: Lock headers while scrolling
 
 ## License
 

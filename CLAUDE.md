@@ -26,11 +26,13 @@ src/
 │   └── cell-result-store.ts # Evaluation cache
 ├── ui/                      # React UI layer
 │   ├── components/          # React components
-│   │   ├── App.tsx          # Main app component
-│   │   ├── Grid.tsx         # Spreadsheet grid
+│   │   ├── App.tsx          # Main app layout
+│   │   ├── Grid.tsx         # Spreadsheet grid with resize logic
 │   │   ├── Cell.tsx         # Individual cell
-│   │   ├── FormulaBar.tsx   # Formula input
-│   │   └── InfoDisplay.tsx  # Info panel
+│   │   ├── FormulaBar.tsx   # Formula input with function menu
+│   │   ├── FunctionMenu.tsx # Function dropdown menu
+│   │   ├── InfoButton.tsx   # Info popover button
+│   │   └── InfoDisplay.tsx  # Cell info display
 │   ├── hooks/               # Custom hooks
 │   │   └── useKeyboardNavigation.tsx
 │   └── SpreadsheetContext.tsx # React context
@@ -47,10 +49,10 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 ### Architecture Layers
 
-- **Data**: Pure storage (Spreadsheet, CellResultStore)
-- **Core**: Business logic (EvalEngine, parsers, evaluators)
-- **UI**: React components (App, Grid, Cell, FormulaBar, InfoDisplay)
-- **State**: React Context (SpreadsheetContext)
+- **Data**: Pure storage (Spreadsheet with column/row sizing, CellResultStore)
+- **Core**: Business logic (EvalEngine, parsers, evaluators, function metadata)
+- **UI**: React components (App, Grid with resize, Cell, FormulaBar, FunctionMenu, InfoButton)
+- **State**: React Context (SpreadsheetContext with resize handlers)
 - **Entry**: main.tsx initialization
 
 ### Formula Evaluation
@@ -92,9 +94,13 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 ### Add a New Function
 
-1. Add case to `formula-calculator.ts` → `executeFunction()`
-2. Write tests in `formula-calculator.test.ts`
-3. Update README.md formula list
+1. Add function metadata to `SUPPORTED_FUNCTIONS` array in `formula-calculator.ts`
+2. Add constant to `FunctionName` object for type safety
+3. Add case to `executeFunction()` switch statement
+4. Write tests in `formula-calculator.test.ts`
+5. Update README.md formula list
+
+**Important**: Function definitions are centralized in `formula-calculator.ts`. The `SUPPORTED_FUNCTIONS` array is the single source of truth for UI and validation.
 
 ### Add a New Component
 
@@ -183,6 +189,15 @@ export const Cell = memo(function Cell({ cellId, row, col }: CellProps) {
 
 Cell changes trigger cascading updates via dependency graph and React re-renders.
 
+### Resize Handling
+
+Column and row resizing is managed through:
+
+1. **Spreadsheet class**: Stores column widths and row heights in Maps with defaults (100px, 32px)
+2. **Context methods**: `setColumnWidth()` and `setRowHeight()` trigger re-renders
+3. **Grid component**: Manages drag state and applies dynamic grid-template styles
+4. **CSS handles**: 8px wide/tall handles on header edges with hover effects
+
 ## What NOT to Do
 
 ❌ Don't add console.log (use debug tools instead)
@@ -193,6 +208,17 @@ Cell changes trigger cascading updates via dependency graph and React re-renders
 ❌ Don't import with circular dependencies
 
 ## Recent Changes
+
+### Latest (Current)
+
+- **Function Menu**: Added ƒx button with dropdown menu of all supported functions
+- **Info Popover**: Added ⓘ button that shows cell info in a popover
+- **Resizable Columns/Rows**: Drag column/row header edges to resize
+- **Type-safe Functions**: Centralized function definitions with FunctionName constants
+- **UI Improvements**: Moved formula bar above grid, removed unnecessary labels
+- **Spreadsheet State**: Added column width and row height management
+
+### Previous
 
 - **Converted to React**: Replaced vanilla JS with React components
 - **Added React Context**: SpreadsheetContext for state management
