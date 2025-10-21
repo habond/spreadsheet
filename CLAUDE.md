@@ -23,10 +23,12 @@ src/
 │   ├── errors.ts            # Custom error types
 │   └── types.ts             # Shared types
 ├── data/                    # Data layer
-│   ├── spreadsheet.ts       # Cell storage with sizing constants
+│   ├── spreadsheet.ts       # Cell storage
 │   ├── cell-result-store.ts # Evaluation cache with JSDoc
-│   ├── cell-formatter.ts    # Cell formatting utilities
 │   └── local-storage.ts     # LocalStorage persistence
+├── utils/                   # Pure utility functions
+│   ├── constants.ts         # Shared constants (sizing, defaults)
+│   └── cell-formatter.ts    # Cell formatting utilities
 ├── ui/                      # React UI layer
 │   ├── components/          # React components
 │   │   ├── App.tsx          # Main app layout with ErrorBoundary
@@ -57,8 +59,9 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 ### Architecture Layers
 
-- **Data**: Pure storage (Spreadsheet with sizing constants, CellResultStore, localStorage)
+- **Data**: Pure storage (Spreadsheet, CellResultStore, localStorage)
 - **Core**: Business logic (EvalEngine, parsers, evaluators, custom errors, function metadata)
+- **Utils**: Pure utility functions (constants, cell formatting)
 - **UI**: React components (App with ErrorBoundary, Grid with memoization, Cell, FormulaBar, FunctionMenu, InfoButton)
 - **Hooks**: Reusable custom hooks (useKeyboardNavigation, useClickOutside, useDebounce)
 - **State**: React Context (SpreadsheetContext with memoized values and debounced persistence)
@@ -75,9 +78,10 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 ### Import Paths
 
-- Use relative paths with layers: `../core/types`, `../data/spreadsheet`
+- Use relative paths with layers: `../core/types`, `../data/spreadsheet`, `../utils/constants`
 - React components use `.tsx` extension
 - No need for `.js` extensions in imports (Vite handles this)
+- Import constants from `utils/constants.ts` for consistency
 
 ### TypeScript
 
@@ -90,10 +94,11 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 
 - Use `useMemo` for expensive calculations
 - Use `useCallback` for callbacks passed to child components
-- Memoize context values to prevent unnecessary re-renders
+- Memoize context values to prevent unnecessary re-renders (include updateTrigger in dependencies)
 - Use custom hooks for reusable logic (useClickOutside, useDebounce)
 - Always include proper dependency arrays in useEffect
 - Run ESLint before committing (catches React Hooks issues)
+- Avoid React.memo for components that need to react to context changes
 
 ### Performance Optimization
 
@@ -245,15 +250,10 @@ new EvalEngine(
 
 ### Component Memoization
 
-Prevent unnecessary re-renders using React.memo and useMemo:
+Prevent unnecessary re-renders using useMemo for expensive calculations:
 
 ```typescript
-// Component memoization
-export const Cell = memo(function Cell({ cellId, row, col }: CellProps) {
-  // Component implementation
-});
-
-// Value memoization
+// Value memoization in components
 const gridStyle = useMemo(
   () => ({
     gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' '),
@@ -262,12 +262,14 @@ const gridStyle = useMemo(
   [columnWidths, rowHeights]
 );
 
-// Context value memoization
+// Context value memoization with updateTrigger
 const contextValue = useMemo(
   () => ({ spreadsheet, evalEngine, selectCell, updateCell }),
-  [spreadsheet, evalEngine, selectCell, updateCell]
+  [spreadsheet, evalEngine, selectCell, updateCell, updateTrigger]
 );
 ```
+
+**Note**: Cell components are not memoized with `React.memo()` to ensure they re-render when formats or values change via context updates. For a 20x10 grid, the performance impact is negligible.
 
 ### Observer Pattern
 

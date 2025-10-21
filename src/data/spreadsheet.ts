@@ -4,6 +4,12 @@
  */
 
 import { CellID, CellFormat } from '../core/types';
+import {
+  DEFAULT_COLUMN_WIDTH,
+  DEFAULT_ROW_HEIGHT,
+  MIN_COLUMN_WIDTH,
+  MIN_ROW_HEIGHT,
+} from '../utils/constants';
 
 export interface CellData {
   content: string;
@@ -12,12 +18,6 @@ export interface CellData {
 export interface CellMap {
   [cellId: CellID]: CellData;
 }
-
-// Constants for spreadsheet sizing
-const DEFAULT_COLUMN_WIDTH = 100;
-const DEFAULT_ROW_HEIGHT = 32;
-const MIN_COLUMN_WIDTH = 20;
-const MIN_ROW_HEIGHT = 20;
 
 export class Spreadsheet {
   readonly rows: number;

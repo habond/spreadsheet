@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { CellID } from '../../core/types';
 import { useSpreadsheet } from '../SpreadsheetContext';
 
@@ -8,7 +7,7 @@ interface CellProps {
   col: number;
 }
 
-export const Cell = memo(function Cell({ cellId, row, col }: CellProps) {
+export function Cell({ cellId, row, col }: CellProps) {
   const { cellResultStore, selectedCell, selectCell } = useSpreadsheet();
 
   const result = cellResultStore.get(cellId);
@@ -32,4 +31,4 @@ export const Cell = memo(function Cell({ cellId, row, col }: CellProps) {
       {displayValue}
     </div>
   );
-});
+}

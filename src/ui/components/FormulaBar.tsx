@@ -8,12 +8,15 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
   const { spreadsheet, selectedCell, updateCell, selectCell, setCellFormat, clearSpreadsheet } =
     useSpreadsheet();
   const [formulaValue, setFormulaValue] = useState('');
+  const [currentFormat, setCurrentFormat] = useState<CellFormat>(CellFormat.Raw);
 
-  // Update formula value when selected cell changes
+  // Update formula value and format when selected cell changes
   useEffect(() => {
     if (selectedCell) {
       const content = spreadsheet.getCellContent(selectedCell);
+      const format = spreadsheet.getCellFormat(selectedCell);
       setFormulaValue(content);
+      setCurrentFormat(format);
       // Focus the input if it's a ref object
       if (ref && typeof ref !== 'function' && ref.current) {
         ref.current.focus();
@@ -77,10 +80,9 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
   const handleFormatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!selectedCell) return;
     const format = e.target.value as CellFormat;
+    setCurrentFormat(format);
     setCellFormat(selectedCell, format);
   };
-
-  const currentFormat = selectedCell ? spreadsheet.getCellFormat(selectedCell) : CellFormat.Raw;
 
   return (
     <div className="formula-bar">

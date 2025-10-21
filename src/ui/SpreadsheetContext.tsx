@@ -41,7 +41,7 @@ interface SpreadsheetProviderProps {
 }
 
 export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: SpreadsheetProviderProps) {
-  const [, setUpdateTrigger] = useState(0);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
   const forceUpdate = useCallback(() => setUpdateTrigger(prev => prev + 1), []);
 
   // Initialize core components (only once)
@@ -172,6 +172,7 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     [
       state,
       selectedCell,
+      updateTrigger, // Include updateTrigger to force context value updates
       selectCell,
       updateCell,
       setColumnWidth,

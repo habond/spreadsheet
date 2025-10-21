@@ -180,22 +180,29 @@ src/
 │   │   ├── formula-calculator.ts - Expression evaluation
 │   │   └── dependency-graph.ts - Dependency tracking & cycle detection
 │   ├── eval-engine.ts          # Main orchestrator
+│   ├── errors.ts               # Custom error types
 │   └── types.ts                # Type definitions
 ├── data/                       # Data storage
 │   ├── spreadsheet.ts          # Cell data & navigation
 │   ├── cell-result-store.ts    # Evaluation results
 │   └── local-storage.ts        # Browser localStorage persistence
+├── utils/                      # Pure utility functions
+│   ├── constants.ts            # Shared constants (sizing, defaults)
+│   └── cell-formatter.ts       # Cell formatting utilities
 ├── ui/                         # React UI layer
 │   ├── components/             # React components
-│   │   ├── App.tsx             - Main app layout
+│   │   ├── App.tsx             - Main app layout with ErrorBoundary
 │   │   ├── Grid.tsx            - Spreadsheet grid with resize logic
 │   │   ├── Cell.tsx            - Individual cell component
-│   │   ├── FormulaBar.tsx      - Formula input with function menu
+│   │   ├── FormulaBar.tsx      - Formula input with function & format menu
 │   │   ├── FunctionMenu.tsx    - Dropdown menu of functions
 │   │   ├── InfoButton.tsx      - Info popover button
-│   │   └── InfoDisplay.tsx     - Cell information display
+│   │   ├── InfoDisplay.tsx     - Cell information display
+│   │   └── ErrorBoundary.tsx   - Error handling component
 │   ├── hooks/                  # Custom hooks
-│   │   └── useKeyboardNavigation.tsx
+│   │   ├── useKeyboardNavigation.tsx
+│   │   ├── useClickOutside.tsx - Click-outside detection
+│   │   └── useDebounce.tsx     - Debounce hook
 │   └── SpreadsheetContext.tsx  # React Context for state
 └── main.tsx                    # React entry point
 ```
