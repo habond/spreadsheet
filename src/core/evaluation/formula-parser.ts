@@ -14,15 +14,16 @@ export interface Token {
   value: string;
 }
 
+// Match cell references like A1, B2, AA10, etc.
+const CELL_REF_PATTERN = /\b[A-Z]+[0-9]+\b/g;
+
 export class FormulaParser {
   /**
    * Extract all cell references from a formula
    */
   static extractCellReferences(formula: string): Set<CellID> {
     const refs = new Set<CellID>();
-    // Match cell references like A1, B2, AA10, etc.
-    const cellRefRegex = /\b[A-Z]+[0-9]+\b/g;
-    const matches = formula.match(cellRefRegex);
+    const matches = formula.match(CELL_REF_PATTERN);
     if (matches) {
       matches.forEach(ref => refs.add(ref));
     }
@@ -67,7 +68,7 @@ export class FormulaParser {
         // Check if it's followed by a parenthesis (function call)
         if (i < formula.length && formula[i] === '(') {
           tokens.push({ type: 'FUNCTION', value: ident });
-        } else if (/^[A-Z]+[0-9]+$/.test(ident)) {
+        } else if (new RegExp(CELL_REF_PATTERN.source).test(ident)) {
           // It's a cell reference
           tokens.push({ type: 'CELL_REF', value: ident });
         } else {

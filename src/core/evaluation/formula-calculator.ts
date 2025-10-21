@@ -1,7 +1,15 @@
 import { FormulaParser, Token } from './formula-parser';
 import { EvalResult, GetCellResultFn } from '../types';
 
-export class FormulaEvaluator {
+type ParseResult = { value: number | string; nextPos: number };
+
+/**
+ * Computes formula expressions using pre-evaluated cell values.
+ * Does NOT orchestrate cell evaluation - that's handled by EvalEngine.
+ * Cell references are resolved from already-computed results to prevent
+ * infinite loops and ensure correct topological evaluation order.
+ */
+export class FormulaCalculator {
   private getCellResult: GetCellResultFn;
 
   constructor(getCellResult: GetCellResultFn) {
@@ -9,9 +17,10 @@ export class FormulaEvaluator {
   }
 
   /**
-   * Evaluate a formula and return the result
+   * Calculate a formula and return the result.
+   * Assumes all referenced cells are already evaluated.
    */
-  evaluate(formula: string): EvalResult {
+  calculate(formula: string): EvalResult {
     try {
       const tokens = FormulaParser.tokenize(formula);
       const value = this.parseExpression(tokens, 0).value;
@@ -19,7 +28,7 @@ export class FormulaEvaluator {
     } catch (error) {
       return {
         value: null,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -27,9 +36,9 @@ export class FormulaEvaluator {
   /**
    * Parse an expression (handles operators with precedence)
    */
-  private parseExpression(tokens: Token[], pos: number): { value: any; nextPos: number } {
+  private parseExpression(tokens: Token[], pos: number): ParseResult {
     // Parse first term
-    let result = this.parseTerm(tokens, pos);
+    const result = this.parseTerm(tokens, pos);
 
     // Handle addition and subtraction
     while (result.nextPos < tokens.length) {
@@ -53,9 +62,9 @@ export class FormulaEvaluator {
   /**
    * Parse a term (handles * and / with higher precedence)
    */
-  private parseTerm(tokens: Token[], pos: number): { value: any; nextPos: number } {
+  private parseTerm(tokens: Token[], pos: number): ParseResult {
     // Parse first factor
-    let result = this.parseFactor(tokens, pos);
+    const result = this.parseFactor(tokens, pos);
 
     // Handle multiplication and division
     while (result.nextPos < tokens.length) {
@@ -83,7 +92,7 @@ export class FormulaEvaluator {
   /**
    * Parse a factor (number, cell reference, function, or parenthesized expression)
    */
-  private parseFactor(tokens: Token[], pos: number): { value: any; nextPos: number } {
+  private parseFactor(tokens: Token[], pos: number): ParseResult {
     if (pos >= tokens.length) {
       throw new Error('Unexpected end of formula');
     }
@@ -103,6 +112,9 @@ export class FormulaEvaluator {
       }
       if (cellResult.error) {
         throw new Error(`Cell ${token.value} has error: ${cellResult.error}`);
+      }
+      if (cellResult.value === null) {
+        throw new Error(`Cell ${token.value} has no value`);
       }
       return { value: cellResult.value, nextPos: pos + 1 };
     }
@@ -127,7 +139,7 @@ export class FormulaEvaluator {
   /**
    * Parse a function call
    */
-  private parseFunction(tokens: Token[], pos: number): { value: any; nextPos: number } {
+  private parseFunction(tokens: Token[], pos: number): ParseResult {
     const funcToken = tokens[pos];
     const funcName = funcToken.value;
 
@@ -137,7 +149,7 @@ export class FormulaEvaluator {
     }
 
     // Parse arguments
-    const args: any[] = [];
+    const args: (number | string)[] = [];
     let currentPos = pos + 2; // Skip function name and '('
 
     // Check for empty argument list
@@ -175,21 +187,22 @@ export class FormulaEvaluator {
   /**
    * Execute a built-in function
    */
-  private executeFunction(name: string, args: any[]): any {
+  private executeFunction(name: string, args: (number | string)[]): number {
     switch (name.toUpperCase()) {
       case 'SUM':
         if (args.length === 0) {
           throw new Error('SUM requires at least one argument');
         }
-        return args.reduce((sum, val) => sum + this.toNumber(val), 0);
+        return args.reduce((sum: number, val) => sum + this.toNumber(val), 0);
 
       case 'AVERAGE':
-      case 'AVG':
+      case 'AVG': {
         if (args.length === 0) {
           throw new Error('AVERAGE requires at least one argument');
         }
-        const sum = args.reduce((s, val) => s + this.toNumber(val), 0);
+        const sum = args.reduce((s: number, val) => s + this.toNumber(val), 0);
         return sum / args.length;
+      }
 
       case 'MIN':
         if (args.length === 0) {
@@ -223,7 +236,7 @@ export class FormulaEvaluator {
         return this.toNumber(args[0]) * this.toNumber(args[1]);
 
       case 'DIV':
-      case 'DIVIDE':
+      case 'DIVIDE': {
         if (args.length !== 2) {
           throw new Error('DIV requires exactly 2 arguments');
         }
@@ -232,6 +245,7 @@ export class FormulaEvaluator {
           throw new Error('Division by zero');
         }
         return this.toNumber(args[0]) / divisor;
+      }
 
       default:
         throw new Error(`Unknown function: ${name}`);
@@ -241,7 +255,7 @@ export class FormulaEvaluator {
   /**
    * Convert a value to a number
    */
-  private toNumber(value: any): number {
+  private toNumber(value: number | string): number {
     if (typeof value === 'number') {
       return value;
     }

@@ -6,9 +6,9 @@ Quick reference for AI assistants working on this codebase.
 
 A TypeScript spreadsheet with formula evaluation, dependency tracking, and cycle detection.
 
-**Tech Stack**: TypeScript, Vite, Vanilla JS (no framework)
+**Tech Stack**: TypeScript, React, Vite
 **Build**: `npm run build` (tsc + vite)
-**Dev**: `npm run dev` (live reload on localhost:8080)
+**Dev**: `npm run dev` (Vite dev server, typically http://localhost:5173)
 
 ## Directory Structure
 
@@ -17,33 +17,44 @@ src/
 ├── core/                    # Business logic
 │   ├── evaluation/          # Formula engine
 │   │   ├── formula-parser.ts
-│   │   ├── formula-evaluator.ts
+│   │   ├── formula-calculator.ts
 │   │   └── dependency-graph.ts
 │   ├── eval-engine.ts       # Main orchestrator
 │   └── types.ts             # Shared types
 ├── data/                    # Data layer
 │   ├── spreadsheet.ts       # Cell storage
 │   └── cell-result-store.ts # Evaluation cache
-├── ui/                      # UI layer
-│   ├── ui-renderer.ts       # DOM manipulation
-│   └── event-handlers.ts    # User interactions
-└── app.ts                   # Entry point
+├── ui/                      # React UI layer
+│   ├── components/          # React components
+│   │   ├── App.tsx          # Main app component
+│   │   ├── Grid.tsx         # Spreadsheet grid
+│   │   ├── Cell.tsx         # Individual cell
+│   │   ├── FormulaBar.tsx   # Formula input
+│   │   └── InfoDisplay.tsx  # Info panel
+│   ├── hooks/               # Custom hooks
+│   │   └── useKeyboardNavigation.tsx
+│   └── SpreadsheetContext.tsx # React context
+└── main.tsx                 # React entry point
 ```
 
 ## Key Concepts
 
 ### Data Flow
+
 ```
-User Input → Spreadsheet (raw) → EvalEngine → CellResultStore → UI Update
+User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalEngine → CellResultStore → React Re-render
 ```
 
 ### Architecture Layers
+
 - **Data**: Pure storage (Spreadsheet, CellResultStore)
 - **Core**: Business logic (EvalEngine, parsers, evaluators)
-- **UI**: DOM & events (UIRenderer, EventHandlers)
-- **App**: Wiring & initialization
+- **UI**: React components (App, Grid, Cell, FormulaBar, InfoDisplay)
+- **State**: React Context (SpreadsheetContext)
+- **Entry**: main.tsx initialization
 
 ### Formula Evaluation
+
 1. **Parse**: Tokenize formula string
 2. **Evaluate**: Recursive descent parser with operator precedence
 3. **Dependencies**: Track cell references, detect cycles
@@ -52,37 +63,54 @@ User Input → Spreadsheet (raw) → EvalEngine → CellResultStore → UI Updat
 ## Code Conventions
 
 ### Import Paths
+
 - Use relative paths with layers: `../core/types`, `../data/spreadsheet`
-- App.ts uses `.js` extensions for runtime (Vite requirement)
+- React components use `.tsx` extension
+- No need for `.js` extensions in imports (Vite handles this)
 
 ### TypeScript
+
 - Strict mode enabled
 - `noUnusedLocals` and `noUnusedParameters` enforced
 - All types in `core/types.ts`
 
 ### Encapsulation
+
 - Private properties with `private` keyword
 - Public readonly properties where appropriate
 - Controlled access via methods
 
 ### File Organization
-- One class per file
+
+- One component/class per file
+- React components in `ui/components/`
+- Custom hooks in `ui/hooks/`
 - Grouped by architectural layer
 - Max ~250 lines per file
 
 ## Common Tasks
 
 ### Add a New Function
-1. Add case to `formula-evaluator.ts` → `executeFunction()`
-2. Update README.md formula list
-3. Test with examples
+
+1. Add case to `formula-calculator.ts` → `executeFunction()`
+2. Write tests in `formula-calculator.test.ts`
+3. Update README.md formula list
+
+### Add a New Component
+
+1. Create `.tsx` file in `ui/components/`
+2. Use `useSpreadsheet()` hook to access state
+3. Export as named or default export
+4. Follow existing patterns for consistency
 
 ### Add a New Module
+
 1. Place in appropriate layer (`core/`, `data/`, or `ui/`)
 2. Import types from `core/types.ts`
-3. Update ARCHITECTURE.md dependency graph
+3. Maintain separation of concerns
 
 ### Refactor Imports
+
 - Search project: `grep -r "from './old-path'" src/`
 - Update all occurrences
 - Verify: `npm run build`
@@ -94,32 +122,45 @@ npm run build          # Check for errors
 npm run dev            # Test in browser
 ```
 
-**Debug Console:**
-- `window.spreadsheet` - Raw cell data
-- `window.evalEngine` - Evaluation engine
-- `window.cellResultStore` - Computed values
-- `window.refreshAllCells()` - Force refresh
+**React DevTools:**
+
+- Install React DevTools browser extension
+- Inspect component tree and props
+- View SpreadsheetContext state
+- Profile component re-renders
 
 ## Important Files
 
 - **tsconfig.json** - TypeScript config (strict mode, unused checks)
 - **package.json** - Scripts and dependencies
-- **vite.config.js** - Build configuration (if exists)
-- **public/index.html** - DOM structure
+- **vitest.config.ts** - Test configuration (Vitest)
+- **vite.config.ts** - Vite build configuration
+- **index.html** - DOM structure (Vite standard: root directory)
 
 ## Known Patterns
 
-### Dependency Injection
-Components receive dependencies via constructor:
+### React Context Pattern
+
+Components access shared state via context:
+
 ```typescript
-constructor(
-  private spreadsheet: Spreadsheet,
-  private evalEngine: EvalEngine
-) {}
+const { spreadsheet, evalEngine, selectCell, updateCell } = useSpreadsheet();
 ```
 
-### Callback Pattern
+### Custom Hooks
+
+Encapsulate reusable logic:
+
+```typescript
+function useKeyboardNavigation(inputRef: RefObject<HTMLInputElement | null>) {
+  // Hook implementation
+}
+```
+
+### Dependency Injection
+
 EvalEngine uses callbacks for data access:
+
 ```typescript
 new EvalEngine(
   getCellValue: (cellId) => string,
@@ -128,8 +169,19 @@ new EvalEngine(
 )
 ```
 
+### Component Memoization
+
+Prevent unnecessary re-renders:
+
+```typescript
+export const Cell = memo(function Cell({ cellId, row, col }: CellProps) {
+  // Component implementation
+});
+```
+
 ### Observer Pattern
-Cell changes trigger cascading updates via dependency graph.
+
+Cell changes trigger cascading updates via dependency graph and React re-renders.
 
 ## What NOT to Do
 
@@ -142,14 +194,18 @@ Cell changes trigger cascading updates via dependency graph.
 
 ## Recent Changes
 
+- **Converted to React**: Replaced vanilla JS with React components
+- **Added React Context**: SpreadsheetContext for state management
+- **Created React components**: App, Grid, Cell, FormulaBar, InfoDisplay
+- **Added custom hooks**: useKeyboardNavigation for keyboard handling
+- **Removed old UI files**: ui-renderer.ts, event-handlers.ts, app.ts
+- **Updated build config**: Added React plugin to Vite, updated tsconfig.json
 - Organized into layered directory structure (core/, data/, ui/)
-- Removed all unused code (strict TS checks)
 - Encapsulated Spreadsheet properties
-- Split app.ts into focused modules
 
 ## Getting Help
 
-- **README.md** - User documentation, examples
-- **ARCHITECTURE.md** - Deep dive on design patterns
+- **README.md** - User documentation, examples, architecture overview
 - **Code comments** - Inline documentation
 - **TypeScript errors** - Run `npm run build` for details
+- **React DevTools** - Inspect component tree and state

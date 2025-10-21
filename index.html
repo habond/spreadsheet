@@ -1,34 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Spreadsheet</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Simple Spreadsheet</h1>
-        <div class="info">
-            <p>Supported formula: <code>=ADD(A1, B2)</code></p>
-            <p>Current cell: <span id="current-cell">-</span></p>
-            <p>Cell value: <span id="cell-value">-</span></p>
-            <p id="error-display" class="error-message" style="display: none;"></p>
-        </div>
-        <div class="spreadsheet-container">
-            <div class="column-headers" id="column-headers"></div>
-            <div class="grid-container">
-                <div class="row-headers" id="row-headers"></div>
-                <div class="grid" id="grid"></div>
-            </div>
-        </div>
-        <div class="formula-bar">
-            <label for="formula-input">Formula Bar:</label>
-            <input type="text" id="formula-input" placeholder="Enter value or formula (e.g., =ADD(A1, B2))">
-        </div>
-    </div>
-
-    <script type="module" src="/src/app.ts"></script>
-</body>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

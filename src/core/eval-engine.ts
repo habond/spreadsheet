@@ -1,13 +1,27 @@
 import { CellID, GetCellValueFn, GetCellResultFn, SetCellResultFn } from './types';
 import { FormulaParser } from './evaluation/formula-parser';
-import { FormulaEvaluator } from './evaluation/formula-evaluator';
+import { FormulaCalculator } from './evaluation/formula-calculator';
 import { DependencyGraph } from './evaluation/dependency-graph';
 
+/**
+ * Orchestrates cell evaluation with dependency tracking and cycle detection.
+ *
+ * Responsibilities:
+ * - Tracks cell dependencies via DependencyGraph
+ * - Detects circular references
+ * - Evaluates cells in topological order (dependencies first)
+ * - Delegates formula computation to FormulaCalculator
+ *
+ * The separation between EvalEngine and FormulaCalculator ensures:
+ * - No infinite loops (topological ordering prevents re-evaluation)
+ * - Efficient evaluation (each cell evaluated once per change)
+ * - Clear separation: orchestration vs computation
+ */
 export class EvalEngine {
   private getCellValue: GetCellValueFn;
   private setCellResult: SetCellResultFn;
   private dependencyGraph: DependencyGraph;
-  private evaluator: FormulaEvaluator;
+  private calculator: FormulaCalculator;
 
   constructor(
     getCellValue: GetCellValueFn,
@@ -17,15 +31,15 @@ export class EvalEngine {
     this.getCellValue = getCellValue;
     this.setCellResult = setCellResult;
     this.dependencyGraph = new DependencyGraph();
-    this.evaluator = new FormulaEvaluator(getCellResult);
+    this.calculator = new FormulaCalculator(getCellResult);
   }
 
   /**
    * Called when a cell's content changes
    */
-  onCellChanged(cellId: CellID, _oldValue: string, newValue: string): void {
-    // Extract dependencies from the new value
-    const dependencies = this.extractDependencies(newValue);
+  onCellChanged(cellId: CellID): void {
+    // Extract dependencies from the current cell value
+    const dependencies = this.extractDependencies(this.getCellValue(cellId));
 
     // Update the dependency graph
     this.dependencyGraph.updateDependencies(cellId, dependencies);
@@ -36,7 +50,7 @@ export class EvalEngine {
       const cycleStr = cycle.join(' -> ');
       this.setCellResult(cellId, {
         value: null,
-        error: `Circular dependency: ${cycleStr}`
+        error: `Circular dependency: ${cycleStr}`,
       });
       return;
     }
@@ -77,7 +91,7 @@ export class EvalEngine {
     // Formula (starts with =)
     if (content.startsWith('=')) {
       const formula = content.substring(1);
-      const result = this.evaluator.evaluate(formula);
+      const result = this.calculator.calculate(formula);
       this.setCellResult(cellId, result);
       return;
     }

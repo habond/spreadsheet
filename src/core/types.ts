@@ -5,7 +5,7 @@
 export type CellID = string;
 
 export interface EvalResult {
-  value: any;
+  value: number | string | null;
   error: string | null;
 }
 
