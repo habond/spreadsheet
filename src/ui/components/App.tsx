@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { SpreadsheetProvider } from '../SpreadsheetContext';
-import { InfoDisplay } from './InfoDisplay';
 import { Grid } from './Grid';
 import { FormulaBar } from './FormulaBar';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
@@ -11,10 +10,8 @@ function SpreadsheetApp() {
 
   return (
     <div className="container">
-      <h1>Simple Spreadsheet</h1>
-      <InfoDisplay />
-      <Grid />
       <FormulaBar ref={formulaInputRef} />
+      <Grid />
     </div>
   );
 }

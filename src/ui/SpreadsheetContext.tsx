@@ -11,6 +11,8 @@ interface SpreadsheetContextType {
   selectedCell: CellID | null;
   selectCell: (cellId: CellID) => void;
   updateCell: (cellId: CellID, content: string) => void;
+  setColumnWidth: (colIndex: number, width: number) => void;
+  setRowHeight: (rowIndex: number, height: number) => void;
   forceUpdate: () => void;
 }
 
@@ -72,11 +74,29 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     [state.spreadsheet, state.evalEngine, forceUpdate]
   );
 
+  const setColumnWidth = useCallback(
+    (colIndex: number, width: number) => {
+      state.spreadsheet.setColumnWidth(colIndex, width);
+      forceUpdate();
+    },
+    [state.spreadsheet, forceUpdate]
+  );
+
+  const setRowHeight = useCallback(
+    (rowIndex: number, height: number) => {
+      state.spreadsheet.setRowHeight(rowIndex, height);
+      forceUpdate();
+    },
+    [state.spreadsheet, forceUpdate]
+  );
+
   const contextValue: SpreadsheetContextType = {
     ...state,
     selectedCell,
     selectCell,
     updateCell,
+    setColumnWidth,
+    setRowHeight,
     forceUpdate,
   };
 

@@ -12,3 +12,12 @@ export interface EvalResult {
 export type GetCellValueFn = (cellId: CellID) => string;
 export type GetCellResultFn = (cellId: CellID) => EvalResult | undefined;
 export type SetCellResultFn = (cellId: CellID, result: EvalResult) => void;
+
+/**
+ * Function metadata for UI and validation
+ */
+export interface FunctionInfo {
+  name: string;
+  description: string;
+  aliases?: string[];
+}

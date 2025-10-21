@@ -18,12 +18,18 @@ export class Spreadsheet {
   readonly cols: number;
   private cells: CellMap;
   private selectedCell: CellID | null;
+  private columnWidths: Map<number, number>;
+  private rowHeights: Map<number, number>;
+  private defaultColumnWidth = 100;
+  private defaultRowHeight = 32;
 
   constructor(rows: number, cols: number) {
     this.rows = rows;
     this.cols = cols;
     this.cells = {}; // Stores cell data: { "A1": { content: "5" }, "A2": { content: "=ADD(A1, B1)" } }
     this.selectedCell = null;
+    this.columnWidths = new Map();
+    this.rowHeights = new Map();
   }
 
   /**
@@ -141,5 +147,55 @@ export class Spreadsheet {
     const pos = this.parseCellId(this.selectedCell);
     if (!pos || pos.col >= this.cols - 1) return null;
     return this.getCellId(pos.row, pos.col + 1);
+  }
+
+  /**
+   * Get the width of a column (returns default if not set)
+   */
+  getColumnWidth(colIndex: number): number {
+    return this.columnWidths.get(colIndex) ?? this.defaultColumnWidth;
+  }
+
+  /**
+   * Set the width of a column
+   */
+  setColumnWidth(colIndex: number, width: number): void {
+    this.columnWidths.set(colIndex, Math.max(20, width)); // Minimum width of 20px
+  }
+
+  /**
+   * Get the height of a row (returns default if not set)
+   */
+  getRowHeight(rowIndex: number): number {
+    return this.rowHeights.get(rowIndex) ?? this.defaultRowHeight;
+  }
+
+  /**
+   * Set the height of a row
+   */
+  setRowHeight(rowIndex: number, height: number): void {
+    this.rowHeights.set(rowIndex, Math.max(20, height)); // Minimum height of 20px
+  }
+
+  /**
+   * Get all column widths for grid rendering
+   */
+  getAllColumnWidths(): number[] {
+    const widths: number[] = [];
+    for (let i = 0; i < this.cols; i++) {
+      widths.push(this.getColumnWidth(i));
+    }
+    return widths;
+  }
+
+  /**
+   * Get all row heights for grid rendering
+   */
+  getAllRowHeights(): number[] {
+    const heights: number[] = [];
+    for (let i = 0; i < this.rows; i++) {
+      heights.push(this.getRowHeight(i));
+    }
+    return heights;
   }
 }

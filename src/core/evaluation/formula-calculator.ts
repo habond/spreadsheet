@@ -1,7 +1,44 @@
 import { FormulaParser, Token } from './formula-parser';
-import { EvalResult, GetCellResultFn } from '../types';
+import { EvalResult, GetCellResultFn, FunctionInfo } from '../types';
 
 type ParseResult = { value: number | string; nextPos: number };
+
+/**
+ * Function name constants for type safety
+ */
+export const FunctionName = {
+  SUM: 'SUM',
+  AVERAGE: 'AVERAGE',
+  AVG: 'AVG',
+  MIN: 'MIN',
+  MAX: 'MAX',
+  ADD: 'ADD',
+  SUB: 'SUB',
+  MUL: 'MUL',
+  MULTIPLY: 'MULTIPLY',
+  DIV: 'DIV',
+  DIVIDE: 'DIVIDE',
+} as const;
+
+export type FunctionNameType = (typeof FunctionName)[keyof typeof FunctionName];
+
+/**
+ * Metadata for all supported spreadsheet functions
+ */
+export const SUPPORTED_FUNCTIONS: FunctionInfo[] = [
+  { name: FunctionName.SUM, description: 'Add all arguments' },
+  {
+    name: FunctionName.AVERAGE,
+    description: 'Calculate average of arguments',
+    aliases: [FunctionName.AVG],
+  },
+  { name: FunctionName.MIN, description: 'Find minimum value' },
+  { name: FunctionName.MAX, description: 'Find maximum value' },
+  { name: FunctionName.ADD, description: 'Add two numbers' },
+  { name: FunctionName.SUB, description: 'Subtract two numbers' },
+  { name: FunctionName.MUL, description: 'Multiply two numbers', aliases: [FunctionName.MULTIPLY] },
+  { name: FunctionName.DIV, description: 'Divide two numbers', aliases: [FunctionName.DIVIDE] },
+];
 
 /**
  * Computes formula expressions using pre-evaluated cell values.
@@ -188,15 +225,23 @@ export class FormulaCalculator {
    * Execute a built-in function
    */
   private executeFunction(name: string, args: (number | string)[]): number {
-    switch (name.toUpperCase()) {
-      case 'SUM':
+    const upperName = name.toUpperCase();
+
+    // Validate function name before executing
+    const validFunctions = Object.values(FunctionName);
+    if (!validFunctions.includes(upperName as FunctionNameType)) {
+      throw new Error(`Unknown function: ${name}`);
+    }
+
+    switch (upperName as FunctionNameType) {
+      case FunctionName.SUM:
         if (args.length === 0) {
           throw new Error('SUM requires at least one argument');
         }
         return args.reduce((sum: number, val) => sum + this.toNumber(val), 0);
 
-      case 'AVERAGE':
-      case 'AVG': {
+      case FunctionName.AVERAGE:
+      case FunctionName.AVG: {
         if (args.length === 0) {
           throw new Error('AVERAGE requires at least one argument');
         }
@@ -204,39 +249,39 @@ export class FormulaCalculator {
         return sum / args.length;
       }
 
-      case 'MIN':
+      case FunctionName.MIN:
         if (args.length === 0) {
           throw new Error('MIN requires at least one argument');
         }
         return Math.min(...args.map(v => this.toNumber(v)));
 
-      case 'MAX':
+      case FunctionName.MAX:
         if (args.length === 0) {
           throw new Error('MAX requires at least one argument');
         }
         return Math.max(...args.map(v => this.toNumber(v)));
 
-      case 'ADD':
+      case FunctionName.ADD:
         if (args.length !== 2) {
           throw new Error('ADD requires exactly 2 arguments');
         }
         return this.toNumber(args[0]) + this.toNumber(args[1]);
 
-      case 'SUB':
+      case FunctionName.SUB:
         if (args.length !== 2) {
           throw new Error('SUB requires exactly 2 arguments');
         }
         return this.toNumber(args[0]) - this.toNumber(args[1]);
 
-      case 'MUL':
-      case 'MULTIPLY':
+      case FunctionName.MUL:
+      case FunctionName.MULTIPLY:
         if (args.length !== 2) {
           throw new Error('MUL requires exactly 2 arguments');
         }
         return this.toNumber(args[0]) * this.toNumber(args[1]);
 
-      case 'DIV':
-      case 'DIVIDE': {
+      case FunctionName.DIV:
+      case FunctionName.DIVIDE: {
         if (args.length !== 2) {
           throw new Error('DIV requires exactly 2 arguments');
         }
@@ -246,9 +291,6 @@ export class FormulaCalculator {
         }
         return this.toNumber(args[0]) / divisor;
       }
-
-      default:
-        throw new Error(`Unknown function: ${name}`);
     }
   }
 

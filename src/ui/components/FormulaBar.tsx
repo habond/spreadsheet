@@ -1,5 +1,7 @@
 import { useState, useEffect, forwardRef, KeyboardEvent } from 'react';
 import { useSpreadsheet } from '../SpreadsheetContext';
+import { FunctionMenu } from './FunctionMenu';
+import { InfoButton } from './InfoButton';
 
 export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_props, ref) {
   const { spreadsheet, selectedCell, updateCell, selectCell } = useSpreadsheet();
@@ -48,9 +50,24 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
     }
   };
 
+  const handleFunctionSelect = (functionName: string) => {
+    setFormulaValue(`=${functionName}()`);
+    // Focus the input and move cursor before closing paren
+    if (ref && typeof ref !== 'function' && ref.current) {
+      ref.current.focus();
+      // Set cursor position before the closing paren
+      setTimeout(() => {
+        if (ref && typeof ref !== 'function' && ref.current) {
+          const cursorPos = functionName.length + 2; // =FUNC()
+          ref.current.setSelectionRange(cursorPos, cursorPos);
+        }
+      }, 0);
+    }
+  };
+
   return (
     <div className="formula-bar">
-      <label htmlFor="formula-input">Formula Bar:</label>
+      <FunctionMenu onFunctionSelect={handleFunctionSelect} />
       <input
         ref={ref}
         type="text"
@@ -59,7 +76,9 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
         value={formulaValue}
         onChange={e => setFormulaValue(e.target.value)}
         onKeyDown={handleKeyDown}
+        autoComplete="off"
       />
+      <InfoButton />
     </div>
   );
 });
