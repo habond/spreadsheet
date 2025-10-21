@@ -198,4 +198,41 @@ export class Spreadsheet {
     }
     return heights;
   }
+
+  /**
+   * Export spreadsheet state for persistence
+   */
+  exportState() {
+    return {
+      cells: { ...this.cells },
+      columnWidths: Array.from(this.columnWidths.entries()),
+      rowHeights: Array.from(this.rowHeights.entries()),
+      selectedCell: this.selectedCell,
+    };
+  }
+
+  /**
+   * Import spreadsheet state from persistence
+   */
+  importState(state: {
+    cells: CellMap;
+    columnWidths: Array<[number, number]>;
+    rowHeights: Array<[number, number]>;
+    selectedCell: CellID | null;
+  }): void {
+    this.cells = { ...state.cells };
+    this.columnWidths = new Map(state.columnWidths);
+    this.rowHeights = new Map(state.rowHeights);
+    this.selectedCell = state.selectedCell;
+  }
+
+  /**
+   * Clear all data from the spreadsheet
+   */
+  clear(): void {
+    this.cells = {};
+    this.columnWidths.clear();
+    this.rowHeights.clear();
+    this.selectedCell = 'A1';
+  }
 }

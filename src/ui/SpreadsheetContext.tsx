@@ -1,8 +1,13 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Spreadsheet } from '../data/spreadsheet';
 import { EvalEngine } from '../core/eval-engine';
 import { CellResultStore } from '../data/cell-result-store';
 import { CellID } from '../core/types';
+import {
+  loadSpreadsheetState,
+  saveSpreadsheetState,
+  clearSpreadsheetState,
+} from '../data/local-storage';
 
 interface SpreadsheetContextType {
   spreadsheet: Spreadsheet;
@@ -13,6 +18,7 @@ interface SpreadsheetContextType {
   updateCell: (cellId: CellID, content: string) => void;
   setColumnWidth: (colIndex: number, width: number) => void;
   setRowHeight: (rowIndex: number, height: number) => void;
+  clearSpreadsheet: () => void;
   forceUpdate: () => void;
 }
 
@@ -33,6 +39,15 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     const spreadsheet = new Spreadsheet(rows, cols);
     const cellResultStore = new CellResultStore();
 
+    // Load saved state from localStorage
+    const savedState = loadSpreadsheetState();
+    if (savedState) {
+      spreadsheet.importState(savedState);
+    } else {
+      // Auto-select cell A1 if no saved state
+      spreadsheet.selectCell('A1');
+    }
+
     const evalEngine = new EvalEngine(
       // getCellValue callback
       cellId => spreadsheet.getCellContent(cellId),
@@ -45,8 +60,12 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
       }
     );
 
-    // Auto-select cell A1
-    spreadsheet.selectCell('A1');
+    // Re-evaluate all cells if we loaded state
+    if (savedState) {
+      Object.keys(savedState.cells).forEach(cellId => {
+        evalEngine.onCellChanged(cellId as CellID);
+      });
+    }
 
     return {
       spreadsheet,
@@ -55,7 +74,10 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     };
   });
 
-  const [selectedCell, setSelectedCell] = useState<CellID | null>('A1');
+  const [selectedCell, setSelectedCell] = useState<CellID | null>(() => {
+    const savedState = loadSpreadsheetState();
+    return savedState?.selectedCell || 'A1';
+  });
 
   const selectCell = useCallback(
     (cellId: CellID) => {
@@ -90,6 +112,20 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     [state.spreadsheet, forceUpdate]
   );
 
+  const clearSpreadsheet = useCallback(() => {
+    state.spreadsheet.clear();
+    state.cellResultStore.clear();
+    clearSpreadsheetState();
+    setSelectedCell('A1');
+    forceUpdate();
+  }, [state.spreadsheet, state.cellResultStore, forceUpdate]);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    const stateToSave = state.spreadsheet.exportState();
+    saveSpreadsheetState(stateToSave);
+  });
+
   const contextValue: SpreadsheetContextType = {
     ...state,
     selectedCell,
@@ -97,6 +133,7 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     updateCell,
     setColumnWidth,
     setRowHeight,
+    clearSpreadsheet,
     forceUpdate,
   };
 

@@ -23,7 +23,8 @@ src/
 │   └── types.ts             # Shared types
 ├── data/                    # Data layer
 │   ├── spreadsheet.ts       # Cell storage
-│   └── cell-result-store.ts # Evaluation cache
+│   ├── cell-result-store.ts # Evaluation cache
+│   └── local-storage.ts     # LocalStorage persistence
 ├── ui/                      # React UI layer
 │   ├── components/          # React components
 │   │   ├── App.tsx          # Main app layout
@@ -45,14 +46,16 @@ src/
 
 ```
 User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalEngine → CellResultStore → React Re-render
+                                    ↓
+                              localStorage (auto-save)
 ```
 
 ### Architecture Layers
 
-- **Data**: Pure storage (Spreadsheet with column/row sizing, CellResultStore)
+- **Data**: Pure storage (Spreadsheet with column/row sizing, CellResultStore, localStorage)
 - **Core**: Business logic (EvalEngine, parsers, evaluators, function metadata)
-- **UI**: React components (App, Grid with resize, Cell, FormulaBar, FunctionMenu, InfoButton)
-- **State**: React Context (SpreadsheetContext with resize handlers)
+- **UI**: React components (App, Grid with resize, Cell, FormulaBar, FunctionMenu, InfoButton, Clear button)
+- **State**: React Context (SpreadsheetContext with resize handlers and persistence)
 - **Entry**: main.tsx initialization
 
 ### Formula Evaluation
@@ -198,6 +201,16 @@ Column and row resizing is managed through:
 3. **Grid component**: Manages drag state and applies dynamic grid-template styles
 4. **CSS handles**: 8px wide/tall handles on header edges with hover effects
 
+### Data Persistence
+
+LocalStorage integration for automatic state persistence:
+
+1. **Auto-save**: `useEffect` in SpreadsheetContext saves state after every render
+2. **Auto-restore**: On mount, loads saved state and re-evaluates all formulas
+3. **State serialization**: `exportState()` and `importState()` methods in Spreadsheet class
+4. **Clear functionality**: `clearSpreadsheet()` resets all data and clears localStorage
+5. **Storage key**: `spreadsheet-state` contains cells, column widths, row heights, and selection
+
 ## What NOT to Do
 
 ❌ Don't add console.log (use debug tools instead)
@@ -211,6 +224,15 @@ Column and row resizing is managed through:
 
 ### Latest (Current)
 
+- **LocalStorage Persistence**: Automatic save/restore of all spreadsheet data
+  - Auto-save on every change (cells, column widths, row heights)
+  - Auto-restore on page load with formula re-evaluation
+  - Clear button to reset all data with confirmation dialog
+  - New `local-storage.ts` module with save/load/clear functions
+  - New `exportState()`, `importState()`, and `clear()` methods in Spreadsheet class
+
+### Previous
+
 - **Function Menu**: Added ƒx button with dropdown menu of all supported functions
 - **Info Popover**: Added ⓘ button that shows cell info in a popover
 - **Resizable Columns/Rows**: Drag column/row header edges to resize
@@ -218,7 +240,7 @@ Column and row resizing is managed through:
 - **UI Improvements**: Moved formula bar above grid, removed unnecessary labels
 - **Spreadsheet State**: Added column width and row height management
 
-### Previous
+### Earlier
 
 - **Converted to React**: Replaced vanilla JS with React components
 - **Added React Context**: SpreadsheetContext for state management

@@ -4,7 +4,7 @@ import { FunctionMenu } from './FunctionMenu';
 import { InfoButton } from './InfoButton';
 
 export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_props, ref) {
-  const { spreadsheet, selectedCell, updateCell, selectCell } = useSpreadsheet();
+  const { spreadsheet, selectedCell, updateCell, selectCell, clearSpreadsheet } = useSpreadsheet();
   const [formulaValue, setFormulaValue] = useState('');
 
   // Update formula value when selected cell changes
@@ -65,6 +65,13 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
     }
   };
 
+  const handleClear = () => {
+    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+      clearSpreadsheet();
+      setFormulaValue('');
+    }
+  };
+
   return (
     <div className="formula-bar">
       <FunctionMenu onFunctionSelect={handleFunctionSelect} />
@@ -79,6 +86,9 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
         autoComplete="off"
       />
       <InfoButton />
+      <button className="clear-button" onClick={handleClear} title="Clear all data">
+        Clear
+      </button>
     </div>
   );
 });

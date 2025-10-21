@@ -26,6 +26,8 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Resizable columns** - Drag column header edges to resize
 - **Resizable rows** - Drag row header edges to resize
 - **Keyboard navigation** - Arrow keys, Enter, Tab for efficient editing
+- **Auto-save** - Automatic persistence to localStorage
+- **Clear button** - Reset all data with confirmation dialog
 - **Clean, modern UI** - Streamlined interface with popovers for additional info
 
 ### Technical
@@ -67,6 +69,8 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
    - Use arrow keys to navigate between cells
    - **Resize columns**: Hover over column header edge and drag
    - **Resize rows**: Hover over row header edge and drag
+   - **Data persistence**: All changes are automatically saved to browser localStorage
+   - **Clear data**: Click the red "Clear" button to reset all data (with confirmation)
 
 ## Formula Syntax
 
@@ -117,7 +121,8 @@ src/
 │   └── types.ts                # Type definitions
 ├── data/                       # Data storage
 │   ├── spreadsheet.ts          # Cell data & navigation
-│   └── cell-result-store.ts    # Evaluation results
+│   ├── cell-result-store.ts    # Evaluation results
+│   └── local-storage.ts        # Browser localStorage persistence
 ├── ui/                         # React UI layer
 │   ├── components/             # React components
 │   │   ├── App.tsx             - Main app layout
@@ -222,6 +227,7 @@ The spreadsheet provides clear error messages:
 
 - **Function Menu (ƒx)**: Click to see all supported functions and insert them into formulas
 - **Info Button (ⓘ)**: Click to view current cell information in a popover
+- **Clear Button**: Red button to reset all spreadsheet data (with confirmation dialog)
 - **Formula Input**: Type values or formulas directly, with autocomplete disabled for better control
 
 ### Grid Interaction
@@ -247,6 +253,18 @@ Install the [React DevTools](https://react.dev/learn/react-developer-tools) brow
 - Monitor SpreadsheetContext state
 - Profile component re-renders
 
+## Data Persistence
+
+The spreadsheet automatically saves all data to browser localStorage:
+
+- **Auto-save**: Every change (cell edits, column/row resizing) is automatically saved
+- **Auto-restore**: Data persists across browser refreshes and sessions
+- **Clear data**: Click the red "Clear" button to reset all data
+- **Storage key**: `spreadsheet-state` in localStorage
+- **Stored data**: Cell contents, column widths, row heights, and selected cell
+
+**Note**: Data is stored in your browser's localStorage and is specific to this domain. Clearing browser data will remove the saved spreadsheet.
+
 ## Future Enhancements
 
 Potential additions to explore:
@@ -261,6 +279,7 @@ Potential additions to explore:
 - **Undo/redo**: History management for changes
 - **Copy/paste**: Cell and formula copying
 - **Export to CSV/Excel**: Download spreadsheet data
+- **Import from CSV/Excel**: Load external spreadsheet data
 - **Column/row insertion/deletion**: Dynamic grid sizing
 - **Freeze panes**: Lock headers while scrolling
 
