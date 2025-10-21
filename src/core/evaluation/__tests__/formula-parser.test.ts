@@ -163,5 +163,87 @@ describe('FormulaParser', () => {
         { type: 'RPAREN', value: ')' },
       ]);
     });
+
+    it('should tokenize string literals', () => {
+      const tokens = FormulaParser.tokenize('"hello"');
+      expect(tokens).toEqual([{ type: 'STRING', value: 'hello' }]);
+    });
+
+    it('should tokenize string literals with spaces', () => {
+      const tokens = FormulaParser.tokenize('"hello world"');
+      expect(tokens).toEqual([{ type: 'STRING', value: 'hello world' }]);
+    });
+
+    it('should tokenize CONCATENATE with strings', () => {
+      const tokens = FormulaParser.tokenize('CONCATENATE("Hello", " ", "World")');
+      expect(tokens).toEqual([
+        { type: 'FUNCTION', value: 'CONCATENATE' },
+        { type: 'LPAREN', value: '(' },
+        { type: 'STRING', value: 'Hello' },
+        { type: 'COMMA', value: ',' },
+        { type: 'STRING', value: ' ' },
+        { type: 'COMMA', value: ',' },
+        { type: 'STRING', value: 'World' },
+        { type: 'RPAREN', value: ')' },
+      ]);
+    });
+
+    it('should throw error on unterminated string', () => {
+      expect(() => FormulaParser.tokenize('"hello')).toThrow('Unterminated string literal');
+    });
+
+    it('should tokenize comparison operators', () => {
+      const tokens = FormulaParser.tokenize('5 > 3');
+      expect(tokens).toEqual([
+        { type: 'NUMBER', value: '5' },
+        { type: 'COMPARISON', value: '>' },
+        { type: 'NUMBER', value: '3' },
+      ]);
+    });
+
+    it('should tokenize all comparison operators', () => {
+      const tokens = FormulaParser.tokenize('A1 < B1');
+      expect(tokens[1]).toEqual({ type: 'COMPARISON', value: '<' });
+    });
+
+    it('should tokenize two-character comparison operators', () => {
+      const tokens1 = FormulaParser.tokenize('5 >= 3');
+      expect(tokens1[1]).toEqual({ type: 'COMPARISON', value: '>=' });
+
+      const tokens2 = FormulaParser.tokenize('5 <= 3');
+      expect(tokens2[1]).toEqual({ type: 'COMPARISON', value: '<=' });
+
+      const tokens3 = FormulaParser.tokenize('5 <> 3');
+      expect(tokens3[1]).toEqual({ type: 'COMPARISON', value: '<>' });
+
+      const tokens4 = FormulaParser.tokenize('5 = 3');
+      expect(tokens4[1]).toEqual({ type: 'COMPARISON', value: '=' });
+    });
+
+    it('should normalize == to =', () => {
+      const tokens = FormulaParser.tokenize('5 == 3');
+      expect(tokens[1]).toEqual({ type: 'COMPARISON', value: '=' });
+    });
+
+    it('should normalize != to <>', () => {
+      const tokens = FormulaParser.tokenize('5 != 3');
+      expect(tokens[1]).toEqual({ type: 'COMPARISON', value: '<>' });
+    });
+
+    it('should tokenize IF with comparison', () => {
+      const tokens = FormulaParser.tokenize('IF(A1 > 5, "High", "Low")');
+      expect(tokens).toEqual([
+        { type: 'FUNCTION', value: 'IF' },
+        { type: 'LPAREN', value: '(' },
+        { type: 'CELL_REF', value: 'A1' },
+        { type: 'COMPARISON', value: '>' },
+        { type: 'NUMBER', value: '5' },
+        { type: 'COMMA', value: ',' },
+        { type: 'STRING', value: 'High' },
+        { type: 'COMMA', value: ',' },
+        { type: 'STRING', value: 'Low' },
+        { type: 'RPAREN', value: ')' },
+      ]);
+    });
   });
 });

@@ -85,17 +85,69 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 =A1 + B1 * 2       Respects operator precedence
 ```
 
+### Comparison Operators
+
+```
+=A1 > B1           Greater than (returns 1 if true, 0 if false)
+=A1 < B1           Less than
+=A1 >= B1          Greater than or equal
+=A1 <= B1          Less than or equal
+=A1 = B1           Equal (also ==)
+=A1 <> B1          Not equal (also !=)
+=5 > 3             Direct comparisons (returns 1)
+="hello" = "hello" String comparisons (returns 1)
+```
+
 ### Functions
+
+#### Math Functions
 
 ```
 =SUM(A1, B1, C1)           Sum of values
-=AVERAGE(A1, B1, C1)       Average of values
+=AVERAGE(A1, B1, C1)       Average of values (alias: AVG)
 =MIN(A1, B1, C1)           Minimum value
 =MAX(A1, B1, C1)           Maximum value
 =ADD(A1, B1)               Add two values
 =SUB(A1, B1)               Subtract two values
-=MUL(A1, B1)               Multiply two values
-=DIV(A1, B1)               Divide two values
+=MUL(A1, B1)               Multiply two values (alias: MULTIPLY)
+=DIV(A1, B1)               Divide two values (alias: DIVIDE)
+```
+
+#### Logical Functions
+
+```
+=IF(A1 > 10, "High", "Low")       Conditional logic with comparison
+=IF(A1 = B1, "Equal", "Different") String or number comparison
+=IF(A1, B1, C1)                   If A1 is true/non-zero, return B1, else C1
+```
+
+#### Count Functions
+
+```
+=COUNT(A1, B1, C1, "text")        Count numeric values (returns 3)
+```
+
+#### String Functions
+
+```
+=CONCATENATE("Hello", " ", "World")   Join text strings (returns "Hello World")
+=CONCAT(A1, A2)                       Alias for CONCATENATE
+=LEFT("Hello", 3)                     Extract from left (returns "Hel")
+=RIGHT("Hello", 2)                    Extract from right (returns "lo")
+=TRIM("  text  ")                     Remove leading/trailing spaces (returns "text")
+=UPPER("hello")                       Convert to uppercase (returns "HELLO")
+=LOWER("HELLO")                       Convert to lowercase (returns "hello")
+```
+
+#### Date/Time Functions
+
+```
+=NOW()                                Current date and time as timestamp
+=TODAY()                              Current date at midnight as timestamp
+=DATE(2024, 3, 15)                    Create date from year, month, day
+=DATEDIF(start, end, "D")             Calculate difference in Days
+=DATEDIF(start, end, "M")             Calculate difference in Months
+=DATEDIF(start, end, "Y")             Calculate difference in Years
 ```
 
 ### Complex Formulas
@@ -104,6 +156,12 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 =SUM(A1, B1) + C1 * 2
 =AVERAGE(A1, B1, C1) - MIN(D1, E1)
 =ADD(SUM(A1, B1), MUL(C1, 2))
+=IF(A1 > 100, "Large", "Small")
+=IF(A1 >= 90, "A", IF(A1 >= 80, "B", "C"))
+=CONCATENATE("Total: ", SUM(A1, A2, A3))
+=DATEDIF(DATE(2024, 1, 1), DATE(2024, 12, 31), "D")
+=UPPER(CONCATENATE(A1, " ", A2))
+=IF(LEFT(A1, 3) = "ABC", "Match", "No match")
 ```
 
 ## Architecture
@@ -270,9 +328,7 @@ The spreadsheet automatically saves all data to browser localStorage:
 Potential additions to explore:
 
 - **Cell ranges**: `=SUM(A1:A10)` for range operations
-- **More functions**: `IF`, `VLOOKUP`, `CONCATENATE`, `COUNT`, `COUNTIF`
-- **String operations**: `CONCAT`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`
-- **Date/time functions**: `NOW`, `TODAY`, `DATE`, `DATEDIF`
+- **Range-based functions**: `VLOOKUP`, `COUNTIF`, `SUMIF` (requires range support)
 - **Conditional formatting**: Color cells based on values
 - **Cell formatting**: Number formats, colors, fonts, alignment
 - **Multiple sheets**: Tabs for different worksheets

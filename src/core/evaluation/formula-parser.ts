@@ -2,9 +2,11 @@ import { CellID } from '../types';
 
 export type TokenType =
   | 'NUMBER'
+  | 'STRING'
   | 'CELL_REF'
   | 'FUNCTION'
   | 'OPERATOR'
+  | 'COMPARISON'
   | 'LPAREN'
   | 'RPAREN'
   | 'COMMA';
@@ -46,6 +48,22 @@ export class FormulaParser {
         continue;
       }
 
+      // String literals (double quotes)
+      if (char === '"') {
+        let str = '';
+        i++; // Skip opening quote
+        while (i < formula.length && formula[i] !== '"') {
+          str += formula[i];
+          i++;
+        }
+        if (i >= formula.length) {
+          throw new Error('Unterminated string literal');
+        }
+        i++; // Skip closing quote
+        tokens.push({ type: 'STRING', value: str });
+        continue;
+      }
+
       // Numbers (including decimals)
       if (/\d/.test(char)) {
         let num = '';
@@ -77,7 +95,31 @@ export class FormulaParser {
         continue;
       }
 
-      // Operators
+      // Comparison operators (need to check two-character operators first)
+      if (char === '>' || char === '<' || char === '=' || char === '!') {
+        let op = char;
+        // Check for two-character operators: >=, <=, ==, !=, <>
+        if (i + 1 < formula.length) {
+          const nextChar = formula[i + 1];
+          if (
+            (char === '>' && nextChar === '=') ||
+            (char === '<' && (nextChar === '=' || nextChar === '>')) ||
+            (char === '=' && nextChar === '=') ||
+            (char === '!' && nextChar === '=')
+          ) {
+            op += nextChar;
+            i++;
+          }
+        }
+        // Normalize == to = and != or <> to <>
+        if (op === '==') op = '=';
+        if (op === '!=') op = '<>';
+        tokens.push({ type: 'COMPARISON', value: op });
+        i++;
+        continue;
+      }
+
+      // Arithmetic operators
       if (['+', '-', '*', '/'].includes(char)) {
         tokens.push({ type: 'OPERATOR', value: char });
         i++;

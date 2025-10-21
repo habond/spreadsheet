@@ -224,14 +224,27 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **New Functions & Operators**: Expanded formula capabilities
+  - **String functions**: `CONCATENATE`/`CONCAT`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`
+  - **Logical functions**: `IF` for conditional logic
+  - **Count functions**: `COUNT` for counting numeric values
+  - **Date/time functions**: `NOW`, `TODAY`, `DATE`, `DATEDIF` (D/M/Y units)
+  - **Comparison operators**: `>`, `<`, `>=`, `<=`, `=` (or `==`), `<>` (or `!=`)
+  - **String literals**: Support for double-quoted strings in formulas
+  - String literals tokenized as `STRING` type
+  - Comparison operators tokenized as `COMPARISON` type
+  - Comparison precedence below arithmetic operations
+  - Comparisons return 1 (true) or 0 (false) like Excel
+  - Added 90+ new test cases for all new functions and operators
+
+### Previous
+
 - **LocalStorage Persistence**: Automatic save/restore of all spreadsheet data
   - Auto-save on every change (cells, column widths, row heights)
   - Auto-restore on page load with formula re-evaluation
   - Clear button to reset all data with confirmation dialog
   - New `local-storage.ts` module with save/load/clear functions
   - New `exportState()`, `importState()`, and `clear()` methods in Spreadsheet class
-
-### Previous
 
 - **Function Menu**: Added ƒx button with dropdown menu of all supported functions
 - **Info Popover**: Added ⓘ button that shows cell info in a popover
