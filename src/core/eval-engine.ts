@@ -2,6 +2,7 @@ import { CellID, GetCellValueFn, GetCellResultFn, SetCellResultFn } from './type
 import { FormulaParser } from './evaluation/formula-parser';
 import { FormulaCalculator } from './evaluation/formula-calculator';
 import { DependencyGraph } from './evaluation/dependency-graph';
+import { CircularDependencyError } from './errors';
 
 /**
  * Orchestrates cell evaluation with dependency tracking and cycle detection.
@@ -47,10 +48,10 @@ export class EvalEngine {
     // Check for circular dependencies
     const cycle = this.dependencyGraph.detectCycle(cellId);
     if (cycle) {
-      const cycleStr = cycle.join(' -> ');
+      const error = new CircularDependencyError(cycle);
       this.setCellResult(cellId, {
         value: null,
-        error: `Circular dependency: ${cycleStr}`,
+        error: error.message,
       });
       return;
     }

@@ -3,6 +3,7 @@
  */
 
 import { CellMap } from './spreadsheet';
+import { CellID, CellFormat } from '../core/types';
 
 const STORAGE_KEY = 'spreadsheet-state';
 
@@ -10,6 +11,7 @@ export interface SpreadsheetState {
   cells: CellMap;
   columnWidths: Array<[number, number]>; // Array of [colIndex, width] tuples
   rowHeights: Array<[number, number]>; // Array of [rowIndex, height] tuples
+  cellFormats?: Array<[CellID, CellFormat]>; // Array of [cellId, format] tuples
   selectedCell: string | null;
 }
 

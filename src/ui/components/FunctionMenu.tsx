@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { SUPPORTED_FUNCTIONS } from '../../core/evaluation/formula-calculator';
+import { useClickOutside } from '../hooks/useClickOutside';
 
 interface FunctionMenuProps {
   onFunctionSelect: (functionName: string) => void;
@@ -9,22 +10,8 @@ export function FunctionMenu({ onFunctionSelect }: FunctionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
+  const handleClose = useCallback(() => setIsOpen(false), []);
+  useClickOutside(menuRef, isOpen ? handleClose : () => {});
 
   const handleFunctionClick = (functionName: string) => {
     onFunctionSelect(functionName);

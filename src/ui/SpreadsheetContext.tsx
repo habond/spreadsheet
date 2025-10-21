@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  ReactNode,
+} from 'react';
 import { Spreadsheet } from '../data/spreadsheet';
 import { EvalEngine } from '../core/eval-engine';
 import { CellResultStore } from '../data/cell-result-store';
@@ -8,6 +16,7 @@ import {
   saveSpreadsheetState,
   clearSpreadsheetState,
 } from '../data/local-storage';
+import { useDebounce } from './hooks/useDebounce';
 
 interface SpreadsheetContextType {
   spreadsheet: Spreadsheet;
@@ -129,23 +138,49 @@ export function SpreadsheetProvider({ children, rows = 20, cols = 10 }: Spreadsh
     forceUpdate();
   }, [state.spreadsheet, state.cellResultStore, forceUpdate]);
 
-  // Save state to localStorage whenever it changes
-  useEffect(() => {
-    const stateToSave = state.spreadsheet.exportState();
-    saveSpreadsheetState(stateToSave);
-  });
+  // Create a trigger value that changes when spreadsheet state changes
+  const [saveTrigger, setSaveTrigger] = useState(0);
 
-  const contextValue: SpreadsheetContextType = {
-    ...state,
-    selectedCell,
-    selectCell,
-    updateCell,
-    setColumnWidth,
-    setRowHeight,
-    setCellFormat,
-    clearSpreadsheet,
-    forceUpdate,
-  };
+  // Update save trigger whenever spreadsheet changes
+  useEffect(() => {
+    setSaveTrigger(prev => prev + 1);
+  }, [selectedCell]); // Trigger on any state change
+
+  // Debounce the save trigger
+  const debouncedSaveTrigger = useDebounce(saveTrigger, 500);
+
+  // Save to localStorage when debounced trigger changes
+  useEffect(() => {
+    if (debouncedSaveTrigger > 0) {
+      const stateToSave = state.spreadsheet.exportState();
+      saveSpreadsheetState(stateToSave);
+    }
+  }, [debouncedSaveTrigger, state.spreadsheet]);
+
+  const contextValue: SpreadsheetContextType = useMemo(
+    () => ({
+      ...state,
+      selectedCell,
+      selectCell,
+      updateCell,
+      setColumnWidth,
+      setRowHeight,
+      setCellFormat,
+      clearSpreadsheet,
+      forceUpdate,
+    }),
+    [
+      state,
+      selectedCell,
+      selectCell,
+      updateCell,
+      setColumnWidth,
+      setRowHeight,
+      setCellFormat,
+      clearSpreadsheet,
+      forceUpdate,
+    ]
+  );
 
   return <SpreadsheetContext.Provider value={contextValue}>{children}</SpreadsheetContext.Provider>;
 }

@@ -3,7 +3,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-184%20passing-brightgreen.svg)]()
 
 A fully-featured spreadsheet implementation with a robust evaluation engine, built with TypeScript and React.
 
@@ -14,10 +13,11 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **20x10 grid** of cells (A-J columns, 1-20 rows)
 - **Formula support** with Excel-like syntax
 - **Arithmetic operators**: `+`, `-`, `*`, `/` with proper precedence
-- **Built-in functions**: `SUM`, `AVERAGE`, `MIN`, `MAX`, `ADD`, `SUB`, `MUL`, `DIV`
+- **Built-in functions**: `SUM`, `AVERAGE`, `MIN`, `MAX`, `ADD`, `SUB`, `MUL`, `DIV`, and more
 - **Dependency tracking** with automatic cascading updates
 - **Circular dependency detection** with clear error messages
 - **Comprehensive error handling** for all edge cases
+- **Cell formatting**: Raw, Date (mm/dd/yyyy), Boolean (1→True, 0→False)
 
 ### User Interface
 
@@ -26,16 +26,19 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Resizable columns** - Drag column header edges to resize
 - **Resizable rows** - Drag row header edges to resize
 - **Keyboard navigation** - Arrow keys, Enter, Tab for efficient editing
-- **Auto-save** - Automatic persistence to localStorage
+- **Auto-save** - Automatic debounced persistence to localStorage
 - **Clear button** - Reset all data with confirmation dialog
 - **Clean, modern UI** - Streamlined interface with popovers for additional info
+- **Error boundary** - Graceful error handling with recovery options
 
 ### Technical
 
 - Full **TypeScript type safety** with strict mode
 - **React 19** with Context API for state management
 - **Type-safe function definitions** with centralized metadata
-- **184 passing tests** with comprehensive test coverage
+- **Performance optimized** with memoization and debouncing
+- **ESLint** with React and React Hooks rules
+- **Comprehensive test coverage**: 295 tests with Vitest + React Testing Library
 
 ## Getting Started
 

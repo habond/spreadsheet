@@ -1,4 +1,4 @@
-import { useState, MouseEvent } from 'react';
+import { useState, MouseEvent, useMemo } from 'react';
 import { useSpreadsheet } from '../SpreadsheetContext';
 import { Cell } from './Cell';
 
@@ -47,18 +47,27 @@ export function Grid() {
     setResizingRow(null);
   };
 
-  const columnHeadersStyle = {
-    gridTemplateColumns: `40px ${columnWidths.map(w => `${w}px`).join(' ')}`,
-  };
+  const columnHeadersStyle = useMemo(
+    () => ({
+      gridTemplateColumns: `40px ${columnWidths.map(w => `${w}px`).join(' ')}`,
+    }),
+    [columnWidths]
+  );
 
-  const rowHeadersStyle = {
-    gridTemplateRows: rowHeights.map(h => `${h}px`).join(' '),
-  };
+  const rowHeadersStyle = useMemo(
+    () => ({
+      gridTemplateRows: rowHeights.map(h => `${h}px`).join(' '),
+    }),
+    [rowHeights]
+  );
 
-  const gridStyle = {
-    gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' '),
-    gridTemplateRows: rowHeights.map(h => `${h}px`).join(' '),
-  };
+  const gridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' '),
+      gridTemplateRows: rowHeights.map(h => `${h}px`).join(' '),
+    }),
+    [columnWidths, rowHeights]
+  );
 
   return (
     <div
@@ -69,7 +78,7 @@ export function Grid() {
     >
       <div className="column-headers" style={columnHeadersStyle}>
         {/* Empty corner cell */}
-        <div className="column-header"></div>
+        <div className="column-header" />
         {/* Column headers (A, B, C, ...) */}
         {Array.from({ length: cols }, (_, col) => (
           <div key={col} className="column-header">

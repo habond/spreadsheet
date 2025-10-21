@@ -1,5 +1,12 @@
 import { FormulaParser, Token } from './formula-parser';
 import { EvalResult, GetCellResultFn, FunctionInfo } from '../types';
+import {
+  CellReferenceError,
+  DivisionByZeroError,
+  FunctionArgumentError,
+  InvalidFunctionError,
+  FormulaParseError,
+} from '../errors';
 
 type ParseResult = { value: number | string; nextPos: number };
 
@@ -142,7 +149,7 @@ export class FormulaCalculator {
             compResult = this.toNumber(result.value) >= this.toNumber(right.value);
             break;
           default:
-            throw new Error(`Unknown comparison operator: ${token.value}`);
+            throw new FormulaParseError(`Unknown comparison operator: ${token.value}`);
         }
         // Return 1 for true, 0 for false (like Excel)
         result.value = compResult ? 1 : 0;
@@ -196,7 +203,7 @@ export class FormulaCalculator {
         } else {
           const divisor = this.toNumber(right.value);
           if (divisor === 0) {
-            throw new Error('Division by zero');
+            throw new DivisionByZeroError();
           }
           result.value = this.toNumber(result.value) / divisor;
         }
@@ -214,7 +221,7 @@ export class FormulaCalculator {
    */
   private parseFactor(tokens: Token[], pos: number): ParseResult {
     if (pos >= tokens.length) {
-      throw new Error('Unexpected end of formula');
+      throw new FormulaParseError('Unexpected end of formula');
     }
 
     const token = tokens[pos];
@@ -233,13 +240,13 @@ export class FormulaCalculator {
     if (token.type === 'CELL_REF') {
       const cellResult = this.getCellResult(token.value);
       if (!cellResult) {
-        throw new Error(`Cell ${token.value} has no value`);
+        throw new CellReferenceError(token.value, 'has no value');
       }
       if (cellResult.error) {
-        throw new Error(`Cell ${token.value} has error: ${cellResult.error}`);
+        throw new CellReferenceError(token.value, `has error: ${cellResult.error}`);
       }
       if (cellResult.value === null) {
-        throw new Error(`Cell ${token.value} has no value`);
+        throw new CellReferenceError(token.value, 'has no value');
       }
       return { value: cellResult.value, nextPos: pos + 1 };
     }
@@ -253,12 +260,12 @@ export class FormulaCalculator {
     if (token.type === 'LPAREN') {
       const result = this.parseComparison(tokens, pos + 1);
       if (result.nextPos >= tokens.length || tokens[result.nextPos].type !== 'RPAREN') {
-        throw new Error('Missing closing parenthesis');
+        throw new FormulaParseError('Missing closing parenthesis');
       }
       return { value: result.value, nextPos: result.nextPos + 1 };
     }
 
-    throw new Error(`Unexpected token: ${token.value}`);
+    throw new FormulaParseError(`Unexpected token: ${token.value}`);
   }
 
   /**
@@ -270,7 +277,7 @@ export class FormulaCalculator {
 
     // Expect opening parenthesis
     if (pos + 1 >= tokens.length || tokens[pos + 1].type !== 'LPAREN') {
-      throw new Error(`Expected '(' after function ${funcName}`);
+      throw new FormulaParseError(`Expected '(' after function ${funcName}`);
     }
 
     // Parse arguments
@@ -288,7 +295,7 @@ export class FormulaCalculator {
         currentPos = argResult.nextPos;
 
         if (currentPos >= tokens.length) {
-          throw new Error(`Missing closing parenthesis for function ${funcName}`);
+          throw new FormulaParseError(`Missing closing parenthesis for function ${funcName}`);
         }
 
         const nextToken = tokens[currentPos];
@@ -299,7 +306,7 @@ export class FormulaCalculator {
           currentPos++;
           continue;
         } else {
-          throw new Error(`Expected ',' or ')' in function ${funcName}`);
+          throw new FormulaParseError(`Expected ',' or ')' in function ${funcName}`);
         }
       }
     }
@@ -318,20 +325,20 @@ export class FormulaCalculator {
     // Validate function name before executing
     const validFunctions = Object.values(FunctionName);
     if (!validFunctions.includes(upperName as FunctionNameType)) {
-      throw new Error(`Unknown function: ${name}`);
+      throw new InvalidFunctionError(name);
     }
 
     switch (upperName as FunctionNameType) {
       case FunctionName.SUM:
         if (args.length === 0) {
-          throw new Error('SUM requires at least one argument');
+          throw new FunctionArgumentError('SUM', 'requires at least one argument');
         }
         return args.reduce((sum: number, val) => sum + this.toNumber(val), 0);
 
       case FunctionName.AVERAGE:
       case FunctionName.AVG: {
         if (args.length === 0) {
-          throw new Error('AVERAGE requires at least one argument');
+          throw new FunctionArgumentError('AVERAGE', 'requires at least one argument');
         }
         const sum = args.reduce((s: number, val) => s + this.toNumber(val), 0);
         return sum / args.length;
@@ -339,43 +346,43 @@ export class FormulaCalculator {
 
       case FunctionName.MIN:
         if (args.length === 0) {
-          throw new Error('MIN requires at least one argument');
+          throw new FunctionArgumentError('MIN', 'requires at least one argument');
         }
         return Math.min(...args.map(v => this.toNumber(v)));
 
       case FunctionName.MAX:
         if (args.length === 0) {
-          throw new Error('MAX requires at least one argument');
+          throw new FunctionArgumentError('MAX', 'requires at least one argument');
         }
         return Math.max(...args.map(v => this.toNumber(v)));
 
       case FunctionName.ADD:
         if (args.length !== 2) {
-          throw new Error('ADD requires exactly 2 arguments');
+          throw new FunctionArgumentError('ADD', 'requires exactly 2 arguments');
         }
         return this.toNumber(args[0]) + this.toNumber(args[1]);
 
       case FunctionName.SUB:
         if (args.length !== 2) {
-          throw new Error('SUB requires exactly 2 arguments');
+          throw new FunctionArgumentError('SUB', 'requires exactly 2 arguments');
         }
         return this.toNumber(args[0]) - this.toNumber(args[1]);
 
       case FunctionName.MUL:
       case FunctionName.MULTIPLY:
         if (args.length !== 2) {
-          throw new Error('MUL requires exactly 2 arguments');
+          throw new FunctionArgumentError('MUL', 'requires exactly 2 arguments');
         }
         return this.toNumber(args[0]) * this.toNumber(args[1]);
 
       case FunctionName.DIV:
       case FunctionName.DIVIDE: {
         if (args.length !== 2) {
-          throw new Error('DIV requires exactly 2 arguments');
+          throw new FunctionArgumentError('DIV', 'requires exactly 2 arguments');
         }
         const divisor = this.toNumber(args[1]);
         if (divisor === 0) {
-          throw new Error('Division by zero');
+          throw new DivisionByZeroError();
         }
         return this.toNumber(args[0]) / divisor;
       }
@@ -383,7 +390,7 @@ export class FormulaCalculator {
       // Logical functions
       case FunctionName.IF: {
         if (args.length !== 3) {
-          throw new Error('IF requires exactly 3 arguments');
+          throw new FunctionArgumentError('IF', 'requires exactly 3 arguments');
         }
         const condition = this.toBoolean(args[0]);
         return condition ? args[1] : args[2];
@@ -392,7 +399,7 @@ export class FormulaCalculator {
       // Count functions
       case FunctionName.COUNT: {
         if (args.length === 0) {
-          throw new Error('COUNT requires at least one argument');
+          throw new FunctionArgumentError('COUNT', 'requires at least one argument');
         }
         return args.filter(val => typeof val === 'number' || !isNaN(Number(val))).length;
       }
@@ -401,14 +408,14 @@ export class FormulaCalculator {
       case FunctionName.CONCATENATE:
       case FunctionName.CONCAT: {
         if (args.length === 0) {
-          throw new Error('CONCATENATE requires at least one argument');
+          throw new FunctionArgumentError('CONCATENATE', 'requires at least one argument');
         }
         return args.map(String).join('');
       }
 
       case FunctionName.LEFT: {
         if (args.length !== 2) {
-          throw new Error('LEFT requires exactly 2 arguments');
+          throw new FunctionArgumentError('LEFT', 'requires exactly 2 arguments');
         }
         const text = String(args[0]);
         const numChars = this.toNumber(args[1]);
@@ -417,7 +424,7 @@ export class FormulaCalculator {
 
       case FunctionName.RIGHT: {
         if (args.length !== 2) {
-          throw new Error('RIGHT requires exactly 2 arguments');
+          throw new FunctionArgumentError('RIGHT', 'requires exactly 2 arguments');
         }
         const text = String(args[0]);
         const numChars = this.toNumber(args[1]);
@@ -426,21 +433,21 @@ export class FormulaCalculator {
 
       case FunctionName.TRIM: {
         if (args.length !== 1) {
-          throw new Error('TRIM requires exactly 1 argument');
+          throw new FunctionArgumentError('TRIM', 'requires exactly 1 argument');
         }
         return String(args[0]).trim();
       }
 
       case FunctionName.UPPER: {
         if (args.length !== 1) {
-          throw new Error('UPPER requires exactly 1 argument');
+          throw new FunctionArgumentError('UPPER', 'requires exactly 1 argument');
         }
         return String(args[0]).toUpperCase();
       }
 
       case FunctionName.LOWER: {
         if (args.length !== 1) {
-          throw new Error('LOWER requires exactly 1 argument');
+          throw new FunctionArgumentError('LOWER', 'requires exactly 1 argument');
         }
         return String(args[0]).toLowerCase();
       }
@@ -448,14 +455,14 @@ export class FormulaCalculator {
       // Date/time functions
       case FunctionName.NOW: {
         if (args.length !== 0) {
-          throw new Error('NOW requires no arguments');
+          throw new FunctionArgumentError('NOW', 'requires no arguments');
         }
         return Date.now();
       }
 
       case FunctionName.TODAY: {
         if (args.length !== 0) {
-          throw new Error('TODAY requires no arguments');
+          throw new FunctionArgumentError('TODAY', 'requires no arguments');
         }
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -464,7 +471,10 @@ export class FormulaCalculator {
 
       case FunctionName.DATE: {
         if (args.length !== 3) {
-          throw new Error('DATE requires exactly 3 arguments (year, month, day)');
+          throw new FunctionArgumentError(
+            'DATE',
+            'requires exactly 3 arguments (year, month, day)'
+          );
         }
         const year = this.toNumber(args[0]);
         const month = this.toNumber(args[1]);
@@ -474,7 +484,10 @@ export class FormulaCalculator {
 
       case FunctionName.DATEDIF: {
         if (args.length !== 3) {
-          throw new Error('DATEDIF requires exactly 3 arguments (start, end, unit)');
+          throw new FunctionArgumentError(
+            'DATEDIF',
+            'requires exactly 3 arguments (start, end, unit)'
+          );
         }
         const start = this.toNumber(args[0]);
         const end = this.toNumber(args[1]);
@@ -495,12 +508,12 @@ export class FormulaCalculator {
           case 'Y': // Years
             return endDate.getFullYear() - startDate.getFullYear();
           default:
-            throw new Error(`Invalid unit for DATEDIF: ${unit}. Use D, M, or Y.`);
+            throw new FunctionArgumentError('DATEDIF', `Invalid unit: ${unit}. Use D, M, or Y.`);
         }
       }
 
       default:
-        throw new Error(`Unknown function: ${name}`);
+        throw new InvalidFunctionError(name);
     }
   }
 
@@ -513,7 +526,7 @@ export class FormulaCalculator {
     }
     const num = parseFloat(String(value));
     if (isNaN(num)) {
-      throw new Error(`Cannot convert '${value}' to number`);
+      throw new FormulaParseError(`Cannot convert '${value}' to number`);
     }
     return num;
   }

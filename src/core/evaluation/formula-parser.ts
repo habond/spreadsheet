@@ -1,4 +1,5 @@
 import { CellID } from '../types';
+import { FormulaParseError } from '../errors';
 
 export type TokenType =
   | 'NUMBER'
@@ -57,7 +58,7 @@ export class FormulaParser {
           i++;
         }
         if (i >= formula.length) {
-          throw new Error('Unterminated string literal');
+          throw new FormulaParseError('Unterminated string literal');
         }
         i++; // Skip closing quote
         tokens.push({ type: 'STRING', value: str });
@@ -90,7 +91,7 @@ export class FormulaParser {
           // It's a cell reference
           tokens.push({ type: 'CELL_REF', value: ident });
         } else {
-          throw new Error(`Invalid identifier: ${ident}`);
+          throw new FormulaParseError(`Invalid identifier: ${ident}`);
         }
         continue;
       }
@@ -146,7 +147,7 @@ export class FormulaParser {
         continue;
       }
 
-      throw new Error(`Unexpected character: ${char}`);
+      throw new FormulaParseError(`Unexpected character: ${char}`);
     }
 
     return tokens;

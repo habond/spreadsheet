@@ -129,7 +129,7 @@ describe('FormulaCalculator', () => {
 
     it('should require at least one argument', () => {
       const result = calculator.calculate('SUM()');
-      expect(result.error).toContain('SUM requires at least one argument');
+      expect(result.error).toContain('requires at least one argument');
     });
   });
 
@@ -154,7 +154,7 @@ describe('FormulaCalculator', () => {
 
     it('should require at least one argument', () => {
       const result = calculator.calculate('AVERAGE()');
-      expect(result.error).toContain('AVERAGE requires at least one argument');
+      expect(result.error).toContain('requires at least one argument');
     });
   });
 
@@ -175,7 +175,7 @@ describe('FormulaCalculator', () => {
 
     it('should require at least one argument', () => {
       const result = calculator.calculate('MIN()');
-      expect(result.error).toContain('MIN requires at least one argument');
+      expect(result.error).toContain('requires at least one argument');
     });
   });
 
@@ -196,7 +196,7 @@ describe('FormulaCalculator', () => {
 
     it('should require at least one argument', () => {
       const result = calculator.calculate('MAX()');
-      expect(result.error).toContain('MAX requires at least one argument');
+      expect(result.error).toContain('requires at least one argument');
     });
   });
 
@@ -233,7 +233,7 @@ describe('FormulaCalculator', () => {
 
     it('should require exactly 2 arguments for ADD', () => {
       const result = calculator.calculate('ADD(1, 2, 3)');
-      expect(result.error).toContain('ADD requires exactly 2 arguments');
+      expect(result.error).toContain('requires exactly 2 arguments');
     });
 
     it('should handle division by zero in DIV function', () => {
@@ -330,7 +330,7 @@ describe('FormulaCalculator', () => {
 
     it('should require exactly 3 arguments', () => {
       const result = calculator.calculate('IF(1, "yes")');
-      expect(result.error).toContain('IF requires exactly 3 arguments');
+      expect(result.error).toContain('requires exactly 3 arguments');
     });
 
     it('should handle nested IF', () => {
@@ -364,7 +364,7 @@ describe('FormulaCalculator', () => {
 
     it('should require at least one argument', () => {
       const result = calculator.calculate('COUNT()');
-      expect(result.error).toContain('COUNT requires at least one argument');
+      expect(result.error).toContain('requires at least one argument');
     });
   });
 
@@ -395,7 +395,7 @@ describe('FormulaCalculator', () => {
 
       it('should require at least one argument', () => {
         const result = calculator.calculate('CONCATENATE()');
-        expect(result.error).toContain('CONCATENATE requires at least one argument');
+        expect(result.error).toContain('requires at least one argument');
       });
     });
 
@@ -413,7 +413,7 @@ describe('FormulaCalculator', () => {
 
       it('should require exactly 2 arguments', () => {
         const result = calculator.calculate('LEFT("text")');
-        expect(result.error).toContain('LEFT requires exactly 2 arguments');
+        expect(result.error).toContain('requires exactly 2 arguments');
       });
     });
 
@@ -431,7 +431,7 @@ describe('FormulaCalculator', () => {
 
       it('should require exactly 2 arguments', () => {
         const result = calculator.calculate('RIGHT("text")');
-        expect(result.error).toContain('RIGHT requires exactly 2 arguments');
+        expect(result.error).toContain('requires exactly 2 arguments');
       });
     });
 
@@ -449,7 +449,7 @@ describe('FormulaCalculator', () => {
 
       it('should require exactly 1 argument', () => {
         const result = calculator.calculate('TRIM()');
-        expect(result.error).toContain('TRIM requires exactly 1 argument');
+        expect(result.error).toContain('requires exactly 1 argument');
       });
     });
 
@@ -467,7 +467,7 @@ describe('FormulaCalculator', () => {
 
       it('should require exactly 1 argument', () => {
         const result = calculator.calculate('UPPER()');
-        expect(result.error).toContain('UPPER requires exactly 1 argument');
+        expect(result.error).toContain('requires exactly 1 argument');
       });
     });
 
@@ -485,7 +485,7 @@ describe('FormulaCalculator', () => {
 
       it('should require exactly 1 argument', () => {
         const result = calculator.calculate('LOWER()');
-        expect(result.error).toContain('LOWER requires exactly 1 argument');
+        expect(result.error).toContain('requires exactly 1 argument');
       });
     });
   });
@@ -612,7 +612,7 @@ describe('FormulaCalculator', () => {
 
       it('should require no arguments', () => {
         const result = calculator.calculate('NOW(1)');
-        expect(result.error).toContain('NOW requires no arguments');
+        expect(result.error).toContain('requires no arguments');
       });
     });
 
@@ -628,7 +628,7 @@ describe('FormulaCalculator', () => {
 
       it('should require no arguments', () => {
         const result = calculator.calculate('TODAY(1)');
-        expect(result.error).toContain('TODAY requires no arguments');
+        expect(result.error).toContain('requires no arguments');
       });
     });
 
@@ -655,7 +655,7 @@ describe('FormulaCalculator', () => {
 
       it('should require exactly 3 arguments', () => {
         const result = calculator.calculate('DATE(2024, 3)');
-        expect(result.error).toContain('DATE requires exactly 3 arguments');
+        expect(result.error).toContain('requires exactly 3 arguments');
       });
     });
 
@@ -699,7 +699,7 @@ describe('FormulaCalculator', () => {
 
       it('should require exactly 3 arguments', () => {
         const result = calculator.calculate('DATEDIF(1, 2)');
-        expect(result.error).toContain('DATEDIF requires exactly 3 arguments');
+        expect(result.error).toContain('requires exactly 3 arguments');
       });
 
       it('should handle invalid unit', () => {
@@ -707,7 +707,7 @@ describe('FormulaCalculator', () => {
         const end = new Date(2024, 0, 11).getTime();
 
         const result = calculator.calculate(`DATEDIF(${start}, ${end}, "X")`);
-        expect(result.error).toContain('Invalid unit for DATEDIF');
+        expect(result.error).toContain('Invalid unit');
       });
     });
   });

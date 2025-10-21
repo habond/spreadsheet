@@ -13,6 +13,12 @@ export interface CellMap {
   [cellId: CellID]: CellData;
 }
 
+// Constants for spreadsheet sizing
+const DEFAULT_COLUMN_WIDTH = 100;
+const DEFAULT_ROW_HEIGHT = 32;
+const MIN_COLUMN_WIDTH = 20;
+const MIN_ROW_HEIGHT = 20;
+
 export class Spreadsheet {
   readonly rows: number;
   readonly cols: number;
@@ -21,8 +27,8 @@ export class Spreadsheet {
   private columnWidths: Map<number, number>;
   private rowHeights: Map<number, number>;
   private cellFormats: Map<CellID, CellFormat>;
-  private defaultColumnWidth = 100;
-  private defaultRowHeight = 32;
+  private defaultColumnWidth = DEFAULT_COLUMN_WIDTH;
+  private defaultRowHeight = DEFAULT_ROW_HEIGHT;
 
   constructor(rows: number, cols: number) {
     this.rows = rows;
@@ -162,7 +168,7 @@ export class Spreadsheet {
    * Set the width of a column
    */
   setColumnWidth(colIndex: number, width: number): void {
-    this.columnWidths.set(colIndex, Math.max(20, width)); // Minimum width of 20px
+    this.columnWidths.set(colIndex, Math.max(MIN_COLUMN_WIDTH, width));
   }
 
   /**
@@ -176,7 +182,7 @@ export class Spreadsheet {
    * Set the height of a row
    */
   setRowHeight(rowIndex: number, height: number): void {
-    this.rowHeights.set(rowIndex, Math.max(20, height)); // Minimum height of 20px
+    this.rowHeights.set(rowIndex, Math.max(MIN_ROW_HEIGHT, height));
   }
 
   /**

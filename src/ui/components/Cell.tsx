@@ -25,6 +25,7 @@ export const Cell = memo(function Cell({ cellId, row, col }: CellProps) {
       data-cell-id={cellId}
       data-row={row}
       data-col={col}
+      data-testid={`cell-${cellId}`}
       onClick={handleClick}
       title={result?.error || ''}
     >

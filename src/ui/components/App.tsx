@@ -3,6 +3,7 @@ import { SpreadsheetProvider } from '../SpreadsheetContext';
 import { Grid } from './Grid';
 import { FormulaBar } from './FormulaBar';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
+import { ErrorBoundary } from './ErrorBoundary';
 
 function SpreadsheetApp() {
   const formulaInputRef = useRef<HTMLInputElement>(null);
@@ -18,8 +19,10 @@ function SpreadsheetApp() {
 
 export function App() {
   return (
-    <SpreadsheetProvider rows={20} cols={10}>
-      <SpreadsheetApp />
-    </SpreadsheetProvider>
+    <ErrorBoundary>
+      <SpreadsheetProvider rows={20} cols={10}>
+        <SpreadsheetApp />
+      </SpreadsheetProvider>
+    </ErrorBoundary>
   );
 }

@@ -388,3 +388,61 @@ h1 {
 .clear-button:active {
   background-color: #bd2130;
 }
+
+/* Error Boundary */
+.error-boundary {
+  padding: 40px;
+  max-width: 600px;
+  margin: 100px auto;
+  text-align: center;
+}
+
+.error-boundary h1 {
+  color: #d93025;
+  margin-bottom: 20px;
+}
+
+.error-boundary p {
+  color: #5f6368;
+  margin-bottom: 30px;
+}
+
+.error-boundary details {
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.error-boundary summary {
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.error-boundary pre {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  overflow: auto;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+.error-boundary-button {
+  padding: 12px 24px;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.error-boundary-button:hover {
+  background-color: #1557b0;
+}
+
+.error-boundary-button:active {
+  background-color: #0d47a1;
+}
