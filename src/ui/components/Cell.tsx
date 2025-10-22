@@ -1,5 +1,6 @@
 import { CellID } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
+import { useCellValue } from '../hooks/useCellValue';
 
 interface CellProps {
   cellId: CellID;
@@ -8,10 +9,11 @@ interface CellProps {
 }
 
 export function Cell({ cellId, row, col }: CellProps) {
-  const { cellResultStore, selectedCell, selectCell, formulaInputRef } = useSpreadsheet();
+  const { selectedCell, selectCell, formulaInputRef } = useSpreadsheet();
 
-  const result = cellResultStore.get(cellId);
-  const displayValue = cellResultStore.getDisplayValue(cellId);
+  // Use the optimized hook - only this cell will re-render when its value changes
+  const { displayValue, error } = useCellValue(cellId);
+
   const isSelected = selectedCell === cellId;
 
   const handleClick = () => {
@@ -26,14 +28,14 @@ export function Cell({ cellId, row, col }: CellProps) {
 
   return (
     <div
-      className={`cell${isSelected ? ' selected' : ''}${result?.error ? ' error' : ''}`}
+      className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}`}
       data-cell-id={cellId}
       data-row={row}
       data-col={col}
       data-testid={`cell-${cellId}`}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
-      title={result?.error || ''}
+      title={error || ''}
     >
       {displayValue}
     </div>

@@ -28,7 +28,6 @@ interface SpreadsheetContextType {
   setRowHeight: (rowIndex: number, height: number) => void;
   setCellFormat: (cellId: CellID, format: CellFormat) => void;
   clearSpreadsheet: () => void;
-  forceUpdate: () => void;
   formulaInputRef: RefObject<HTMLInputElement | null> | null;
 }
 
@@ -47,9 +46,6 @@ export function SpreadsheetProvider({
   cols = 10,
   formulaInputRef,
 }: SpreadsheetProviderProps) {
-  const [updateTrigger, setUpdateTrigger] = useState(0);
-  const forceUpdate = useCallback(() => setUpdateTrigger(prev => prev + 1), []);
-
   // Initialize core components (only once)
   const [state] = useState(() => {
     const spreadsheet = new Spreadsheet(rows, cols);
@@ -71,8 +67,8 @@ export function SpreadsheetProvider({
       cellId => cellResultStore.get(cellId),
       // setCellResult callback
       (cellId, result) => {
+        // CellResultStore.set() now automatically notifies subscribers
         cellResultStore.set(cellId, result);
-        forceUpdate();
       }
     );
 
@@ -120,37 +116,39 @@ export function SpreadsheetProvider({
     (cellId: CellID, content: string) => {
       state.spreadsheet.setCellContent(cellId, content);
       state.evalEngine.onCellChanged(cellId);
-      forceUpdate();
+      // No forceUpdate needed - subscribers are notified automatically
       debouncedSave(); // Save after cell content changes
     },
-    [state.spreadsheet, state.evalEngine, forceUpdate, debouncedSave]
+    [state.spreadsheet, state.evalEngine, debouncedSave]
   );
 
   const setColumnWidth = useCallback(
     (colIndex: number, width: number) => {
       state.spreadsheet.setColumnWidth(colIndex, width);
-      forceUpdate();
       debouncedSave(); // Save after column width changes
     },
-    [state.spreadsheet, forceUpdate, debouncedSave]
+    [state.spreadsheet, debouncedSave]
   );
 
   const setRowHeight = useCallback(
     (rowIndex: number, height: number) => {
       state.spreadsheet.setRowHeight(rowIndex, height);
-      forceUpdate();
       debouncedSave(); // Save after row height changes
     },
-    [state.spreadsheet, forceUpdate, debouncedSave]
+    [state.spreadsheet, debouncedSave]
   );
 
   const setCellFormat = useCallback(
     (cellId: CellID, format: CellFormat) => {
       state.spreadsheet.setCellFormat(cellId, format);
-      forceUpdate();
+      // Notify the specific cell's subscribers about the format change
+      const result = state.cellResultStore.get(cellId);
+      if (result) {
+        state.cellResultStore.set(cellId, result);
+      }
       debouncedSave(); // Save after format changes
     },
-    [state.spreadsheet, forceUpdate, debouncedSave]
+    [state.spreadsheet, state.cellResultStore, debouncedSave]
   );
 
   const clearSpreadsheet = useCallback(() => {
@@ -158,9 +156,8 @@ export function SpreadsheetProvider({
     state.cellResultStore.clear();
     clearSpreadsheetState();
     setSelectedCell('A1');
-    forceUpdate();
     // No need to save - clearSpreadsheetState already clears localStorage
-  }, [state.spreadsheet, state.cellResultStore, forceUpdate]);
+  }, [state.spreadsheet, state.cellResultStore]);
 
   const contextValue: SpreadsheetContextType = useMemo(
     () => ({
@@ -172,21 +169,17 @@ export function SpreadsheetProvider({
       setRowHeight,
       setCellFormat,
       clearSpreadsheet,
-      forceUpdate,
       formulaInputRef,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       state,
       selectedCell,
-      updateTrigger, // Include updateTrigger to force context value updates (intentional)
       selectCell,
       updateCell,
       setColumnWidth,
       setRowHeight,
       setCellFormat,
       clearSpreadsheet,
-      forceUpdate,
       formulaInputRef,
     ]
   );

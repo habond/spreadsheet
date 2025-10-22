@@ -66,15 +66,16 @@ src/
 ├── ui/                      # React UI layer
 │   ├── components/          # React components
 │   │   ├── App.tsx          # Main app layout with ErrorBoundary
-│   │   ├── Grid.tsx         # Spreadsheet grid with memoized calculations
-│   │   ├── Cell.tsx         # Individual cell
+│   │   ├── Grid.tsx         # Spreadsheet grid with local render trigger
+│   │   ├── Cell.tsx         # Individual cell (uses useCellValue for granular updates)
 │   │   ├── FormulaBar.tsx   # Formula input with function & format menus
 │   │   ├── FunctionMenu.tsx # Function dropdown with useClickOutside
 │   │   ├── InfoButton.tsx   # Info popover with cell display
 │   │   └── ErrorBoundary.tsx # Error handling component
 │   ├── contexts/            # React contexts
-│   │   └── SpreadsheetContext.tsx  # Main spreadsheet state
+│   │   └── SpreadsheetContext.tsx  # Main spreadsheet state (minimal, optimized)
 │   └── hooks/               # Custom hooks
+│       ├── useCellValue.tsx       # Granular cell subscription with useSyncExternalStore
 │       ├── useKeyboardNavigation.tsx
 │       ├── useClickOutside.tsx  # Reusable click-outside handler
 │       └── useDebounce.tsx      # Debounce hook for performance
@@ -86,10 +87,19 @@ src/
 ### Data Flow
 
 ```
-User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalEngine → CellResultStore → React Re-render
-                                    ↓
-                              localStorage (debounced auto-save)
+User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalEngine → CellResultStore
+                                    ↓                                                  ↓
+                              localStorage (debounced)              notifyListeners(cellId)
+                                                                                      ↓
+                                                              useCellValue (useSyncExternalStore)
+                                                                                      ↓
+                                                              Only affected Cells re-render
 ```
+
+**Optimization Note**: Cells use `useCellValue` hook with React's `useSyncExternalStore` to subscribe only to their specific cell data. This means:
+- Editing A1 only re-renders A1 (and its dependents)
+- Resizing columns/rows only re-renders Grid component, not cells
+- Zero unnecessary re-renders across the entire grid
 
 ### Architecture Layers
 
@@ -101,10 +111,10 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 - **Engine**: Orchestration (dependency tracking, evaluation order)
 - **Utils**: Pure utility functions (column conversions)
 - **Formatter**: Cell formatting functions (one per format type)
-- **Model**: Data model layer (Spreadsheet, CellResultStore, localStorage)
+- **Model**: Data model layer (Spreadsheet, CellResultStore with pub-sub, localStorage)
 - **UI**: React components (App, Grid, Cell, FormulaBar, FunctionMenu, InfoButton, ErrorBoundary)
-- **Hooks**: Reusable custom hooks (useKeyboardNavigation, useClickOutside, useDebounce)
-- **Contexts**: React Context providers (SpreadsheetContext with memoized values and debounced persistence)
+- **Hooks**: Reusable custom hooks (useCellValue with useSyncExternalStore, useKeyboardNavigation, useClickOutside, useDebounce)
+- **Contexts**: React Context providers (SpreadsheetContext with minimal re-renders)
 
 **Dependency Flow**: `types` → `errors` → `constants` → `utils` → `parser` → `evaluator` → `engine` → `formatter` → `model` → `ui`
 
@@ -313,6 +323,7 @@ npm run test:coverage  # Generate coverage report
 - **Model tests**: `src/model/__tests__/*.test.ts` - Spreadsheet data model, formatting, persistence
 - **Formatter tests**: `src/formatter/__tests__/*.test.ts` - Cell formatting (one per format type)
 - **Component tests**: `src/ui/components/__tests__/*.test.tsx` - React components
+- **Render optimization tests**: `src/ui/components/__tests__/render-optimization.test.tsx` - 12 tests validating granular re-rendering with pub-sub
 - **Hook tests**: `src/ui/hooks/__tests__/*.test.tsx` - Custom React hooks
 - **Utility tests**: `src/utils/__tests__/*.test.ts` - Pure utility functions
 
@@ -461,6 +472,32 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **Performance Optimization with Pub-Sub Architecture**: Implemented granular re-rendering using React's `useSyncExternalStore`
+  - **CellResultStore pub-sub**:
+    - Added `subscribe()` method for cell-specific subscriptions
+    - Added `notifyListeners()` to notify only affected cell subscribers
+    - Listeners Map tracks subscribers per cell ID
+  - **useCellValue hook**:
+    - New custom hook using `useSyncExternalStore` for efficient cell subscriptions
+    - Snapshot caching to prevent infinite loops
+    - Each cell subscribes only to its own data changes
+  - **Cell component optimization**:
+    - Replaced direct context access with `useCellValue` hook
+    - Cells now only re-render when their specific data changes
+    - Zero re-renders on column/row resizing
+  - **Grid component isolation**:
+    - Local `renderTrigger` state for size changes
+    - Only Grid re-renders on resize, cells remain untouched
+  - **Context streamlining**:
+    - Removed global `uiUpdateTrigger` mechanism
+    - Minimal, focused context updates
+  - **Test coverage**:
+    - Added 12 comprehensive render optimization tests
+    - Tests validate cell isolation, formula dependencies, format changes, Grid behavior
+  - **Results**: All 804 tests passing (12 new), zero re-renders on unrelated changes, production-ready optimization
+
+### Previous
+
 - **Code Quality Cleanup**: Comprehensive codebase refactoring to address linting and type safety issues
   - **High priority fixes**:
     - Fixed failing useDebounce test (increased timeout and polling interval)
@@ -470,7 +507,7 @@ LocalStorage integration for automatic state persistence:
   - **Medium priority fixes**:
     - Changed `let` to `const` in vlookup.ts for immutable variable
     - Fixed FormulaBar useEffect dependency array (removed complex expression)
-    - Removed stale test counts from documentation (6 instances)
+    - Removed stale test counts from documentation
     - Auto-fixed 41 Prettier formatting warnings
   - **Documentation improvements**:
     - Added comprehensive JSDoc to DependencyGraph class
@@ -481,7 +518,7 @@ LocalStorage integration for automatic state persistence:
     - Zero ESLint warnings across entire codebase
   - **Results**: All 784 tests passing, build successful, zero TypeScript errors, zero ESLint warnings
 
-### Previous
+### Earlier
 
 - **Type Alias System Improvements**: Comprehensive type system enhancement for better readability and maintainability
   - **Phase 1 - High Priority Types** (value, evaluation, operator types):

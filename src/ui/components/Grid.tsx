@@ -1,4 +1,4 @@
-import { useState, MouseEvent, useMemo } from 'react';
+import { useState, MouseEvent, useMemo, useCallback } from 'react';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { Cell } from './Cell';
 
@@ -10,6 +10,10 @@ export function Grid() {
   const [startY, setStartY] = useState(0);
   const [startWidth, setStartWidth] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
+
+  // Local state to trigger re-renders when sizes change
+  const [, setRenderTrigger] = useState(0);
+  const forceRender = useCallback(() => setRenderTrigger(prev => prev + 1), []);
 
   const rows = spreadsheet.rows;
   const cols = spreadsheet.cols;
@@ -35,10 +39,12 @@ export function Grid() {
       const delta = e.clientX - startX;
       const newWidth = startWidth + delta;
       setColumnWidth(resizingColumn, newWidth);
+      forceRender(); // Re-render Grid to show new size
     } else if (resizingRow !== null) {
       const delta = e.clientY - startY;
       const newHeight = startHeight + delta;
       setRowHeight(resizingRow, newHeight);
+      forceRender(); // Re-render Grid to show new size
     }
   };
 
@@ -76,7 +82,7 @@ export function Grid() {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <div className="column-headers" style={columnHeadersStyle}>
+      <div className="column-headers" style={columnHeadersStyle} data-testid="column-headers">
         {/* Empty corner cell */}
         <div className="column-header" />
         {/* Column headers (A, B, C, ...) */}
@@ -100,7 +106,7 @@ export function Grid() {
             </div>
           ))}
         </div>
-        <div className="grid" style={gridStyle}>
+        <div className="grid" style={gridStyle} data-testid="cell-grid">
           {/* Grid cells */}
           {Array.from({ length: rows }, (_, row) =>
             Array.from({ length: cols }, (_, col) => {

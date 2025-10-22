@@ -39,7 +39,8 @@ describe('Grid', () => {
       setup(5, 3);
 
       // Should have 5 rows * 3 cols = 15 cells
-      const cells = screen.getAllByTestId(/^cell-/);
+      // Use more specific regex to avoid matching cell-grid
+      const cells = screen.getAllByTestId(/^cell-[A-Z]/);
       expect(cells).toHaveLength(15);
     });
 
@@ -158,21 +159,21 @@ describe('Grid', () => {
     it('should handle small grids', () => {
       setup(3, 2);
 
-      const cells = screen.getAllByTestId(/^cell-/);
+      const cells = screen.getAllByTestId(/^cell-[A-Z]/);
       expect(cells).toHaveLength(6); // 3 rows * 2 cols
     });
 
     it('should handle medium grids', () => {
       setup(10, 5);
 
-      const cells = screen.getAllByTestId(/^cell-/);
+      const cells = screen.getAllByTestId(/^cell-[A-Z]/);
       expect(cells).toHaveLength(50); // 10 rows * 5 cols
     });
 
     it('should render large grids correctly', () => {
       setup(20, 10);
 
-      const cells = screen.getAllByTestId(/^cell-/);
+      const cells = screen.getAllByTestId(/^cell-[A-Z]/);
       expect(cells).toHaveLength(200); // 20 rows * 10 cols
     });
   });

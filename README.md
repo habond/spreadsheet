@@ -1,7 +1,7 @@
 # Simple Spreadsheet
 
 [![CI](https://github.com/habond/spreadsheet/workflows/CI/badge.svg)](https://github.com/habond/spreadsheet/actions)
-[![Tests](https://img.shields.io/badge/tests-792%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
+[![Tests](https://img.shields.io/badge/tests-804%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![Coverage](https://img.shields.io/badge/coverage-90.51%25-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
@@ -41,9 +41,14 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - Full **TypeScript type safety** with strict mode
 - **React 19** with Context API for state management
 - **Type-safe function definitions** with centralized metadata
-- **Performance optimized** with memoization and debouncing
+- **Performance optimized** with:
+  - **Granular re-rendering**: Pub-sub architecture using `useSyncExternalStore` ensures only affected cells re-render
+  - **Zero over-rendering**: Column/row resizing doesn't trigger cell re-renders
+  - **Efficient subscriptions**: Each cell subscribes only to its own data changes
+  - **Memoization**: Context values and expensive calculations are memoized
+  - **Debouncing**: LocalStorage writes are debounced to reduce I/O
 - **ESLint** with React and React Hooks rules
-- **Comprehensive test coverage** with Vitest + React Testing Library
+- **Comprehensive test coverage** with Vitest + React Testing Library (804 tests including 12 render optimization tests)
 
 ## Getting Started
 
