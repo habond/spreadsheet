@@ -13,7 +13,9 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **20x10 grid** of cells (A-J columns, 1-20 rows)
 - **Formula support** with Excel-like syntax
 - **Arithmetic operators**: `+`, `-`, `*`, `/` with proper precedence
-- **Built-in functions**: `SUM`, `AVERAGE`, `MIN`, `MAX`, `ADD`, `SUB`, `MUL`, `DIV`, and more
+- **Comparison operators**: `>`, `<`, `>=`, `<=`, `=`, `<>`
+- **Built-in functions**: Math (`SUM`, `AVERAGE`, `MIN`, `MAX`), Logic (`IF`), Count (`COUNT`, `COUNTIF`), Conditional (`SUMIF`, `SUMIFS`), String (`CONCATENATE`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`), Date/Time (`NOW`, `TODAY`, `DATE`, `DATEDIF`)
+- **Range expressions**: `A1:B10` for operating on multiple cells at once
 - **Dependency tracking** with automatic cascading updates
 - **Circular dependency detection** with clear error messages
 - **Comprehensive error handling** for all edge cases
@@ -144,6 +146,20 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 ```
 =COUNT(A1, B1, C1, "text")        Count numeric values (returns 3)
 =COUNT(A1:A10)                     Count numeric values in range
+=COUNTIF(A1:A10, ">5")            Count cells in range where value > 5
+=COUNTIF(A1:A10, "apple")         Count cells in range that equal "apple"
+=COUNTIF(A1:A10, "=20")           Count cells in range that equal 20
+=COUNTIF(A1:A10, "<>0")           Count cells in range that are not equal to 0
+```
+
+#### Conditional Sum Functions
+
+```
+=SUMIF(A1:A10, ">5")              Sum cells in range where value > 5
+=SUMIF(A1:A10, "apple", B1:B10)   Sum B1:B10 where corresponding A1:A10 = "apple"
+=SUMIF(A1:A10, ">=10")            Sum cells in range where value >= 10
+=SUMIFS(C1:C10, A1:A10, ">5", B1:B10, "apple")  Sum C1:C10 where A1:A10 > 5 AND B1:B10 = "apple"
+=SUMIFS(D1:D10, A1:A10, ">=10", B1:B10, "<>0", C1:C10, "active")  Multiple criteria (AND logic)
 ```
 
 #### String Functions
@@ -228,6 +244,7 @@ src/
 │       ├── sum.ts, average.ts, min.ts, max.ts, count.ts
 │       ├── add.ts, sub.ts, mul.ts, div.ts
 │       ├── if.ts               - Logic functions
+│       ├── countif.ts, sumif.ts, sumifs.ts - Conditional functions
 │       ├── concatenate.ts, left.ts, right.ts, trim.ts, upper.ts, lower.ts
 │       ├── now.ts, today.ts, date.ts, datedif.ts
 │       ├── helpers.ts          - Validation & conversion utilities

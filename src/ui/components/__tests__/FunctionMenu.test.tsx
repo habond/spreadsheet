@@ -16,8 +16,8 @@ describe('FunctionMenu', () => {
   it('should not show dropdown menu initially', () => {
     render(<FunctionMenu onFunctionSelect={vi.fn()} />);
 
-    // Dropdown should not be visible
-    expect(screen.queryByRole('button', { name: /SUM/i })).not.toBeInTheDocument();
+    // Dropdown should not be visible - check for a function name using the specific class
+    expect(screen.queryByText('SUM', { selector: '.function-name' })).not.toBeInTheDocument();
   });
 
   it('should show dropdown menu when button is clicked', async () => {
@@ -27,11 +27,11 @@ describe('FunctionMenu', () => {
     const menuButton = screen.getByTitle(/insert function/i);
     await user.click(menuButton);
 
-    // Dropdown should now be visible with function options
-    expect(screen.getByRole('button', { name: /SUM/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /AVERAGE/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /MIN/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /MAX/i })).toBeInTheDocument();
+    // Dropdown should now be visible with function options - use precise selectors
+    expect(screen.getByText('SUM', { selector: '.function-name' })).toBeInTheDocument();
+    expect(screen.getByText('AVERAGE', { selector: '.function-name' })).toBeInTheDocument();
+    expect(screen.getByText('MIN', { selector: '.function-name' })).toBeInTheDocument();
+    expect(screen.getByText('MAX', { selector: '.function-name' })).toBeInTheDocument();
   });
 
   it('should hide dropdown menu when button is clicked again', async () => {
@@ -42,11 +42,11 @@ describe('FunctionMenu', () => {
 
     // Open menu
     await user.click(menuButton);
-    expect(screen.getByRole('button', { name: /SUM/i })).toBeInTheDocument();
+    expect(screen.getByText('SUM', { selector: '.function-name' })).toBeInTheDocument();
 
     // Close menu
     await user.click(menuButton);
-    expect(screen.queryByRole('button', { name: /SUM/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('SUM', { selector: '.function-name' })).not.toBeInTheDocument();
   });
 
   it('should call onFunctionSelect when a function is clicked', async () => {
@@ -58,8 +58,8 @@ describe('FunctionMenu', () => {
     const menuButton = screen.getByTitle(/insert function/i);
     await user.click(menuButton);
 
-    // Click SUM function
-    const sumButton = screen.getByRole('button', { name: /SUM/i });
+    // Click SUM function - find the button that contains the SUM function name
+    const sumButton = screen.getByText('SUM', { selector: '.function-name' }).closest('button')!;
     await user.click(sumButton);
 
     expect(onFunctionSelect).toHaveBeenCalledWith('SUM');
@@ -75,11 +75,11 @@ describe('FunctionMenu', () => {
     await user.click(menuButton);
 
     // Click a function
-    const avgButton = screen.getByRole('button', { name: /AVERAGE/i });
+    const avgButton = screen.getByText('AVERAGE', { selector: '.function-name' }).closest('button')!;
     await user.click(avgButton);
 
     // Menu should be closed
-    expect(screen.queryByRole('button', { name: /SUM/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('SUM', { selector: '.function-name' })).not.toBeInTheDocument();
   });
 
   it('should display function descriptions', async () => {
@@ -110,14 +110,14 @@ describe('FunctionMenu', () => {
     // Open menu
     const menuButton = screen.getByTitle(/insert function/i);
     await user.click(menuButton);
-    expect(screen.getByRole('button', { name: /SUM/i })).toBeInTheDocument();
+    expect(screen.getByText('SUM', { selector: '.function-name' })).toBeInTheDocument();
 
     // Click outside
     const outsideButton = screen.getByRole('button', { name: /outside button/i });
     await user.click(outsideButton);
 
     // Menu should be closed
-    expect(screen.queryByRole('button', { name: /SUM/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('SUM', { selector: '.function-name' })).not.toBeInTheDocument();
   });
 
   it('should render all supported functions', async () => {

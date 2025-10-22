@@ -22,6 +22,9 @@ import { now } from './now';
 import { today } from './today';
 import { date } from './date';
 import { datedif } from './datedif';
+import { countif } from './countif';
+import { sumif } from './sumif';
+import { sumifs } from './sumifs';
 
 /**
  * Function name constants for type safety
@@ -43,6 +46,10 @@ export const FunctionName = {
   IF: 'IF',
   // Count functions
   COUNT: 'COUNT',
+  COUNTIF: 'COUNTIF',
+  // Conditional sum functions
+  SUMIF: 'SUMIF',
+  SUMIFS: 'SUMIFS',
   // String functions
   CONCATENATE: 'CONCATENATE',
   CONCAT: 'CONCAT',
@@ -81,6 +88,10 @@ export const SUPPORTED_FUNCTIONS: FunctionInfo[] = [
   { name: FunctionName.IF, description: 'IF(condition, value_if_true, value_if_false)' },
   // Count functions
   { name: FunctionName.COUNT, description: 'Count numeric values' },
+  { name: FunctionName.COUNTIF, description: 'COUNTIF(range, criteria) - Count cells matching criteria' },
+  // Conditional sum functions
+  { name: FunctionName.SUMIF, description: 'SUMIF(range, criteria, [sum_range])' },
+  { name: FunctionName.SUMIFS, description: 'SUMIFS(sum_range, criteria_range1, criteria1, ...)' },
   // String functions
   { name: FunctionName.CONCATENATE, description: 'Join text strings' },
   { name: FunctionName.CONCAT, description: 'Join text strings (alias)' },
@@ -131,6 +142,14 @@ export function executeFunction(name: string, args: (number | string)[]): number
       return div(args);
     case FunctionName.COUNT:
       return count(args);
+    case FunctionName.COUNTIF:
+      return countif(args);
+
+    // Conditional sum functions
+    case FunctionName.SUMIF:
+      return sumif(args);
+    case FunctionName.SUMIFS:
+      return sumifs(args);
 
     // Logical functions
     case FunctionName.IF:

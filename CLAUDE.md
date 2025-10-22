@@ -33,13 +33,17 @@ src/
 │   └── helpers.ts           # expandRange utility
 ├── evaluator/               # Formula evaluation (stateless)
 │   ├── formula-evaluator.ts # Evaluates AST nodes
+│   ├── __tests__/           # Integration tests for formula evaluation
+│   │   └── formula-evaluator.test.ts  # Tests operators, precedence, cell refs, function integration
 │   └── functions/           # Function implementations (one per file)
 │       ├── sum.ts, average.ts, min.ts, max.ts, add.ts, sub.ts, mul.ts, div.ts, count.ts
 │       ├── if.ts            # Logic functions
+│       ├── countif.ts, sumif.ts, sumifs.ts  # Conditional functions
 │       ├── concatenate.ts, left.ts, right.ts, trim.ts, upper.ts, lower.ts
 │       ├── now.ts, today.ts, date.ts, datedif.ts
 │       ├── helpers.ts       # flattenArgs, toNumber, toBoolean
-│       └── function-registry.ts  # Function registry, metadata, executor
+│       ├── function-registry.ts  # Function registry, metadata, executor
+│       └── __tests__/       # Unit tests for individual functions (one per function)
 ├── engine/                  # Evaluation orchestration
 │   ├── dependency-graph.ts  # Tracks cell dependencies
 │   └── eval-engine.ts       # Main orchestrator
@@ -277,10 +281,15 @@ npm run test:coverage  # Generate coverage report
 
 **Test Organization:**
 
-- Unit tests: `src/**/__tests__/**/*.test.ts`
-- Component tests: `src/ui/components/__tests__/**/*.test.tsx`
-- Hook tests: `src/ui/hooks/__tests__/**/*.test.tsx`
-- Comprehensive test coverage for all core logic, data layer, UI components, and custom hooks
+- **Integration tests**: `src/evaluator/__tests__/formula-evaluator.test.ts` - Tests operators, precedence, cell references, and function integration
+- **Unit tests**: `src/evaluator/functions/__tests__/*.test.ts` - Individual function tests (one per function)
+- **Parser tests**: `src/parser/__tests__/*.test.ts` - Tokenization, AST parsing, range expansion
+- **Engine tests**: `src/engine/__tests__/*.test.ts` - Dependency tracking, evaluation orchestration
+- **Model tests**: `src/model/__tests__/*.test.ts` - Spreadsheet data model, formatting, persistence
+- **Formatter tests**: `src/formatter/__tests__/*.test.ts` - Cell formatting (one per format type)
+- **Component tests**: `src/ui/components/__tests__/*.test.tsx` - React components
+- **Hook tests**: `src/ui/hooks/__tests__/*.test.tsx` - Custom React hooks
+- **Utility tests**: `src/utils/__tests__/*.test.ts` - Pure utility functions
 
 **Testing Tools:**
 
@@ -426,6 +435,29 @@ LocalStorage integration for automatic state persistence:
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Conditional Functions Implementation**: Added range-based conditional functions
+  - **Implemented COUNTIF**: Count cells in range that meet criteria
+    - Supports comparison operators: `>`, `<`, `>=`, `<=`, `=`, `<>`
+    - Supports exact text matching (case-insensitive)
+    - Example: `=COUNTIF(A1:A10, ">5")` counts cells where value > 5
+  - **Implemented SUMIF**: Sum cells based on criteria
+    - 2 or 3 argument form: `SUMIF(range, criteria, [sum_range])`
+    - Example: `=SUMIF(A1:A10, ">=10")` sums cells >= 10
+  - **Implemented SUMIFS**: Sum with multiple criteria (AND logic)
+    - Example: `=SUMIFS(C1:C10, A1:A10, ">5", B1:B10, "apple")`
+  - **Created individual test files**: Split all function tests into individual files (one per function)
+    - 23 function test files in `src/evaluator/functions/__tests__/`
+    - Each function has comprehensive unit tests
+  - **Refactored integration tests**: Cleaned up `formula-evaluator.test.ts`
+    - Removed duplicate function tests (now in individual files)
+    - Focused on testing operators, precedence, cell references, error handling
+    - Light integration testing to ensure functions work within formulas
+    - Reduced from 110 tests to 48 tests (removed 62 duplicates)
+  - **Updated documentation**: README.md and CLAUDE.md with new functions and test organization
+  - **All 754 tests passing** ✅
+
+### Previous
 
 - **Keyboard Input Enhancement**: Improved cell editing behavior to match Excel/Google Sheets
   - **Typing replaces cell content**: When a cell is focused (but formula bar is not), typing any character now replaces the entire cell value instead of appending to it
