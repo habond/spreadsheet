@@ -476,7 +476,7 @@ The spreadsheet automatically saves all data to browser localStorage:
 
 Potential additions to explore:
 
-- **Range-based functions**: `VLOOKUP`, `COUNTIF`, `SUMIF`, `SUMIFS`
+- **Additional range-based functions**: `VLOOKUP`, `HLOOKUP`, `INDEX`, `MATCH`
 - **Conditional formatting**: Color cells based on values
 - **Advanced cell formatting**: Colors, fonts, alignment, custom number formats
 - **Multiple sheets**: Tabs for different worksheets
@@ -486,6 +486,7 @@ Potential additions to explore:
 - **Import from CSV/Excel**: Load external spreadsheet data
 - **Column/row insertion/deletion**: Dynamic grid sizing
 - **Freeze panes**: Lock headers while scrolling
+- **Charts and graphs**: Visualize data with charts
 
 ## License
 
