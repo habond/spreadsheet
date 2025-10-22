@@ -30,12 +30,6 @@ jobs:
       - name: Generate coverage report
         run: npm run test:coverage
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: false
-          files: ./coverage/coverage-final.json
-
   typecheck:
     name: Type Check
     runs-on: ubuntu-latest
