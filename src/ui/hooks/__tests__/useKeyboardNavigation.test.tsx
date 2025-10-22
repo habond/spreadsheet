@@ -189,6 +189,29 @@ describe('useKeyboardNavigation', () => {
       expect(document.activeElement).toBe(inputRef.current);
     });
 
+    it('should replace cell contents when typing while cell is focused', async () => {
+      const user = userEvent.setup();
+      const { getByTestId, inputRef } = setup();
+
+      // Click on grid to ensure formula input is not focused
+      const grid = getByTestId('grid');
+      await user.click(grid);
+
+      // Simulate existing cell content
+      if (inputRef.current) {
+        inputRef.current.value = 'old content';
+      }
+
+      expect(document.activeElement).not.toBe(inputRef.current);
+
+      // Type a letter - should replace the old content, not append to it
+      await user.keyboard('x');
+
+      // Formula input should now be focused with only the new character
+      expect(document.activeElement).toBe(inputRef.current);
+      expect(inputRef.current?.value).toBe('x');
+    });
+
     it('should focus formula input when typing equals sign', async () => {
       const user = userEvent.setup();
       const { getByTestId, inputRef } = setup();

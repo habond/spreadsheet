@@ -427,6 +427,22 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **Keyboard Input Enhancement**: Improved cell editing behavior to match Excel/Google Sheets
+  - **Typing replaces cell content**: When a cell is focused (but formula bar is not), typing any character now replaces the entire cell value instead of appending to it
+    - Updated `useKeyboardNavigation` hook to set `formulaInput.value = e.key` and focus the input
+    - Positions cursor at end of input for continued typing
+  - **Delete/Backspace clears both cell and formula bar**: Pressing Delete or Backspace clears the cell data and immediately updates the formula bar
+    - Calls `updateCell(selectedCell, '')` to clear cell in data model
+    - Sets `formulaInput.value = ''` for instant visual feedback
+    - Updated `FormulaBar` useEffect to depend on cell content for reactive updates
+  - **Benefits**:
+    - More intuitive editing experience matching standard spreadsheet behavior
+    - Immediate visual feedback with proper React state synchronization
+    - No need to manually clear cell before entering new value
+  - **All 523 tests passing** ✅
+
+### Previous
+
 - **Parser Module Consolidation**: Moved range-helpers into parser module
   - **Moved `range-helpers.ts` → `parser/helpers.ts`**: Range expansion is parser-specific functionality
     - Only used by `ast-parser.ts` and `formula-parser.ts`

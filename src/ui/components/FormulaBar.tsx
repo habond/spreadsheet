@@ -9,7 +9,7 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
   const [formulaValue, setFormulaValue] = useState('');
   const [currentFormat, setCurrentFormat] = useState<CellFormat>(CellFormat.Raw);
 
-  // Update formula value and format when selected cell changes
+  // Update formula value and format when selected cell changes or cell content changes
   useEffect(() => {
     if (selectedCell) {
       const content = spreadsheet.getCellContent(selectedCell);
@@ -17,7 +17,7 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
       setFormulaValue(content);
       setCurrentFormat(format);
     }
-  }, [selectedCell, spreadsheet]);
+  }, [selectedCell, spreadsheet, spreadsheet.getCellContent(selectedCell || 'A1')]);
 
   const handleFunctionSelect = (functionName: string) => {
     setFormulaValue(`=${functionName}()`);

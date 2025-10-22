@@ -103,10 +103,15 @@ export function useKeyboardNavigation(formulaInputRef: RefObject<HTMLInputElemen
           if (e.key === 'Backspace' || e.key === 'Delete') {
             e.preventDefault();
             updateCell(selectedCell, '');
+            // Also immediately update the formula input DOM value for instant visual feedback
             formulaInput.value = '';
           } else {
-            // For other keys, focus input and let default behavior type into it
+            // For other keys, clear the cell, focus input, and replace with typed character
+            e.preventDefault();
+            formulaInput.value = e.key;
             formulaInput.focus();
+            // Move cursor to end of input
+            formulaInput.setSelectionRange(e.key.length, e.key.length);
           }
         }
       }
