@@ -1,5 +1,18 @@
+import { CellReferenceError } from '../errors/CellReferenceError';
+import { DivisionByZeroError } from '../errors/DivisionByZeroError';
+import { FormulaParseError } from '../errors/FormulaParseError';
 import { parse } from '../parser/formula-parser';
 import {
+  type ASTNode,
+  isBinaryOpNode,
+  isCellRefNode,
+  isFunctionCallNode,
+  isNumberNode,
+  isRangeNode,
+  isStringNode,
+  isUnaryOpNode,
+} from '../types/ast';
+import type {
   EvalResult,
   GetCellResultFn,
   CellValue,
@@ -7,20 +20,7 @@ import {
   ArithmeticOperator,
   ComparisonOperator,
 } from '../types/core';
-import { CellReferenceError } from '../errors/CellReferenceError';
-import { DivisionByZeroError } from '../errors/DivisionByZeroError';
-import { FormulaParseError } from '../errors/FormulaParseError';
 import { executeFunction } from './functions/function-registry';
-import {
-  ASTNode,
-  isNumberNode,
-  isStringNode,
-  isCellRefNode,
-  isRangeNode,
-  isBinaryOpNode,
-  isUnaryOpNode,
-  isFunctionCallNode,
-} from '../types/ast';
 
 // Re-export for backwards compatibility
 export { FunctionName, SUPPORTED_FUNCTIONS } from './functions/function-registry';
@@ -212,7 +212,7 @@ export class FormulaCalculator {
       return executeFunction(node.name, args);
     }
 
-    throw new FormulaParseError(`Unknown AST node type: ${(node as ASTNode).type}`);
+    throw new FormulaParseError(`Unknown AST node type: ${node.type}`);
   }
 
   /**

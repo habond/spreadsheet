@@ -1,5 +1,5 @@
-import type { FunctionArgs, CellValue, CellValueNullable } from '../../types/core';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import type { CellValueNullable, FunctionArgs } from '../../types/core';
 import { toNumber } from './helpers';
 
 /**
@@ -40,7 +40,7 @@ export function match(args: FunctionArgs): number | string {
     if (Array.isArray(matchTypeArg)) {
       throw new FunctionArgumentError('MATCH', 'match_type must be a single value, not a range');
     }
-    matchType = toNumber(matchTypeArg as CellValue);
+    matchType = toNumber(matchTypeArg);
   }
 
   // Validate match_type
@@ -92,7 +92,7 @@ export function match(args: FunctionArgs): number | string {
 
   // Match type 1: Largest value <= lookup_value (assumes sorted ascending)
   if (matchType === 1) {
-    const numLookup = toNumber(lookupValue as CellValue);
+    const numLookup = toNumber(lookupValue);
     let bestIndex = -1;
 
     for (let i = 0; i < flatArray.length; i++) {
@@ -120,7 +120,7 @@ export function match(args: FunctionArgs): number | string {
 
   // Match type -1: Smallest value >= lookup_value (assumes sorted descending)
   if (matchType === -1) {
-    const numLookup = toNumber(lookupValue as CellValue);
+    const numLookup = toNumber(lookupValue);
     let bestIndex = -1;
 
     for (let i = 0; i < flatArray.length; i++) {

@@ -1,6 +1,6 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import { CellValue, CellRangeValues, FunctionArgs } from '../../types/core';
+import type { CellValue, CellRangeValues, FunctionArgs } from '../../types/core';
 
 /**
  * Expand a 2D array (from cell ref or range) into a flat 1D array, skipping null values

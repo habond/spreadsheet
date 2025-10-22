@@ -1,8 +1,8 @@
-import { CellID, GetCellValueFn, GetCellResultFn, SetCellResultFn } from '../types/core';
-import { extractCellReferences } from '../parser/formula-parser';
-import { FormulaCalculator } from '../evaluator/formula-evaluator';
-import { DependencyGraph } from './dependency-graph';
 import { CircularDependencyError } from '../errors/CircularDependencyError';
+import { FormulaCalculator } from '../evaluator/formula-evaluator';
+import { extractCellReferences } from '../parser/formula-parser';
+import type { CellID, GetCellValueFn, GetCellResultFn, SetCellResultFn } from '../types/core';
+import { DependencyGraph } from './dependency-graph';
 
 /**
  * Orchestrates cell evaluation with dependency tracking and cycle detection.

@@ -1,4 +1,4 @@
-import { CellValueNullable } from '../types/core';
+import type { CellValueNullable } from '../types/core';
 import { toNumberOrFallback } from './helpers';
 
 /**

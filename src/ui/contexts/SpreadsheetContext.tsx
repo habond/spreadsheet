@@ -1,21 +1,21 @@
 import {
   createContext,
-  useContext,
-  useState,
+  type ReactNode,
+  type RefObject,
   useCallback,
+  useContext,
   useMemo,
-  ReactNode,
-  RefObject,
+  useState,
 } from 'react';
-import { Spreadsheet } from '../../model/spreadsheet';
 import { EvalEngine } from '../../engine/eval-engine';
 import { CellResultStore } from '../../model/cell-result-store';
-import { CellID, CellFormat } from '../../types/core';
 import {
   loadSpreadsheetState,
   saveSpreadsheetState,
   clearSpreadsheetState,
 } from '../../model/local-storage';
+import { Spreadsheet } from '../../model/spreadsheet';
+import type { CellID, CellFormat } from '../../types/core';
 
 interface SpreadsheetContextType {
   spreadsheet: Spreadsheet;
@@ -53,6 +53,7 @@ export function SpreadsheetProvider({
   formulaInputRef,
 }: SpreadsheetProviderProps) {
   // Initialize core components (only once)
+  // eslint-disable-next-line react/hook-use-state
   const [state] = useState(() => {
     const spreadsheet = new Spreadsheet(rows, cols);
     const cellResultStore = new CellResultStore(cellId => spreadsheet.getCellFormat(cellId));
@@ -81,7 +82,7 @@ export function SpreadsheetProvider({
     // Re-evaluate all cells if we loaded state
     if (savedState) {
       Object.keys(savedState.cells).forEach(cellId => {
-        evalEngine.onCellChanged(cellId as CellID);
+        evalEngine.onCellChanged(cellId);
       });
     }
 
@@ -174,9 +175,10 @@ export function SpreadsheetProvider({
   }, [state.spreadsheet]);
 
   const cutCell = useCallback(() => {
+    if (!selectedCell) return;
     state.spreadsheet.cutCell();
     setCopiedCell(state.spreadsheet.getCopiedCell());
-    state.evalEngine.onCellChanged(selectedCell!);
+    state.evalEngine.onCellChanged(selectedCell);
     debouncedSave();
   }, [state.spreadsheet, state.evalEngine, selectedCell, debouncedSave]);
 

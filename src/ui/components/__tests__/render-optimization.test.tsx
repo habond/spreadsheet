@@ -36,7 +36,7 @@ describe('Render Optimization', () => {
       await user.click(cellA1);
 
       // Type a value into A1
-      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i);
+      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i) as HTMLInputElement;
       await user.clear(formulaBar);
       await user.type(formulaBar, '42');
       await user.keyboard('{Enter}');
@@ -54,7 +54,7 @@ describe('Render Optimization', () => {
       render(<App />);
 
       // Setup: A1=10, B1=A1*2
-      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i);
+      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i) as HTMLInputElement;
 
       // Set A1 to 10
       await user.click(screen.getByTestId('cell-A1'));
@@ -90,7 +90,7 @@ describe('Render Optimization', () => {
       render(<App />);
 
       // Put values in multiple cells
-      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i);
+      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i) as HTMLInputElement;
 
       await user.click(screen.getByTestId('cell-A1'));
       await user.type(formulaBar, '1{Enter}');
@@ -121,7 +121,7 @@ describe('Render Optimization', () => {
       const user = userEvent.setup();
       render(<App />);
 
-      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i);
+      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i) as HTMLInputElement;
 
       // Set A1 and B1 to numeric values
       await user.click(screen.getByTestId('cell-A1'));
@@ -202,7 +202,7 @@ describe('Render Optimization', () => {
 
       // Update a cell
       await user.click(screen.getByTestId('cell-A1'));
-      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i);
+      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i) as HTMLInputElement;
       await user.type(formulaBar, '123{Enter}');
 
       // Grid style should remain the same (no resize)
@@ -238,7 +238,7 @@ describe('Render Optimization', () => {
       const user = userEvent.setup();
       render(<App />);
 
-      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i);
+      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i) as HTMLInputElement;
 
       // Rapidly update multiple cells
       for (let i = 1; i <= 5; i++) {
@@ -264,7 +264,7 @@ describe('Render Optimization', () => {
       const user = userEvent.setup();
       const { unmount } = render(<App />);
 
-      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i);
+      const formulaBar = screen.getByPlaceholderText(/enter value or formula/i) as HTMLInputElement;
 
       // Create a formula chain: D1=1, D2=D1+1, D3=D2+1, D4=D3+1
       // Using column D to avoid conflicts with other tests

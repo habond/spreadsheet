@@ -3,9 +3,9 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
-import { FormulaBar } from '../FormulaBar';
 import { SpreadsheetProvider, useSpreadsheet } from '../../contexts/SpreadsheetContext';
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
+import { FormulaBar } from '../FormulaBar';
 
 /**
  * FormulaBar Integration Tests

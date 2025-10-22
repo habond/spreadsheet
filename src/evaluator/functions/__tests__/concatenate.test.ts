@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { concatenate } from '../concatenate';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { concatenate } from '../concatenate';
 
 describe('CONCATENATE function', () => {
   it('should concatenate string literals', () => {

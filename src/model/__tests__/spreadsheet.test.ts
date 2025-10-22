@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Spreadsheet } from '../spreadsheet';
 import { CellFormat } from '../../types/core';
+import { Spreadsheet } from '../spreadsheet';
 
 describe('Spreadsheet', () => {
   let spreadsheet: Spreadsheet;

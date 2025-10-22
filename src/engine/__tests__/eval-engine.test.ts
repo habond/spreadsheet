@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import type { CellID, EvalResult } from '../../types/core';
 import { EvalEngine } from '../eval-engine';
-import { CellID, EvalResult } from '../../types/core';
 
 describe('EvalEngine', () => {
   let engine: EvalEngine;

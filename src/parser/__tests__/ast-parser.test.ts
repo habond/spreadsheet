@@ -1,16 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { ASTParser } from '../ast-parser';
-import { tokenize, Token } from '../tokenizer';
-import type {
-  NumberNode,
-  StringNode,
-  CellRefNode,
-  BinaryOpNode,
-  UnaryOpNode,
-  FunctionCallNode,
-  RangeNode,
-} from '../../types/ast';
+import { describe, expect, it } from 'vitest';
 import { FormulaParseError } from '../../errors/FormulaParseError';
+import type {
+  BinaryOpNode,
+  CellRefNode,
+  FunctionCallNode,
+  NumberNode,
+  RangeNode,
+  StringNode,
+  UnaryOpNode,
+} from '../../types/ast';
+import { ASTParser } from '../ast-parser';
+import { tokenize, type Token } from '../tokenizer';
 
 describe('ASTParser', () => {
   describe('basic literals', () => {

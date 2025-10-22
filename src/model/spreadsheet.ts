@@ -15,21 +15,21 @@
  */
 
 import {
-  CellID,
-  CellFormat,
-  CellPosition,
-  ColumnWidthEntry,
-  RowHeightEntry,
-  CellFormatEntry,
-} from '../types/core';
-import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_ROW_HEIGHT,
   MIN_COLUMN_WIDTH,
   MIN_ROW_HEIGHT,
 } from '../constants/app-constants';
-import { columnToNumber, numberToColumn } from '../utils/column-utils';
+import {
+  CellFormat,
+  type CellFormatEntry,
+  type CellID,
+  type CellPosition,
+  type ColumnWidthEntry,
+  type RowHeightEntry,
+} from '../types/core';
 import { translateFormulaReferences } from '../utils/cell-reference-translator';
+import { columnToNumber, numberToColumn } from '../utils/column-utils';
 
 export interface CellData {
   content: string;

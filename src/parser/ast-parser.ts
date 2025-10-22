@@ -1,7 +1,5 @@
 import { FormulaParseError } from '../errors/FormulaParseError';
-import { expandRange } from './helpers';
-import type { Token, TokenType } from './tokenizer';
-import {
+import type {
   ASTNode,
   NumberNode,
   StringNode,
@@ -11,6 +9,8 @@ import {
   UnaryOpNode,
   FunctionCallNode,
 } from '../types/ast';
+import { expandRange } from './helpers';
+import type { Token, TokenType } from './tokenizer';
 
 /**
  * Parser class that builds an AST from a token stream.
@@ -84,7 +84,8 @@ export class ASTParser {
   private parseExpression(): ASTNode {
     let left = this.parseTerm();
 
-    while (this.current()?.type === 'OPERATOR' && ['+', '-'].includes(this.current()!.value)) {
+    let current = this.current();
+    while (current?.type === 'OPERATOR' && ['+', '-'].includes(current.value)) {
       const operator = this.advance().value;
       const right = this.parseTerm();
       left = {
@@ -93,6 +94,7 @@ export class ASTParser {
         left,
         right,
       } as BinaryOpNode;
+      current = this.current();
     }
 
     return left;
@@ -104,7 +106,8 @@ export class ASTParser {
   private parseTerm(): ASTNode {
     let left = this.parseFactor();
 
-    while (this.current()?.type === 'OPERATOR' && ['*', '/'].includes(this.current()!.value)) {
+    let current = this.current();
+    while (current?.type === 'OPERATOR' && ['*', '/'].includes(current.value)) {
       const operator = this.advance().value;
       const right = this.parseFactor();
       left = {
@@ -113,6 +116,7 @@ export class ASTParser {
         left,
         right,
       } as BinaryOpNode;
+      current = this.current();
     }
 
     return left;

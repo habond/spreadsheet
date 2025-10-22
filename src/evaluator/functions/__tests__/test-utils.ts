@@ -1,4 +1,4 @@
-import { CellValue, CellRangeValues } from '../../../types/core';
+import type { CellValue, CellRangeValues } from '../../../types/core';
 
 /**
  * Test utility: Convert a 1D array to a 2D column array (single row)

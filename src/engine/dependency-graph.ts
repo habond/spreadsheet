@@ -1,4 +1,4 @@
-import { CellID } from '../types/core';
+import type { CellID } from '../types/core';
 
 /**
  * Tracks cell dependencies in both directions (forward and reverse).
@@ -37,7 +37,10 @@ export class DependencyGraph {
       if (!this.dependents.has(dep)) {
         this.dependents.set(dep, new Set());
       }
-      this.dependents.get(dep)!.add(cellId);
+      const dependentSet = this.dependents.get(dep);
+      if (dependentSet) {
+        dependentSet.add(cellId);
+      }
     }
   }
 

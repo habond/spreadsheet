@@ -1,5 +1,5 @@
 import { useSyncExternalStore, useCallback, useRef } from 'react';
-import { CellID } from '../../types/core';
+import type { CellID } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 
 /**

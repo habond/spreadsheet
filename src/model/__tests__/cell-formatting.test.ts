@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { CellFormat } from '../../types/core';
 import { CellResultStore } from '../cell-result-store';
 import { Spreadsheet } from '../spreadsheet';
-import { CellFormat } from '../../types/core';
 
 describe('Cell Formatting', () => {
   let spreadsheet: Spreadsheet;

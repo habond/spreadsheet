@@ -1,6 +1,6 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import type { FunctionArgs } from '../../types/core';
 import { toNumber, expandArgs } from './helpers';
-import { FunctionArgs } from '../../types/core';
 
 /**
  * AVERAGE/AVG function - Calculate average of arguments

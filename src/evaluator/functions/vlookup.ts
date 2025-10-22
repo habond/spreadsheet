@@ -1,6 +1,6 @@
-import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../errors/FormulaParseError';
-import { FunctionArgs, CellValue } from '../../types/core';
+import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import type { FunctionArgs, CellValue } from '../../types/core';
 import { toNumber } from './helpers';
 
 /**

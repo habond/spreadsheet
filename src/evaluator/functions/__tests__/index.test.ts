@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { index } from '../index';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { index } from '../index';
 
 describe('INDEX function', () => {
   describe('1D array (single row)', () => {

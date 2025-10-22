@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { max } from '../max';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { max } from '../max';
 
 describe('MAX function', () => {
   it('should find maximum of multiple numbers', () => {

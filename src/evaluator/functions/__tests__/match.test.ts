@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { match } from '../match';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { match } from '../match';
 
 /**
  * Helper to create 2D array from values

@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
-import { Cell } from '../Cell';
 import { SpreadsheetProvider } from '../../contexts/SpreadsheetContext';
+import { Cell } from '../Cell';
 
 describe('Cell', () => {
   const mockRef = createRef<HTMLInputElement>();

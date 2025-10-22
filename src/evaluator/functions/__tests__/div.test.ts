@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { div } from '../div';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
-import { FormulaParseError } from '../../../errors/FormulaParseError';
 import { DivisionByZeroError } from '../../../errors/DivisionByZeroError';
+import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { div } from '../div';
 
 describe('DIV function', () => {
   it('should divide two positive numbers', () => {

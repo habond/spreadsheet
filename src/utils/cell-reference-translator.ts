@@ -10,19 +10,24 @@
  * cell references, not string literals that happen to look like cell references.
  */
 
-import { CellID, CellPosition } from '../types/core';
-import { columnToNumber, numberToColumn } from './column-utils';
 import { parse } from '../parser/formula-parser';
 import {
-  ASTNode,
-  isCellRefNode,
-  isRangeNode,
+  type ASTNode,
+  type BinaryOpNode,
+  type CellRefNode,
+  type FunctionCallNode,
   isBinaryOpNode,
-  isUnaryOpNode,
+  isCellRefNode,
   isFunctionCallNode,
-  CellRefNode,
-  RangeNode,
+  type NumberNode,
+  isRangeNode,
+  type RangeNode,
+  type StringNode,
+  isUnaryOpNode,
+  type UnaryOpNode,
 } from '../types/ast';
+import type { CellID, CellPosition } from '../types/core';
+import { columnToNumber, numberToColumn } from './column-utils';
 
 /**
  * Translate a single cell reference by a row and column offset
@@ -85,7 +90,7 @@ function translateASTNode(node: ASTNode, rowOffset: number, colOffset: number): 
       operator: node.operator,
       left: translateASTNode(node.left, rowOffset, colOffset),
       right: translateASTNode(node.right, rowOffset, colOffset),
-    };
+    } as BinaryOpNode;
   }
 
   if (isUnaryOpNode(node)) {
@@ -94,7 +99,7 @@ function translateASTNode(node: ASTNode, rowOffset: number, colOffset: number): 
       type: 'UnaryOp',
       operator: node.operator,
       operand: translateASTNode(node.operand, rowOffset, colOffset),
-    };
+    } as UnaryOpNode;
   }
 
   if (isFunctionCallNode(node)) {
@@ -103,7 +108,7 @@ function translateASTNode(node: ASTNode, rowOffset: number, colOffset: number): 
       type: 'FunctionCall',
       name: node.name,
       args: node.args.map(arg => translateASTNode(arg, rowOffset, colOffset)),
-    };
+    } as FunctionCallNode;
   }
 
   // For Number and String nodes, return unchanged
@@ -128,11 +133,11 @@ function astToFormula(node: ASTNode): string {
   }
 
   if (node.type === 'Number') {
-    return String((node as { value: number }).value);
+    return String((node as NumberNode).value);
   }
 
   if (node.type === 'String') {
-    return `"${(node as { value: string }).value}"`;
+    return `"${(node as StringNode).value}"`;
   }
 
   if (isBinaryOpNode(node)) {

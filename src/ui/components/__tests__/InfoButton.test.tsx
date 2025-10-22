@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
-import { InfoButton } from '../InfoButton';
 import { SpreadsheetProvider } from '../../contexts/SpreadsheetContext';
+import { InfoButton } from '../InfoButton';
 
 describe('InfoButton', () => {
   const setup = () => {

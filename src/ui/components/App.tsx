@@ -1,9 +1,9 @@
 import { useRef } from 'react';
 import { SpreadsheetProvider, useSpreadsheet } from '../contexts/SpreadsheetContext';
-import { Grid } from './Grid';
-import { FormulaBar } from './FormulaBar';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { ErrorBoundary } from './ErrorBoundary';
+import { FormulaBar } from './FormulaBar';
+import { Grid } from './Grid';
 
 function SpreadsheetApp() {
   const { formulaInputRef, clearSpreadsheet } = useSpreadsheet();

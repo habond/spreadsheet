@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import type { EvalResult, GetCellResultFn } from '../../types/core';
 import { FormulaCalculator } from '../formula-evaluator';
-import { EvalResult, GetCellResultFn } from '../../types/core';
 
 describe('FormulaCalculator', () => {
   let calculator: FormulaCalculator;

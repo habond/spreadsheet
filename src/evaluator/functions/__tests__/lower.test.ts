@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { lower } from '../lower';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { lower } from '../lower';
 
 describe('LOWER function', () => {
   it('should convert uppercase to lowercase', () => {

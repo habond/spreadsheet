@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { left } from '../left';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { left } from '../left';
 
 describe('LEFT function', () => {
   it('should extract characters from left', () => {

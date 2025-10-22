@@ -1,6 +1,6 @@
-import type { FunctionArgs, CellValueNullable, CellValue } from '../../types/core';
-import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import type { FunctionArgs, CellValueNullable, CellValue } from '../../types/core';
 import { toNumber, toBoolean } from './helpers';
 
 /**
@@ -40,7 +40,7 @@ export function hlookup(args: FunctionArgs): CellValue {
   if (Array.isArray(rowIndexNumArg)) {
     throw new FunctionArgumentError('HLOOKUP', 'row_index_num must be a single value, not a range');
   }
-  const rowIndexNum = toNumber(rowIndexNumArg as CellValue);
+  const rowIndexNum = toNumber(rowIndexNumArg);
 
   let rangeLookup = true;
   if (args.length === 4) {
@@ -51,7 +51,7 @@ export function hlookup(args: FunctionArgs): CellValue {
         'range_lookup must be a single value, not a range'
       );
     }
-    rangeLookup = toBoolean(rangeLookupArg as CellValue);
+    rangeLookup = toBoolean(rangeLookupArg);
   }
 
   // Validate table_array is a 2D array
@@ -114,7 +114,7 @@ export function hlookup(args: FunctionArgs): CellValue {
 
   // Approximate match (range_lookup = TRUE)
   // Find largest value <= lookup_value (assumes first row sorted ascending)
-  const numLookup = toNumber(lookupValue as CellValue);
+  const numLookup = toNumber(lookupValue);
   let bestIndex = -1;
 
   for (let col = 0; col < firstRow.length; col++) {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { now } from '../now';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { now } from '../now';
 
 describe('NOW function', () => {
   it('should return a timestamp', () => {

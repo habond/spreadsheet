@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { countif } from '../countif';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { countif } from '../countif';
 import { to2D } from './test-utils';
 
 describe('COUNTIF function', () => {

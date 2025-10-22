@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  saveSpreadsheetState,
-  loadSpreadsheetState,
-  clearSpreadsheetState,
-  SpreadsheetState,
-} from '../local-storage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CellFormat } from '../../types/core';
+import {
+  clearSpreadsheetState,
+  loadSpreadsheetState,
+  saveSpreadsheetState,
+  type SpreadsheetState,
+} from '../local-storage';
 
 describe('local-storage', () => {
   let store: Record<string, string> = {};

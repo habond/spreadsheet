@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ifFunction } from '../if';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { ifFunction } from '../if';
 
 describe('IF function', () => {
   it('should return value_if_true when condition is true (number)', () => {

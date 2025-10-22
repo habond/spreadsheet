@@ -1,5 +1,5 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import { FunctionArgs } from '../../types/core';
+import type { FunctionArgs } from '../../types/core';
 import { toNumber, expand2DArray } from './helpers';
 
 /**

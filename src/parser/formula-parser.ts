@@ -2,11 +2,11 @@
  * Formula parser - converts formula strings into Abstract Syntax Trees
  */
 
-import { CellID } from '../types/core';
-import { expandRange } from './helpers';
-import { ASTNode } from '../types/ast';
-import { tokenize } from './tokenizer';
+import type { ASTNode } from '../types/ast';
+import type { CellID } from '../types/core';
 import { ASTParser } from './ast-parser';
+import { expandRange } from './helpers';
+import { tokenize } from './tokenizer';
 
 // Match range references like A1:B3, AA10:AB20, etc.
 const RANGE_PATTERN = /\b[A-Z]+[0-9]+:[A-Z]+[0-9]+\b/g;

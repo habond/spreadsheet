@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { sum } from '../sum';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { sum } from '../sum';
 
 describe('SUM function', () => {
   it('should sum multiple numbers', () => {

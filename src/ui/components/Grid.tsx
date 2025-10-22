@@ -1,7 +1,7 @@
-import { useState, MouseEvent, useMemo, useCallback } from 'react';
+import { type MouseEvent, useCallback, useMemo, useState } from 'react';
+import type { CellID } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { Cell } from './Cell';
-import { CellID } from '../../types/core';
 
 export function Grid() {
   const { spreadsheet, setColumnWidth, setRowHeight, fillRange } = useSpreadsheet();
@@ -18,6 +18,7 @@ export function Grid() {
   const [fillEndCell, setFillEndCell] = useState<CellID | null>(null);
 
   // Local state to trigger re-renders when sizes change
+  // eslint-disable-next-line react/hook-use-state
   const [, setRenderTrigger] = useState(0);
   const forceRender = useCallback(() => setRenderTrigger(prev => prev + 1), []);
 
@@ -79,7 +80,7 @@ export function Grid() {
     } else if (fillDragging) {
       // Track which cell the mouse is over during fill drag
       const target = e.target as HTMLElement;
-      const cell = target.closest('[data-cell-id]') as HTMLElement | null;
+      const cell = target.closest('[data-cell-id]');
       if (cell) {
         const cellId = cell.getAttribute('data-cell-id') as CellID;
         setFillEndCell(cellId);
@@ -131,6 +132,7 @@ export function Grid() {
   );
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Container for fill handle drag interaction
     <div
       className="spreadsheet-container"
       onMouseDownCapture={handleFillHandleStart}
@@ -145,7 +147,10 @@ export function Grid() {
         {Array.from({ length: cols }, (_, col) => (
           <div key={col} className="column-header">
             {spreadsheet.columnIndexToLetter(col)}
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Separator is interactive for resizing */}
             <div
+              role="separator"
+              aria-label={`Resize column ${spreadsheet.columnIndexToLetter(col)}`}
               className="column-resize-handle"
               onMouseDown={e => handleColumnResizeStart(col, e)}
             />
@@ -158,7 +163,13 @@ export function Grid() {
           {Array.from({ length: rows }, (_, row) => (
             <div key={row} className="row-header">
               {row + 1}
-              <div className="row-resize-handle" onMouseDown={e => handleRowResizeStart(row, e)} />
+              {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Separator is interactive for resizing */}
+              <div
+                role="separator"
+                aria-label={`Resize row ${row + 1}`}
+                className="row-resize-handle"
+                onMouseDown={e => handleRowResizeStart(row, e)}
+              />
             </div>
           ))}
         </div>

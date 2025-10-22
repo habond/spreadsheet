@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { sumif } from '../sumif';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { sumif } from '../sumif';
 import { to2D } from './test-utils';
 
 describe('SUMIF function', () => {

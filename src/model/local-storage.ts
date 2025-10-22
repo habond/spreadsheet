@@ -2,8 +2,8 @@
  * LocalStorage utility for persisting spreadsheet state
  */
 
-import { CellMap } from './spreadsheet';
-import { ColumnWidthEntry, RowHeightEntry, CellFormatEntry } from '../types/core';
+import type { ColumnWidthEntry, RowHeightEntry, CellFormatEntry } from '../types/core';
+import type { CellMap } from './spreadsheet';
 
 const STORAGE_KEY = 'spreadsheet-state';
 

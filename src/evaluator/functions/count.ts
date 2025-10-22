@@ -1,6 +1,6 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import type { FunctionArgs } from '../../types/core';
 import { expandArgs } from './helpers';
-import { FunctionArgs } from '../../types/core';
 
 /**
  * COUNT function - Count numeric values

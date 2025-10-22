@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { vlookup } from '../vlookup';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
-import { CellRangeValues } from '../../../types/core';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import type { CellRangeValues } from '../../../types/core';
+import { vlookup } from '../vlookup';
 
 /**
  * Helper to convert flat array to 2D array (for testing)

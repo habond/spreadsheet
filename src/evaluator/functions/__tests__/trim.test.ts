@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { trim } from '../trim';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { trim } from '../trim';
 
 describe('TRIM function', () => {
   it('should remove leading and trailing spaces', () => {

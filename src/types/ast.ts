@@ -5,7 +5,7 @@
  * separating parsing from evaluation.
  */
 
-import { CellGrid } from './core';
+import type { CellGrid } from './core';
 
 /**
  * Base interface for all AST nodes

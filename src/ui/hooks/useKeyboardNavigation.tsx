@@ -1,4 +1,4 @@
-import { useEffect, RefObject } from 'react';
+import { type RefObject, useEffect } from 'react';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 
 export function useKeyboardNavigation(formulaInputRef: RefObject<HTMLInputElement | null> | null) {

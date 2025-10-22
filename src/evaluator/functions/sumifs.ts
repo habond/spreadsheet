@@ -1,5 +1,5 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import { FunctionArgs, CellValue } from '../../types/core';
+import type { FunctionArgs, CellValue } from '../../types/core';
 import { toNumber, expand2DArray } from './helpers';
 
 /**
@@ -109,24 +109,26 @@ export function sumifs(args: FunctionArgs): number {
           break;
         }
 
+        // When operator is set, value is guaranteed to be set (see line 74)
+        const comparisonValue = pair.value as number;
         switch (pair.operator) {
           case '>':
-            matches = numValue > pair.value!;
+            matches = numValue > comparisonValue;
             break;
           case '<':
-            matches = numValue < pair.value!;
+            matches = numValue < comparisonValue;
             break;
           case '>=':
-            matches = numValue >= pair.value!;
+            matches = numValue >= comparisonValue;
             break;
           case '<=':
-            matches = numValue <= pair.value!;
+            matches = numValue <= comparisonValue;
             break;
           case '=':
-            matches = numValue === pair.value!;
+            matches = numValue === comparisonValue;
             break;
           case '<>':
-            matches = numValue !== pair.value!;
+            matches = numValue !== comparisonValue;
             break;
         }
       } else {

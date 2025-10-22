@@ -1,4 +1,4 @@
-import { CellID } from '../../types/core';
+import type { CellID } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { useCellValue } from '../hooks/useCellValue';
 
@@ -30,6 +30,8 @@ export function Cell({ cellId, row, col, isFillHighlighted = false }: CellProps)
 
   return (
     <div
+      role="gridcell"
+      tabIndex={isSelected ? 0 : -1}
       className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}${isCopied ? ' copied' : ''}${isFillHighlighted ? ' fill-highlight' : ''}`}
       data-cell-id={cellId}
       data-row={row}
@@ -37,6 +39,11 @@ export function Cell({ cellId, row, col, isFillHighlighted = false }: CellProps)
       data-testid={`cell-${cellId}`}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          handleClick();
+        }
+      }}
       title={error || ''}
     >
       {displayValue}

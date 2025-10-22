@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { mul } from '../mul';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { mul } from '../mul';
 
 describe('MUL function', () => {
   it('should multiply two positive numbers', () => {

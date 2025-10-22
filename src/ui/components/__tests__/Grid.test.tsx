@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
 import { createRef } from 'react';
-import { Grid } from '../Grid';
 import { SpreadsheetProvider } from '../../contexts/SpreadsheetContext';
+import { Grid } from '../Grid';
 
 describe('Grid', () => {
   const setup = (rows = 5, cols = 3) => {

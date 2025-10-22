@@ -1,4 +1,4 @@
-import { CellValueNullable } from '../types/core';
+import type { CellValueNullable } from '../types/core';
 
 /**
  * Format a value as a boolean: 1 -> True, 0 -> False, else fall back to Raw

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { sub } from '../sub';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { sub } from '../sub';
 
 describe('SUB function', () => {
   it('should subtract two positive numbers', () => {

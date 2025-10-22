@@ -1,4 +1,4 @@
-import { CellValueNullable } from '../types/core';
+import type { CellValueNullable } from '../types/core';
 
 /**
  * Format a value as raw (no special formatting)

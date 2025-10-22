@@ -1,4 +1,4 @@
-import { CellValueNullable } from '../types/core';
+import type { CellValueNullable } from '../types/core';
 
 /**
  * Helper to convert value to number with fallback

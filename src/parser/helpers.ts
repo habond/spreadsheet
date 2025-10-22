@@ -1,5 +1,5 @@
-import { CellID, RangeReference, CellGrid } from '../types/core';
 import { FormulaParseError } from '../errors/FormulaParseError';
+import type { CellID, RangeReference, CellGrid } from '../types/core';
 import { columnToNumber, numberToColumn } from '../utils/column-utils';
 
 /**

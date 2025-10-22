@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { add } from '../add';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { add } from '../add';
 
 describe('ADD function', () => {
   it('should add two positive numbers', () => {

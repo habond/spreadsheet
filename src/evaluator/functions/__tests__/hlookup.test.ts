@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { hlookup } from '../hlookup';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { hlookup } from '../hlookup';
 
 describe('HLOOKUP function', () => {
   describe('Exact match (range_lookup = 0)', () => {

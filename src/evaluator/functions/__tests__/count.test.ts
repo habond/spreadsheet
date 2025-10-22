@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { count } from '../count';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { count } from '../count';
 
 describe('COUNT function', () => {
   it('should count numeric values', () => {

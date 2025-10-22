@@ -1,5 +1,5 @@
-import { CellID, EvalResult, CellFormat } from '../types/core';
 import { formatCellValue } from '../formatter/cell-formatter';
+import type { CellID, EvalResult, CellFormat } from '../types/core';
 
 type Listener = () => void;
 
@@ -83,7 +83,10 @@ export class CellResultStore {
     if (!this.listeners.has(cellId)) {
       this.listeners.set(cellId, new Set());
     }
-    this.listeners.get(cellId)!.add(listener);
+    const listenerSet = this.listeners.get(cellId);
+    if (listenerSet) {
+      listenerSet.add(listener);
+    }
 
     // Return unsubscribe function
     return () => {

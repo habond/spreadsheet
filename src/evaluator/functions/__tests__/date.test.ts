@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { date } from '../date';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { date } from '../date';
 
 describe('DATE function', () => {
   it('should create date from year, month, day', () => {

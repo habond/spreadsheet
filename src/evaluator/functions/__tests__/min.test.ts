@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { min } from '../min';
-import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { min } from '../min';
 
 describe('MIN function', () => {
   it('should find minimum of multiple numbers', () => {

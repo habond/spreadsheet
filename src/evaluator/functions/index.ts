@@ -1,6 +1,6 @@
-import type { FunctionArgs, CellValueNullable, CellValue } from '../../types/core';
-import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import { FormulaParseError } from '../../errors/FormulaParseError';
+import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import type { FunctionArgs, CellValueNullable, CellValue } from '../../types/core';
 import { toNumber } from './helpers';
 
 /**
@@ -33,7 +33,7 @@ export function index(args: FunctionArgs): CellValue {
   if (Array.isArray(rowNumArg)) {
     throw new FunctionArgumentError('INDEX', 'row_num must be a single value, not a range');
   }
-  const rowNum = toNumber(rowNumArg as CellValue);
+  const rowNum = toNumber(rowNumArg);
 
   // Extract column number (optional, must be scalar if provided)
   let colNum: number | null = null;
@@ -42,7 +42,7 @@ export function index(args: FunctionArgs): CellValue {
     if (Array.isArray(colNumArg)) {
       throw new FunctionArgumentError('INDEX', 'column_num must be a single value, not a range');
     }
-    colNum = toNumber(colNumArg as CellValue);
+    colNum = toNumber(colNumArg);
   }
 
   // Validate row and column numbers are positive integers
