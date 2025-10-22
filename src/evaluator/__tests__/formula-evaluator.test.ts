@@ -298,4 +298,51 @@ describe('FormulaCalculator', () => {
       expect(result).toEqual({ value: 11, error: null });
     });
   });
+
+  describe('range evaluation edge cases', () => {
+    it('should handle ranges with empty cells', () => {
+      cellResults.set('A1', { value: 10, error: null });
+      cellResults.set('A2', { value: null, error: null }); // Empty cell
+      cellResults.set('A3', { value: 20, error: null });
+
+      const result = calculator.calculate('SUM(A1:A3)');
+      expect(result).toEqual({ value: 30, error: null }); // Should skip null
+    });
+
+    it('should handle ranges with error cells', () => {
+      cellResults.set('A1', { value: 10, error: null });
+      cellResults.set('A2', { value: null, error: 'Some error' }); // Error cell
+      cellResults.set('A3', { value: 20, error: null });
+
+      const result = calculator.calculate('SUM(A1:A3)');
+      expect(result).toEqual({ value: 30, error: null }); // Should skip error cells
+    });
+
+    it('should throw error when using range in arithmetic expression', () => {
+      cellResults.set('A1', { value: 10, error: null });
+      cellResults.set('A2', { value: 20, error: null });
+
+      const result = calculator.calculate('A1:A2 + 5');
+      expect(result.error).toContain('Ranges cannot be used directly in expressions');
+      expect(result.value).toBeNull();
+    });
+
+    it('should throw error when using range in comparison', () => {
+      cellResults.set('A1', { value: 10, error: null });
+      cellResults.set('A2', { value: 20, error: null });
+
+      const result = calculator.calculate('A1:A2 > 5');
+      expect(result.error).toContain('Ranges cannot be used directly in expressions');
+      expect(result.value).toBeNull();
+    });
+
+    it('should throw error when using range in unary operation', () => {
+      cellResults.set('A1', { value: 10, error: null });
+      cellResults.set('A2', { value: 20, error: null });
+
+      const result = calculator.calculate('-(A1:A2)');
+      expect(result.error).toContain('Ranges cannot be used directly in expressions');
+      expect(result.value).toBeNull();
+    });
+  });
 });
