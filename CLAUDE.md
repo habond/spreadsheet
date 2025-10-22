@@ -220,6 +220,9 @@ Benefits: Single source of truth, self-documenting code, easier refactoring, com
 - `noUnusedLocals` and `noUnusedParameters` enforced
 - All types in `types/core.ts`
 - Add JSDoc comments for public APIs
+- Use `import type` for type-only imports (enforced by ESLint)
+- Never use `any` type (enforced as error)
+- Avoid non-null assertions (`!`) - use proper null checks instead
 
 ### React Best Practices
 
@@ -238,6 +241,48 @@ Benefits: Single source of truth, self-documenting code, easier refactoring, com
 - Use React.memo for components that render frequently
 - Avoid creating objects/arrays in render (causes unnecessary re-renders)
 - Extract constants outside components when possible
+
+### Code Quality & Linting
+
+**ESLint Configuration** (`eslint.config.js`):
+- **Import Organization**: Auto-sorts imports alphabetically by group
+  - Groups: builtin → external → internal → parent → sibling → index
+  - Enforces `import type` for type-only imports
+  - Prevents duplicate imports
+- **TypeScript Rules**: Type-aware linting with strict checks
+  - No non-null assertions (encourages proper null checks)
+  - Consistent naming conventions (PascalCase for types, camelCase for variables)
+  - Promise handling validation (no floating promises)
+  - No unnecessary type assertions
+- **Code Quality**: Enforces best practices
+  - No `console.log` (allows `console.warn` and `console.error`)
+  - No debugger statements
+  - Prefer `const` over `let`
+  - Require `===` instead of `==`
+- **React Best Practices**: Consistent JSX and hook patterns
+  - Fragment preferences, boolean props, curly brace consistency
+  - Hook usage patterns
+  - No unstable nested components
+- **Accessibility**: 15 a11y rules for WCAG compliance
+  - Keyboard navigation support
+  - Proper ARIA attributes
+  - Semantic HTML roles
+- **Test Files**: Relaxed rules for test code
+  - Allows non-null assertions
+  - Flexible import order
+
+**Running Linters:**
+```bash
+npm run lint          # Check for issues
+npm run lint:fix      # Auto-fix issues (import order, formatting)
+npm run format        # Prettier formatting
+```
+
+**Before Committing:**
+1. Run `npm run lint` - Must have 0 errors, 0 warnings
+2. Run `npm run format` - Auto-format all code
+3. Run `npm run test:run` - All tests must pass
+4. Run `npm run build` - Build must succeed
 
 ### Encapsulation
 
@@ -462,12 +507,14 @@ LocalStorage integration for automatic state persistence:
 
 **Before Committing Code:**
 
-1. **Run tests**: `npm run test:run` - Ensure all tests pass
-2. **Run coverage**: `npm run test:coverage` - Verify test coverage remains high
-3. **Run lint**: `npm run lint` - Check for ESLint warnings
-4. **Run format**: `npm run format` - Apply Prettier formatting
-5. **Build verification**: `npm run build` - Verify TypeScript compilation
+1. **Run format**: `npm run format` - Apply Prettier formatting
+2. **Run lint**: `npm run lint` - Must have 0 errors, 0 warnings (use `npm run lint:fix` to auto-fix)
+3. **Run tests**: `npm run test:run` - Ensure all tests pass
+4. **Run coverage**: `npm run test:coverage` - Verify test coverage remains high
+5. **Build verification**: `npm run build` - Verify TypeScript compilation succeeds
 6. **Update documentation**: Update README.md and CLAUDE.md as needed
+
+**Quick pre-commit check**: `npm run format && npm run lint && npm run test:run && npm run build`
 
 **Type Safety:**
 
@@ -481,21 +528,43 @@ LocalStorage integration for automatic state persistence:
 
 ## What NOT to Do
 
-❌ Don't add console.log (use debug tools instead)
+❌ Don't add console.log (use debug tools instead, or console.warn/error if needed)
 ❌ Don't make properties public without reason
 ❌ Don't create TODOs (fix or file issue)
 ❌ Don't skip type annotations
 ❌ Don't use `any` type (use `@ts-expect-error` with comments for test edge cases)
+❌ Don't use non-null assertions (`!`) - use proper null checks instead
 ❌ Don't import with circular dependencies
 ❌ Don't create inline styles (use CSS classes from styles.css)
-❌ Don't ignore ESLint warnings (especially react-hooks/exhaustive-deps)
+❌ Don't ignore ESLint warnings or errors - they must all be fixed before committing
 ❌ Don't forget to memoize expensive calculations in components
 ❌ Don't manually implement patterns that have custom hooks (useClickOutside, useDebounce)
 ❌ Don't add counts to documentation (line counts, test counts) - they change frequently and become stale
+❌ Don't commit without running lint, format, test, and build first
 
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Comprehensive ESLint Configuration**: Added industry-standard linting rules for code quality
+  - **Import Organization**: Auto-sorts imports alphabetically, enforces `import type` for types
+    - Fixed all duplicate imports across codebase (combined into single import statements)
+    - All imports now follow consistent ordering: builtin → external → internal → parent → sibling
+  - **TypeScript Strict Rules**: Type-aware linting with promise handling, naming conventions, no unnecessary assertions
+  - **Code Quality**: Prevents console.log, debugger, enforces const/===, proper null checking
+  - **React Best Practices**: Consistent JSX syntax, hook patterns, no unstable nested components
+  - **Accessibility**: 15 a11y rules with keyboard navigation and ARIA support
+    - Added `role="gridcell"` and keyboard support (Enter/Space) to spreadsheet cells
+    - Added `role="separator"` with aria-labels to column/row resize handles
+  - **New Dependencies**: `eslint-plugin-import`, `eslint-plugin-jsx-a11y`, `@typescript-eslint/parser`
+  - **Results**: 0 errors, 0 warnings, all 989 tests passing
+  - **Code Improvements**:
+    - Eliminated non-null assertions in production code (proper null checks)
+    - Fixed parser double-condition checks (more efficient)
+    - Improved SUMIFS readability with extracted comparison values
+    - All imports alphabetically sorted across entire codebase
+
+### Previous
 
 - **Relative Cell Reference Translation**: Added smart formula translation for copy/paste and fill handle operations
   - **AST-based translation** ([cell-reference-translator.ts](src/utils/cell-reference-translator.ts)):
