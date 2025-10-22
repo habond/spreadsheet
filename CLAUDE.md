@@ -460,10 +460,11 @@ LocalStorage integration for automatic state persistence:
 **Before Committing Code:**
 
 1. **Run tests**: `npm run test:run` - Ensure all tests pass
-2. **Run lint**: `npm run lint` - Check for ESLint warnings
-3. **Run format**: `npm run format` - Apply Prettier formatting
-4. **Build verification**: `npm run build` - Verify TypeScript compilation
-5. **Update documentation**: Update README.md and CLAUDE.md as needed
+2. **Run coverage**: `npm run test:coverage` - Verify test coverage remains high
+3. **Run lint**: `npm run lint` - Check for ESLint warnings
+4. **Run format**: `npm run format` - Apply Prettier formatting
+5. **Build verification**: `npm run build` - Verify TypeScript compilation
+6. **Update documentation**: Update README.md and CLAUDE.md as needed
 
 **Type Safety:**
 
