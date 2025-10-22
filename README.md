@@ -1,7 +1,7 @@
 # Simple Spreadsheet
 
 [![CI](https://github.com/habond/spreadsheet/workflows/CI/badge.svg)](https://github.com/habond/spreadsheet/actions)
-[![Tests](https://img.shields.io/badge/tests-959%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
+[![Tests](https://img.shields.io/badge/tests-989%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![Coverage](https://img.shields.io/badge/coverage-90.51%25-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
@@ -50,7 +50,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
   - **Memoization**: Context values and expensive calculations are memoized
   - **Debouncing**: LocalStorage writes are debounced to reduce I/O
 - **ESLint** with React and React Hooks rules
-- **Comprehensive test coverage** with Vitest + React Testing Library (959 tests including render optimization, clipboard, fill handle, and resize tests)
+- **Comprehensive test coverage** with Vitest + React Testing Library (989 tests including render optimization, clipboard, fill handle, formula translation, and resize tests)
 
 ## Getting Started
 
@@ -93,13 +93,16 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
      - **Enter**: Save value and move down (Shift+Enter moves up)
      - **Tab**: Save value and move right (Shift+Tab moves left)
      - **Delete/Backspace**: Clear cell contents (when cell is focused but formula bar is not)
-   - **Copy/paste/cut**:
+   - **Copy/paste/cut** with smart formula translation:
      - **Cmd/Ctrl+C**: Copy the selected cell (content and format)
      - **Cmd/Ctrl+X**: Cut the selected cell (copy and clear original)
      - **Cmd/Ctrl+V**: Paste clipboard content to selected cell
+     - **Formula translation**: Formulas automatically adjust cell references relative to the destination (e.g., copying `=A1+B1` from A1 to A2 becomes `=A2+B2`)
      - **Escape**: Clear copied cell indicator (removes dashed border)
      - **Visual feedback**: Copied cells show animated dashed green border
-   - **Fill handle**: Click and drag the small blue square in the bottom-right corner of a selected cell to copy its content and format to adjacent cells (horizontal or vertical)
+   - **Fill handle** with automatic formula adjustment:
+     - Click and drag the small blue square in the bottom-right corner of a selected cell to copy its content and format to adjacent cells (horizontal or vertical)
+     - **Formula translation**: Formulas automatically adjust references as you fill (e.g., dragging `=SUM(B1:B5)` from A1 to A2 and A3 creates `=SUM(B2:B6)` and `=SUM(B3:B7)`)
    - **Resizing**: Hover over column/row header edges and drag to resize
    - **Persistence**: All changes auto-save to browser localStorage
    - **Clear data**: Click the red "Clear" button to reset all data (requires confirmation)

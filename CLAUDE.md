@@ -49,7 +49,9 @@ src/
 │   ├── dependency-graph.ts  # Tracks cell dependencies
 │   └── eval-engine.ts       # Main orchestrator
 ├── utils/                   # Pure utility functions
-│   └── column-utils.ts      # Column letter/number conversion (columnToNumber, numberToColumn)
+│   ├── column-utils.ts      # Column letter/number conversion (columnToNumber, numberToColumn)
+│   ├── cell-reference-translator.ts  # AST-based formula translation for copy/paste/fill
+│   └── __tests__/           # Unit tests for utilities
 ├── formatter/               # Cell formatting (one per format type)
 │   ├── helpers.ts           # toNumberOrFallback helper
 │   ├── format-raw.ts        # Raw format (no formatting)
@@ -495,6 +497,28 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **Relative Cell Reference Translation**: Added smart formula translation for copy/paste and fill handle operations
+  - **AST-based translation** ([cell-reference-translator.ts](src/utils/cell-reference-translator.ts)):
+    - `translateCellRef(cellRef, rowOffset, colOffset)` - Translates individual cell references (e.g., A1 → B2)
+    - `translateFormulaReferences(formula, sourcePos, destPos)` - Translates all references in a formula using AST traversal
+    - Uses AST parsing to ensure only actual cell references are translated (not string literals like `"B2"`)
+    - Handles single cells, ranges, nested functions, and complex formulas
+    - Gracefully handles parse errors by returning original formula unchanged
+  - **Integration with copy/paste** ([spreadsheet.ts:313-332](src/model/spreadsheet.ts#L313-L332)):
+    - `pasteCell()` now translates formulas relative to destination position
+    - Example: Copying `=B1+C1` from A1 to A2 becomes `=B2+C2`
+    - Non-formula content (numbers, strings) pasted unchanged
+  - **Integration with fill handle** ([spreadsheet.ts:389-417](src/model/spreadsheet.ts#L389-L417)):
+    - `fillRange()` translates formulas for each destination cell
+    - Example: Dragging `=SUM(B1:B5)` from A1 to A3 creates `=SUM(B2:B6)` in A2 and `=SUM(B3:B7)` in A3
+    - Works for both horizontal and vertical fills
+  - **Test coverage**:
+    - Unit tests for cell reference translation
+    - Integration tests for copy/paste with formula translation
+    - Integration tests for fill handle with formula translation
+    - All 989 tests passing
+  - **Benefits**: Excel/Google Sheets-like behavior where formulas automatically adjust relative to their new position
+
 - **Fill Handle Implementation**: Added Excel/Google Sheets-style fill handle for copying cell content and formatting
   - **Fill handle UI** ([Cell.tsx:43](src/ui/components/Cell.tsx#L43)):
     - Small blue square (8x8px) appears in bottom-right corner of selected cell
@@ -522,13 +546,6 @@ LocalStorage integration for automatic state persistence:
     - Eliminated duplication by using `getFillRangeCells()` for both preview and actual fill
     - Clean separation between preview logic (Grid) and fill logic (Spreadsheet)
     - Transient drag state kept local to Grid component (not persisted)
-  - **Test coverage**:
-    - Added 18 comprehensive unit tests for fill range functionality
-    - Tests cover horizontal/vertical fills, reverse direction, edge cases, large ranges
-    - All 959 tests passing (up from 941)
-  - **Documentation**:
-    - Updated README with fill handle feature description
-    - Updated CLAUDE.md with implementation details
   - **Benefits**: Excel/Google Sheets-like UX for quickly duplicating cell content and formatting across ranges
 
 ### Previous

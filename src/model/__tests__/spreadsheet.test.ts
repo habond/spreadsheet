@@ -448,13 +448,44 @@ describe('Spreadsheet', () => {
         expect(spreadsheet.getCellContent('C1')).toBe('42');
       });
 
-      it('should handle formula content', () => {
-        spreadsheet.setCellContent('A1', '=SUM(B1:B3)');
+      it('should translate cell references when pasting formula down', () => {
+        spreadsheet.setCellContent('A1', '=B1+C1');
+        spreadsheet.selectCell('A1');
         spreadsheet.copyCell();
         spreadsheet.selectCell('A2');
         spreadsheet.pasteCell();
 
-        expect(spreadsheet.getCellContent('A2')).toBe('=SUM(B1:B3)');
+        expect(spreadsheet.getCellContent('A2')).toBe('=(B2+C2)');
+      });
+
+      it('should translate cell references when pasting formula right', () => {
+        spreadsheet.setCellContent('A1', '=A2+A3');
+        spreadsheet.selectCell('A1');
+        spreadsheet.copyCell();
+        spreadsheet.selectCell('B1');
+        spreadsheet.pasteCell();
+
+        expect(spreadsheet.getCellContent('B1')).toBe('=(B2+B3)');
+      });
+
+      it('should translate range references when pasting', () => {
+        spreadsheet.setCellContent('A1', '=SUM(B1:B3)');
+        spreadsheet.selectCell('A1');
+        spreadsheet.copyCell();
+        spreadsheet.selectCell('A2');
+        spreadsheet.pasteCell();
+
+        expect(spreadsheet.getCellContent('A2')).toBe('=SUM(B2:B4)');
+      });
+
+      it('should handle non-formula content without translation', () => {
+        spreadsheet.setCellContent('A1', '42');
+        spreadsheet.selectCell('A1');
+        spreadsheet.copyCell();
+        spreadsheet.selectCell('A2');
+        spreadsheet.pasteCell();
+
+        expect(spreadsheet.getCellContent('A2')).toBe('42');
       });
     });
 

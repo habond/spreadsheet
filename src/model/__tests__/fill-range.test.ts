@@ -58,14 +58,34 @@ describe('Spreadsheet Fill Range', () => {
       expect(spreadsheet.getCellContent('D1')).toBe('100');
     });
 
-    it('should fill vertical range with source cell content', () => {
-      spreadsheet.setCellContent('A1', '=SUM(B1,C1)');
+    it('should translate cell references when filling vertically', () => {
+      spreadsheet.setCellContent('A1', '=B1+C1');
       const affected = spreadsheet.fillRange('A1', 'A3');
 
       expect(affected).toEqual(['A1', 'A2', 'A3']);
-      expect(spreadsheet.getCellContent('A1')).toBe('=SUM(B1,C1)');
-      expect(spreadsheet.getCellContent('A2')).toBe('=SUM(B1,C1)');
-      expect(spreadsheet.getCellContent('A3')).toBe('=SUM(B1,C1)');
+      expect(spreadsheet.getCellContent('A1')).toBe('=B1+C1');
+      expect(spreadsheet.getCellContent('A2')).toBe('=(B2+C2)');
+      expect(spreadsheet.getCellContent('A3')).toBe('=(B3+C3)');
+    });
+
+    it('should translate cell references when filling horizontally', () => {
+      spreadsheet.setCellContent('A1', '=A2+A3');
+      const affected = spreadsheet.fillRange('A1', 'C1');
+
+      expect(affected).toEqual(['A1', 'B1', 'C1']);
+      expect(spreadsheet.getCellContent('A1')).toBe('=A2+A3');
+      expect(spreadsheet.getCellContent('B1')).toBe('=(B2+B3)');
+      expect(spreadsheet.getCellContent('C1')).toBe('=(C2+C3)');
+    });
+
+    it('should translate range references when filling', () => {
+      spreadsheet.setCellContent('A1', '=SUM(B1:B5)');
+      const affected = spreadsheet.fillRange('A1', 'A3');
+
+      expect(affected).toEqual(['A1', 'A2', 'A3']);
+      expect(spreadsheet.getCellContent('A1')).toBe('=SUM(B1:B5)');
+      expect(spreadsheet.getCellContent('A2')).toBe('=SUM(B2:B6)');
+      expect(spreadsheet.getCellContent('A3')).toBe('=SUM(B3:B7)');
     });
 
     it('should fill range with source cell format', () => {

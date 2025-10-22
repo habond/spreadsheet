@@ -29,6 +29,7 @@ import {
   MIN_ROW_HEIGHT,
 } from '../constants/app-constants';
 import { columnToNumber, numberToColumn } from '../utils/column-utils';
+import { translateFormulaReferences } from '../utils/cell-reference-translator';
 
 export interface CellData {
   content: string;
@@ -306,12 +307,26 @@ export class Spreadsheet {
 
   /**
    * Paste clipboard content to the currently selected cell
+   * Translates cell references relative to the destination cell position
    * Returns true if paste was successful, false otherwise
    */
   pasteCell(): boolean {
     if (!this.selectedCell || !this.clipboard) return false;
 
-    this.setCellContent(this.selectedCell, this.clipboard.content);
+    const sourcePos = this.parseCellId(this.clipboard.sourceCellId);
+    const destPos = this.parseCellId(this.selectedCell);
+
+    // If positions can't be parsed, bail out
+    if (!sourcePos || !destPos) return false;
+
+    // Translate cell references in the formula
+    const translatedContent = translateFormulaReferences(
+      this.clipboard.content,
+      sourcePos,
+      destPos
+    );
+
+    this.setCellContent(this.selectedCell, translatedContent);
     this.setCellFormat(this.selectedCell, this.clipboard.format);
     return true;
   }
@@ -367,6 +382,7 @@ export class Spreadsheet {
 
   /**
    * Fill a range of cells with the content and format from the start cell
+   * Translates cell references relative to each destination cell position
    * Supports linear fills (horizontal or vertical only, not diagonal)
    * Returns array of affected cell IDs if successful, empty array otherwise
    */
@@ -377,10 +393,19 @@ export class Spreadsheet {
     // Get source cell content and format
     const sourceContent = this.getCellContent(startCellId);
     const sourceFormat = this.getCellFormat(startCellId);
+    const sourcePos = this.parseCellId(startCellId);
 
-    // Fill all cells in the range
+    if (!sourcePos) return [];
+
+    // Fill all cells in the range with translated references
     affectedCells.forEach(cellId => {
-      this.setCellContent(cellId, sourceContent);
+      const destPos = this.parseCellId(cellId);
+      if (!destPos) return;
+
+      // Translate cell references for this destination
+      const translatedContent = translateFormulaReferences(sourceContent, sourcePos, destPos);
+
+      this.setCellContent(cellId, translatedContent);
       this.setCellFormat(cellId, sourceFormat);
     });
 
