@@ -14,7 +14,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Formula support** with Excel-like syntax
 - **Arithmetic operators**: `+`, `-`, `*`, `/` with proper precedence
 - **Comparison operators**: `>`, `<`, `>=`, `<=`, `=`, `<>`
-- **Built-in functions**: Math (`SUM`, `AVERAGE`, `MIN`, `MAX`), Logic (`IF`), Count (`COUNT`, `COUNTIF`), Conditional (`SUMIF`, `SUMIFS`), String (`CONCATENATE`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`), Date/Time (`NOW`, `TODAY`, `DATE`, `DATEDIF`)
+- **Built-in functions**: Math (`SUM`, `AVERAGE`, `MIN`, `MAX`), Logic (`IF`), Count (`COUNT`, `COUNTIF`), Conditional (`SUMIF`, `SUMIFS`), Lookup (`VLOOKUP`), String (`CONCATENATE`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`), Date/Time (`NOW`, `TODAY`, `DATE`, `DATEDIF`)
 - **Range expressions**: `A1:B10` for operating on multiple cells at once
 - **Dependency tracking** with automatic cascading updates
 - **Circular dependency detection** with clear error messages
@@ -161,6 +161,27 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 =SUMIFS(C1:C10, A1:A10, ">5", B1:B10, "apple")  Sum C1:C10 where A1:A10 > 5 AND B1:B10 = "apple"
 =SUMIFS(D1:D10, A1:A10, ">=10", B1:B10, "<>0", C1:C10, "active")  Multiple criteria (AND logic)
 ```
+
+#### Lookup Functions
+
+```
+=VLOOKUP("Product A", A1:C10, 2, 0)       Look up "Product A" in column A, return value from column B (exact match)
+=VLOOKUP("Product A", A1:C10, 3)          Same as above, return value from column C (exact match is default)
+=VLOOKUP(100, A1:D20, 4, 0)               Look up 100 in first column, return value from 4th column (exact match)
+=VLOOKUP(85, A1:B10, 2, 1)                Look up 85 in first column, return value from column B (approximate match)
+=VLOOKUP("E001", A1:D50, 2)               Employee lookup: find "E001" in column A, return name from column B
+```
+
+**Parameters:**
+- `lookup_value`: The value to search for in the first column
+- `table_range`: The 2D range to search (must be a range, not individual cells)
+- `col_index_num`: Column number (1-based) to return the value from
+- `range_lookup`: Optional. 0 or FALSE for exact match (default), 1 or TRUE for approximate match
+
+**Notes:**
+- Exact match (default): Searches for exact value, case-insensitive for text
+- Approximate match: Finds largest value ≤ lookup_value (assumes sorted data)
+- Returns error if no match found or if result cell is empty
 
 #### String Functions
 

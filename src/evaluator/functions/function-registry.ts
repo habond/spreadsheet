@@ -25,6 +25,7 @@ import { datedif } from './datedif';
 import { countif } from './countif';
 import { sumif } from './sumif';
 import { sumifs } from './sumifs';
+import { vlookup } from './vlookup';
 
 /**
  * Function name constants for type safety
@@ -50,6 +51,8 @@ export const FunctionName = {
   // Conditional sum functions
   SUMIF: 'SUMIF',
   SUMIFS: 'SUMIFS',
+  // Lookup functions
+  VLOOKUP: 'VLOOKUP',
   // String functions
   CONCATENATE: 'CONCATENATE',
   CONCAT: 'CONCAT',
@@ -92,6 +95,8 @@ export const SUPPORTED_FUNCTIONS: FunctionInfo[] = [
   // Conditional sum functions
   { name: FunctionName.SUMIF, description: 'SUMIF(range, criteria, [sum_range])' },
   { name: FunctionName.SUMIFS, description: 'SUMIFS(sum_range, criteria_range1, criteria1, ...)' },
+  // Lookup functions
+  { name: FunctionName.VLOOKUP, description: 'VLOOKUP(lookup_value, table_range, col_index_num, [range_lookup])' },
   // String functions
   { name: FunctionName.CONCATENATE, description: 'Join text strings' },
   { name: FunctionName.CONCAT, description: 'Join text strings (alias)' },
@@ -151,6 +156,10 @@ export function executeFunction(name: string, args: FunctionArgs): CellValue {
       return sumif(args);
     case FunctionName.SUMIFS:
       return sumifs(args);
+
+    // Lookup functions
+    case FunctionName.VLOOKUP:
+      return vlookup(args);
 
     // Logical functions
     case FunctionName.IF:
