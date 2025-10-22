@@ -23,6 +23,43 @@ body {
   flex-direction: column;
 }
 
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.app-title {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.clear-spreadsheet-button {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clear-spreadsheet-button:hover {
+  background-color: #c82333;
+}
+
+.clear-spreadsheet-button:active {
+  background-color: #bd2130;
+}
+
 h1 {
   margin-bottom: 15px;
   color: #333;

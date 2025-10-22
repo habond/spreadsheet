@@ -110,11 +110,19 @@ describe('App', () => {
     expect(functionButton).toBeInTheDocument();
   });
 
-  it('should render clear button', () => {
+  it('should render toolbar with title', () => {
     render(<App />);
 
-    // Clear button is in FormulaBar
-    const clearButton = screen.getByRole('button', { name: /^clear$/i });
+    // Toolbar should contain the app title
+    const title = screen.getByRole('heading', { name: /spreadsheet/i });
+    expect(title).toBeInTheDocument();
+  });
+
+  it('should render clear spreadsheet button', () => {
+    render(<App />);
+
+    // Clear Spreadsheet button is in toolbar
+    const clearButton = screen.getByRole('button', { name: /clear spreadsheet/i });
     expect(clearButton).toBeInTheDocument();
   });
 

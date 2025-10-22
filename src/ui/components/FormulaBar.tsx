@@ -5,7 +5,7 @@ import { InfoButton } from './InfoButton';
 import { CellFormat } from '../../types/core';
 
 export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_props, ref) {
-  const { spreadsheet, selectedCell, setCellFormat, clearSpreadsheet } = useSpreadsheet();
+  const { spreadsheet, selectedCell, setCellFormat } = useSpreadsheet();
   const [formulaValue, setFormulaValue] = useState('');
   const [currentFormat, setCurrentFormat] = useState<CellFormat>(CellFormat.Raw);
 
@@ -31,13 +31,6 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
           ref.current.setSelectionRange(cursorPos, cursorPos);
         }
       }, 0);
-    }
-  };
-
-  const handleClear = () => {
-    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
-      clearSpreadsheet();
-      setFormulaValue('');
     }
   };
 
@@ -78,9 +71,6 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
         autoComplete="off"
       />
       <InfoButton />
-      <button className="clear-button" onClick={handleClear} title="Clear all data">
-        Clear
-      </button>
     </div>
   );
 });
