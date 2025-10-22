@@ -1,7 +1,9 @@
 # Simple Spreadsheet
 
+[![CI](https://github.com/habond/spreadsheet/workflows/CI/badge.svg)](https://github.com/habond/spreadsheet/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
+[![codecov](https://codecov.io/gh/habond/spreadsheet/branch/main/graph/badge.svg)](https://codecov.io/gh/habond/spreadsheet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A fully-featured spreadsheet implementation with a robust evaluation engine, built with TypeScript and React.
