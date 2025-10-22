@@ -497,7 +497,7 @@ The spreadsheet automatically saves all data to browser localStorage:
 
 Potential additions to explore:
 
-- **Additional range-based functions**: `VLOOKUP`, `HLOOKUP`, `INDEX`, `MATCH`
+- **Additional range-based functions**: `HLOOKUP`, `INDEX`, `MATCH`
 - **Conditional formatting**: Color cells based on values
 - **Advanced cell formatting**: Colors, fonts, alignment, custom number formats
 - **Multiple sheets**: Tabs for different worksheets
