@@ -1,5 +1,13 @@
 import { CellID } from '../types/core';
 
+/**
+ * Tracks cell dependencies in both directions (forward and reverse).
+ *
+ * Forward dependencies: which cells does this cell depend on?
+ * Reverse dependencies: which cells depend on this cell?
+ *
+ * Used by EvalEngine to determine evaluation order and detect circular references.
+ */
 export class DependencyGraph {
   // Maps a cell to the cells it depends on (forward dependencies)
   private dependencies: Map<CellID, Set<CellID>> = new Map();

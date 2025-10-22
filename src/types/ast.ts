@@ -46,9 +46,9 @@ export interface CellRefNode extends ASTNode {
  */
 export interface RangeNode extends ASTNode {
   type: 'Range';
-  cells: CellGrid;    // 2D array: rows of columns
-  rows: number;       // Number of rows
-  cols: number;       // Number of columns
+  cells: CellGrid; // 2D array: rows of columns
+  rows: number; // Number of rows
+  cols: number; // Number of columns
 }
 
 /**

@@ -175,10 +175,11 @@ export function SpreadsheetProvider({
       forceUpdate,
       formulaInputRef,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       state,
       selectedCell,
-      updateTrigger, // Include updateTrigger to force context value updates
+      updateTrigger, // Include updateTrigger to force context value updates (intentional)
       selectCell,
       updateCell,
       setColumnWidth,

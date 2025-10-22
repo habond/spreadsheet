@@ -24,11 +24,10 @@ export function vlookup(args: FunctionArgs): CellValue {
   }
 
   // Validate and extract lookup_value (must be scalar)
-  let lookupValue: CellValue;
   if (Array.isArray(args[0])) {
     throw new FunctionArgumentError('VLOOKUP', 'lookup_value must be a single value, not a range');
   }
-  lookupValue = args[0];
+  const lookupValue = args[0];
 
   const tableRange = args[1];
   const colIndexNum = args[2];
@@ -59,7 +58,8 @@ export function vlookup(args: FunctionArgs): CellValue {
   }
 
   // Determine if we're doing approximate match (range_lookup = TRUE/1) or exact match (FALSE/0)
-  const isApproximateMatch = typeof rangeLookup === 'number' ? rangeLookup !== 0 : Boolean(rangeLookup);
+  const isApproximateMatch =
+    typeof rangeLookup === 'number' ? rangeLookup !== 0 : Boolean(rangeLookup);
 
   // Convert lookup value for comparison (used in approximate match)
   const lookupNum = typeof lookupValue === 'number' ? lookupValue : parseFloat(String(lookupValue));
@@ -80,7 +80,8 @@ export function vlookup(args: FunctionArgs): CellValue {
       }
 
       // For approximate match, we compare numerically
-      const cellNum = typeof firstColValue === 'number' ? firstColValue : parseFloat(String(firstColValue));
+      const cellNum =
+        typeof firstColValue === 'number' ? firstColValue : parseFloat(String(firstColValue));
 
       if (isNaN(cellNum)) {
         continue; // Skip non-numeric values in approximate match mode

@@ -91,12 +91,18 @@ export const SUPPORTED_FUNCTIONS: FunctionInfo[] = [
   { name: FunctionName.IF, description: 'IF(condition, value_if_true, value_if_false)' },
   // Count functions
   { name: FunctionName.COUNT, description: 'Count numeric values' },
-  { name: FunctionName.COUNTIF, description: 'COUNTIF(range, criteria) - Count cells matching criteria' },
+  {
+    name: FunctionName.COUNTIF,
+    description: 'COUNTIF(range, criteria) - Count cells matching criteria',
+  },
   // Conditional sum functions
   { name: FunctionName.SUMIF, description: 'SUMIF(range, criteria, [sum_range])' },
   { name: FunctionName.SUMIFS, description: 'SUMIFS(sum_range, criteria_range1, criteria1, ...)' },
   // Lookup functions
-  { name: FunctionName.VLOOKUP, description: 'VLOOKUP(lookup_value, table_range, col_index_num, [range_lookup])' },
+  {
+    name: FunctionName.VLOOKUP,
+    description: 'VLOOKUP(lookup_value, table_range, col_index_num, [range_lookup])',
+  },
   // String functions
   { name: FunctionName.CONCATENATE, description: 'Join text strings' },
   { name: FunctionName.CONCAT, description: 'Join text strings (alias)' },

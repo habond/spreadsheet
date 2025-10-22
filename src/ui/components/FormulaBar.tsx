@@ -17,7 +17,7 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
       setFormulaValue(content);
       setCurrentFormat(format);
     }
-  }, [selectedCell, spreadsheet, spreadsheet.getCellContent(selectedCell || 'A1')]);
+  }, [selectedCell, spreadsheet]);
 
   const handleFunctionSelect = (functionName: string) => {
     setFormulaValue(`=${functionName}()`);

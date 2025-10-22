@@ -19,8 +19,12 @@ describe('vlookup', () => {
     });
 
     it('should require table_range to be a 2D array', () => {
-      expect(() => vlookup([1, 'not-a-range' as any, 2])).toThrow(FunctionArgumentError);
-      expect(() => vlookup([1, [1, 2, 3] as any, 2])).toThrow(FunctionArgumentError);
+      expect(() => vlookup([1, 'not-a-range' as unknown as CellRangeValues, 2])).toThrow(
+        FunctionArgumentError
+      );
+      expect(() => vlookup([1, [1, 2, 3] as unknown as CellRangeValues, 2])).toThrow(
+        FunctionArgumentError
+      );
     });
 
     it('should require col_index_num to be a positive integer', () => {

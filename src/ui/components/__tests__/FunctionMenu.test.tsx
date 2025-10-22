@@ -75,7 +75,9 @@ describe('FunctionMenu', () => {
     await user.click(menuButton);
 
     // Click a function
-    const avgButton = screen.getByText('AVERAGE', { selector: '.function-name' }).closest('button')!;
+    const avgButton = screen
+      .getByText('AVERAGE', { selector: '.function-name' })
+      .closest('button')!;
     await user.click(avgButton);
 
     // Menu should be closed

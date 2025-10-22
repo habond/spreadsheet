@@ -53,7 +53,9 @@ export class FormulaCalculator {
         if (value.length === 1 && value[0]?.length === 1 && value[0][0] !== null) {
           value = value[0][0];
         } else {
-          throw new FormulaParseError('Ranges cannot be used directly in expressions or comparisons');
+          throw new FormulaParseError(
+            'Ranges cannot be used directly in expressions or comparisons'
+          );
         }
       }
 
@@ -218,7 +220,12 @@ export class FormulaCalculator {
    * Returns the value as-is if it's not a 1x1 array
    */
   private unwrapSingleCell(value: ScalarOrRange): ScalarOrRange {
-    if (Array.isArray(value) && value.length === 1 && value[0]?.length === 1 && value[0][0] !== null) {
+    if (
+      Array.isArray(value) &&
+      value.length === 1 &&
+      value[0]?.length === 1 &&
+      value[0][0] !== null
+    ) {
       return value[0][0];
     }
     return value;

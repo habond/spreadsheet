@@ -1,7 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { ASTParser } from '../ast-parser';
-import { tokenize } from '../tokenizer';
-import type { NumberNode, StringNode, CellRefNode, BinaryOpNode, UnaryOpNode, FunctionCallNode, RangeNode } from '../../types/ast';
+import { tokenize, Token } from '../tokenizer';
+import type {
+  NumberNode,
+  StringNode,
+  CellRefNode,
+  BinaryOpNode,
+  UnaryOpNode,
+  FunctionCallNode,
+  RangeNode,
+} from '../../types/ast';
 import { FormulaParseError } from '../../errors/FormulaParseError';
 
 describe('ASTParser', () => {
@@ -476,7 +484,7 @@ describe('ASTParser', () => {
 
   describe('error handling', () => {
     it('should throw on empty input', () => {
-      const tokens: any[] = [];
+      const tokens: Token[] = [];
       const parser = new ASTParser(tokens);
 
       expect(() => parser.parse()).toThrow(FormulaParseError);

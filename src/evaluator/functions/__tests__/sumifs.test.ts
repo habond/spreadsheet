@@ -112,7 +112,9 @@ describe('SUMIFS function', () => {
   describe('error handling', () => {
     it('should require at least 3 arguments', () => {
       expect(() => sumifs([1, 2])).toThrow(FunctionArgumentError);
-      expect(() => sumifs([1, 2])).toThrow('requires sum_range and at least one criteria_range/criteria pair');
+      expect(() => sumifs([1, 2])).toThrow(
+        'requires sum_range and at least one criteria_range/criteria pair'
+      );
     });
 
     it('should require odd number of arguments', () => {
@@ -135,7 +137,9 @@ describe('SUMIFS function', () => {
       const sumRange = to2D([100, 200, 300]);
       const criteriaRange = to2D([10, 20]);
       expect(() => sumifs([sumRange, criteriaRange, '>5'])).toThrow(FunctionArgumentError);
-      expect(() => sumifs([sumRange, criteriaRange, '>5'])).toThrow('all ranges must be the same size');
+      expect(() => sumifs([sumRange, criteriaRange, '>5'])).toThrow(
+        'all ranges must be the same size'
+      );
     });
 
     it('should throw error for invalid comparison value', () => {

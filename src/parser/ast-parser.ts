@@ -32,7 +32,9 @@ export class ASTParser {
 
     // Ensure all tokens were consumed
     if (this.pos < this.tokens.length) {
-      throw new FormulaParseError(`Unexpected token at position ${this.pos}: ${this.current()?.value}`);
+      throw new FormulaParseError(
+        `Unexpected token at position ${this.pos}: ${this.current()?.value}`
+      );
     }
 
     return ast;

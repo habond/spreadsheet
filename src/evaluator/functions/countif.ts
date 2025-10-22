@@ -36,7 +36,7 @@ export function countif(args: FunctionArgs): number {
       throw new FunctionArgumentError('COUNTIF', `invalid comparison value: ${comparisonMatch[2]}`);
     }
 
-    return range.filter((value) => {
+    return range.filter(value => {
       if (typeof value !== 'number' && typeof value !== 'string') {
         return false;
       }
@@ -67,7 +67,7 @@ export function countif(args: FunctionArgs): number {
     const numericCriteria = parseFloat(criteria);
     const isNumericCriteria = !isNaN(numericCriteria);
 
-    return range.filter((value) => {
+    return range.filter(value => {
       if (isNumericCriteria && typeof value === 'number') {
         return value === numericCriteria;
       }

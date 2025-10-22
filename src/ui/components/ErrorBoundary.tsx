@@ -22,8 +22,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('Error caught by boundary:', error, errorInfo);
+  componentDidCatch(_error: Error, _errorInfo: ErrorInfo): void {
+    // Error is already captured in state via getDerivedStateFromError
+    // In production, this would be where you send errors to a monitoring service
   }
 
   handleReset = () => {

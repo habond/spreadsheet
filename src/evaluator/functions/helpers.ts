@@ -96,7 +96,12 @@ export function requireExactly(functionName: string, args: unknown[], count: num
 /**
  * Validate that a function has between min and max arguments (inclusive)
  */
-export function requireRange(functionName: string, args: unknown[], min: number, max: number): void {
+export function requireRange(
+  functionName: string,
+  args: unknown[],
+  min: number,
+  max: number
+): void {
   if (args.length < min || args.length > max) {
     throw new FunctionArgumentError(
       functionName,

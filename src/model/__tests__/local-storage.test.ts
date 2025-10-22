@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { saveSpreadsheetState, loadSpreadsheetState, clearSpreadsheetState, SpreadsheetState } from '../local-storage';
+import {
+  saveSpreadsheetState,
+  loadSpreadsheetState,
+  clearSpreadsheetState,
+  SpreadsheetState,
+} from '../local-storage';
 import { CellFormat } from '../../types/core';
 
 describe('local-storage', () => {
@@ -35,7 +40,10 @@ describe('local-storage', () => {
     it('should save state to localStorage', () => {
       const state: SpreadsheetState = {
         cells: { A1: { content: '42' }, B2: { content: '=A1 + 10' } },
-        columnWidths: [[0, 120], [1, 150]],
+        columnWidths: [
+          [0, 120],
+          [1, 150],
+        ],
         rowHeights: [[0, 40]],
         cellFormats: [['A1', CellFormat.Number]],
         selectedCell: 'A1',
@@ -75,8 +83,15 @@ describe('local-storage', () => {
           B1: { content: 'Hello' },
           B2: { content: '=UPPER(B1)' },
         },
-        columnWidths: [[0, 100], [1, 100]],
-        rowHeights: [[0, 32], [1, 32], [2, 32]],
+        columnWidths: [
+          [0, 100],
+          [1, 100],
+        ],
+        rowHeights: [
+          [0, 32],
+          [1, 32],
+          [2, 32],
+        ],
         cellFormats: [
           ['A1', CellFormat.Number],
           ['A2', CellFormat.Number],
@@ -116,7 +131,10 @@ describe('local-storage', () => {
     it('should load state from localStorage', () => {
       const state: SpreadsheetState = {
         cells: { A1: { content: '42' }, B2: { content: '=A1 + 10' } },
-        columnWidths: [[0, 120], [1, 150]],
+        columnWidths: [
+          [0, 120],
+          [1, 150],
+        ],
         rowHeights: [[0, 40]],
         cellFormats: [['A1', CellFormat.Number]],
         selectedCell: 'A1',
@@ -207,8 +225,14 @@ describe('local-storage', () => {
           A3: { content: '=SUM(A1:A2)' },
           B1: { content: 'Hello' },
         },
-        columnWidths: [[0, 120], [1, 150]],
-        rowHeights: [[0, 40], [1, 45]],
+        columnWidths: [
+          [0, 120],
+          [1, 150],
+        ],
+        rowHeights: [
+          [0, 40],
+          [1, 45],
+        ],
         cellFormats: [
           ['A1', CellFormat.Number],
           ['A2', CellFormat.Currency],

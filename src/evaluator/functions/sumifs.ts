@@ -61,7 +61,10 @@ export function sumifs(args: FunctionArgs): number {
       const comparisonValue = parseFloat(comparisonMatch[2]);
 
       if (isNaN(comparisonValue)) {
-        throw new FunctionArgumentError('SUMIFS', `invalid comparison value: ${comparisonMatch[2]}`);
+        throw new FunctionArgumentError(
+          'SUMIFS',
+          `invalid comparison value: ${comparisonMatch[2]}`
+        );
       }
 
       criteriaPairs.push({

@@ -3,11 +3,7 @@
  */
 
 import { CellMap } from './spreadsheet';
-import {
-  ColumnWidthEntry,
-  RowHeightEntry,
-  CellFormatEntry,
-} from '../types/core';
+import { ColumnWidthEntry, RowHeightEntry, CellFormatEntry } from '../types/core';
 
 const STORAGE_KEY = 'spreadsheet-state';
 
@@ -27,7 +23,7 @@ export function saveSpreadsheetState(state: SpreadsheetState): void {
   try {
     const serialized = JSON.stringify(state);
     localStorage.setItem(STORAGE_KEY, serialized);
-  } catch (error) {
+  } catch {
     // Silently fail for localStorage quota/access issues
     // Could add telemetry/monitoring here in production
   }
@@ -42,7 +38,7 @@ export function loadSpreadsheetState(): SpreadsheetState | null {
     const serialized = localStorage.getItem(STORAGE_KEY);
     if (!serialized) return null;
     return JSON.parse(serialized);
-  } catch (error) {
+  } catch {
     // Silently fail for localStorage access/parse errors
     return null;
   }
@@ -55,7 +51,7 @@ export function loadSpreadsheetState(): SpreadsheetState | null {
 export function clearSpreadsheetState(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch (error) {
+  } catch {
     // Silently fail for localStorage access issues
   }
 }

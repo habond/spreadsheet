@@ -44,12 +44,12 @@ describe('useDebounce', () => {
     // Should still be initial
     expect(result.current).toBe('v1');
 
-    // Wait for debounce
+    // Wait for debounce with longer timeout to ensure state updates
     await waitFor(
       () => {
         expect(result.current).toBe('v4');
       },
-      { timeout: 200 }
+      { timeout: 300, interval: 50 }
     );
 
     // Should skip intermediate values

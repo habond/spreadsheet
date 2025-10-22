@@ -8,7 +8,16 @@ import { formatAsBoolean } from './format-boolean';
 import { formatAsRaw } from './format-raw';
 
 /**
- * Apply cell formatting to a value
+ * Apply cell formatting to a value based on the specified format type.
+ *
+ * @param value - The cell value to format (number, string, or null)
+ * @param format - The desired format type (Number, Currency, Percentage, etc.)
+ * @returns Formatted string representation of the value
+ *
+ * @example
+ * formatCellValue(1234.5, CellFormat.Number) // "1,234.50"
+ * formatCellValue(0.75, CellFormat.Percentage) // "75.00%"
+ * formatCellValue(1234.5, CellFormat.Currency) // "$1,234.50"
  */
 export function formatCellValue(value: CellValueNullable, format: CellFormat): string {
   switch (format) {

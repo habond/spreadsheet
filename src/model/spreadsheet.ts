@@ -1,6 +1,17 @@
 /**
- * Spreadsheet Class
- * Simple data store for cell content - does NOT handle evaluation
+ * Spreadsheet data model - stores cell content and formatting.
+ *
+ * Responsibilities:
+ * - Store raw cell content (formulas and values)
+ * - Manage cell selection state
+ * - Track column widths and row heights
+ * - Store cell formatting preferences
+ * - Provide import/export for persistence
+ *
+ * Does NOT handle:
+ * - Formula evaluation (delegated to EvalEngine)
+ * - Dependency tracking (delegated to DependencyGraph)
+ * - Display formatting (delegated to CellFormatter)
  */
 
 import {
