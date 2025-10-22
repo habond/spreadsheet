@@ -175,9 +175,12 @@ export class ASTParser {
     // Handle ranges
     if (token.type === 'RANGE') {
       this.advance();
+      const cells = expandRange(token.value);
       return {
         type: 'Range',
-        cells: expandRange(token.value),
+        cells,
+        rows: cells.length,
+        cols: cells[0]?.length || 0,
       } as RangeNode;
     }
 

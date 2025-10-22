@@ -121,10 +121,13 @@ The formula evaluation system uses a three-phase architecture:
    - Creates structured tree representation (NumberNode, BinaryOpNode, FunctionCallNode, etc.)
    - Proper precedence: Comparison < Addition/Subtraction < Multiplication/Division
    - Supports parenthesized expressions and unary operators
+   - **Ranges are stored as 2D arrays in row-major order** (e.g., A1:C2 → `[["A1", "B1", "C1"], ["A2", "B2", "C2"]]`)
 
 3. **Evaluation** (`formula-evaluator.ts`): Walk the AST to compute results
    - Evaluates AST nodes recursively
    - Resolves cell references from pre-computed results
+   - **Cell references return 1x1 2D arrays** for consistency (e.g., A1 → `[[value]]`)
+   - **Unwraps single-cell arrays** in binary/unary operations and at top level
    - Executes functions via `function-registry.ts`
    - Type checking and error handling
 
@@ -138,6 +141,27 @@ The formula evaluation system uses a three-phase architecture:
 - Can inspect/optimize formulas before evaluation
 - Easier to add new features (formula visualization, static analysis)
 - More maintainable and testable
+
+**2D Range Architecture:**
+- All cell references and ranges are represented as 2D arrays internally
+- Preserves rectangular structure for functions that need it (SUMIF, SUMIFS, VLOOKUP, etc.)
+- Row-major ordering matches natural spreadsheet reading (left-to-right, top-to-bottom)
+- Functions use `expandArgs()` to flatten 2D arrays when they just need all values
+- Type aliases keep signatures clean and semantic
+
+**Type Alias System:**
+Core types in `types/core.ts` provide semantic clarity and maintainability:
+- **Identity Types**: `CellID` (cell identifier string)
+- **Position Types**: `CellPosition` (row/col coordinates)
+- **Value Types**: `CellValue` (number | string), `CellValueNullable` (includes null for empty cells)
+- **Range Types**: `RangeReference` (range string like "A1:B3"), `CellGrid` (2D array of cell IDs), `CellRangeValues` (2D array of values)
+- **Evaluation Types**: `ScalarOrRange` (internal evaluation results), `EvalResult` (computation result)
+- **Function Types**: `FunctionArg`, `FunctionArgs` (for function signatures)
+- **Operator Types**: `ArithmeticOperator`, `ComparisonOperator`, `BinaryOperator`, `UnaryOperator` (type-safe operators)
+- **Callback Types**: `GetCellValueFn`, `GetCellResultFn`, `SetCellResultFn` (dependency injection)
+- **Persistence Types**: `ColumnWidthEntry`, `RowHeightEntry`, `CellFormatEntry` (tuple types for serialization)
+
+Benefits: Single source of truth, self-documenting code, easier refactoring, compile-time safety
 
 ## Code Conventions
 
@@ -158,10 +182,11 @@ The formula evaluation system uses a three-phase architecture:
 6. No circular dependency risks from index files importing from each other
 
 **Import Examples:**
-- Types: `import { CellID } from '../types/core'`
+- Types: `import { CellID, CellValue, CellValueNullable, FunctionArgs } from '../types/core'`
+- Operators: `import { ArithmeticOperator, ComparisonOperator } from '../types/core'`
 - Errors: `import { FormulaParseError } from '../errors/FormulaParseError'`
 - Parser: `import { parse } from '../parser/formula-parser'`
-- Evaluator: `import { FormulaEvaluator } from '../evaluator/formula-evaluator'`
+- Evaluator: `import { FormulaCalculator } from '../evaluator/formula-evaluator'`
 - Functions: `import { sum } from '../evaluator/functions/sum'`
 - Function Registry: `import { FunctionName } from '../evaluator/functions/function-registry'`
 - Engine: `import { EvalEngine } from '../engine/eval-engine'`
@@ -435,6 +460,54 @@ LocalStorage integration for automatic state persistence:
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Type Alias System Improvements**: Comprehensive type system enhancement for better readability and maintainability
+  - **Phase 1 - High Priority Types** (value, evaluation, operator types):
+    - `CellValueNullable` - replaces verbose `number | string | null` (10+ locations)
+    - `ScalarOrRange` - clearer name for internal evaluation results
+    - `ArithmeticOperator`, `ComparisonOperator`, `BinaryOperator`, `UnaryOperator` - type-safe operators
+    - Updated all 9 formatters to use `CellValueNullable`
+    - Updated formula evaluator to use `ScalarOrRange` and operator types
+  - **Phase 2 - Medium Priority Types** (geometry, range, persistence types):
+    - `CellPosition` - replaces inline `{ row: number; col: number }` for cell coordinates
+    - `RangeReference` - semantic type for range strings like "A1:B3"
+    - `CellGrid` - replaces `CellID[][]` for 2D arrays of cell IDs
+    - `ColumnWidthEntry`, `RowHeightEntry`, `CellFormatEntry` - tuple types for Map serialization
+    - Updated parser helpers, AST types, spreadsheet model, and local-storage
+  - **Benefits**:
+    - Single source of truth for complex types
+    - Self-documenting code (semantic names vs verbose unions)
+    - Type safety for operators (exhaustive switch checking)
+    - Better persistence layer clarity with labeled tuples
+    - Easier refactoring (change type once, affects all usage)
+  - **All 756 tests passing** ✅
+
+- **2D Range Architecture Implementation**: Complete rewrite of range handling
+  - **Pure 2D design**: All cell references and ranges represented as 2D arrays
+    - Cell refs: `A1` → `[[value]]` (1x1 array)
+    - Ranges: `A1:C2` → `[["A1", "B1", "C1"], ["A2", "B2", "C2"]]` (row-major)
+  - **Parser updates**:
+    - `expandRange()` returns 2D arrays in row-major order
+    - `extractCellReferences()` handles 2D structure
+    - Single cells handled consistently
+  - **Evaluator updates**:
+    - Unwraps single-cell arrays in operations and at top level
+    - Functions receive 2D arrays directly
+  - **Function updates**:
+    - Simple aggregates (SUM, AVERAGE, etc.) use `expandArgs()` to flatten
+    - Conditional functions (SUMIF, SUMIFS, COUNTIF) work with 2D structure
+    - All 23 functions updated to use `FunctionArgs` type
+  - **Test infrastructure**:
+    - Created shared `to2D()` test utility
+    - Updated all parser tests for 2D expectations
+    - All function tests use proper 2D arrays
+  - **Benefits**:
+    - Better support for 2D-aware functions (SUMIF, VLOOKUP, etc.)
+    - Consistent architecture (everything is 2D, no special cases)
+    - Row-major ordering matches natural spreadsheet layout
+  - **All 756 tests passing** ✅
+
+### Previous
 
 - **Conditional Functions Implementation**: Added range-based conditional functions
   - **Implemented COUNTIF**: Count cells in range that meet criteria

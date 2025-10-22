@@ -29,12 +29,15 @@ export function parse(formula: string): ASTNode {
 export function extractCellReferences(formula: string): Set<CellID> {
   const refs = new Set<CellID>();
 
-  // Extract and expand ranges first
+  // Extract and expand ranges first (now returns 2D arrays)
   const rangeMatches = formula.match(RANGE_PATTERN);
   if (rangeMatches) {
     rangeMatches.forEach(range => {
       const expandedCells = expandRange(range);
-      expandedCells.forEach(cell => refs.add(cell));
+      // Flatten 2D array to get all cell IDs
+      expandedCells.forEach(row => {
+        row.forEach(cell => refs.add(cell));
+      });
     });
   }
 

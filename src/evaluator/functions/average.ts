@@ -1,13 +1,16 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import { toNumber } from './helpers';
+import { toNumber, expandArgs } from './helpers';
+import { FunctionArgs } from '../../types/core';
 
 /**
  * AVERAGE/AVG function - Calculate average of arguments
+ * Accepts scalars and 2D arrays (from cell refs/ranges)
  */
-export function average(args: (number | string)[]): number {
+export function average(args: FunctionArgs): number {
   if (args.length === 0) {
     throw new FunctionArgumentError('AVERAGE', 'requires at least one argument');
   }
-  const sum = args.reduce((s: number, val) => s + toNumber(val), 0);
-  return sum / args.length;
+  const values = expandArgs(args);
+  const sum = values.reduce((s: number, val) => s + toNumber(val), 0);
+  return sum / values.length;
 }

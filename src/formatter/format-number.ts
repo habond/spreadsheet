@@ -1,9 +1,10 @@
+import { CellValueNullable } from '../types/core';
 import { toNumberOrFallback } from './helpers';
 
 /**
  * Format a number with thousands separator and two decimal places
  */
-export function formatAsNumber(value: number | string | null): string {
+export function formatAsNumber(value: CellValueNullable): string {
   const numValue = toNumberOrFallback(value);
   if (numValue === null) {
     // If not a valid number, fall back to Raw formatting

@@ -1,9 +1,16 @@
 import { parse } from '../parser/formula-parser';
-import { EvalResult, GetCellResultFn } from '../types/core';
+import {
+  EvalResult,
+  GetCellResultFn,
+  CellValue,
+  ScalarOrRange,
+  ArithmeticOperator,
+  ComparisonOperator,
+} from '../types/core';
 import { CellReferenceError } from '../errors/CellReferenceError';
 import { DivisionByZeroError } from '../errors/DivisionByZeroError';
 import { FormulaParseError } from '../errors/FormulaParseError';
-import { executeFunction, flattenArgs } from './functions/function-registry';
+import { executeFunction } from './functions/function-registry';
 import {
   ASTNode,
   isNumberNode,
@@ -39,11 +46,15 @@ export class FormulaCalculator {
   calculate(formula: string): EvalResult {
     try {
       const ast = parse(formula);
-      const value = this.evaluate(ast);
+      let value = this.evaluate(ast);
 
-      // Ranges should never escape to the top level (should only be consumed by functions)
+      // Unwrap 1x1 2D arrays (from single cell references at top level)
       if (Array.isArray(value)) {
-        throw new FormulaParseError('Ranges cannot be used directly in expressions or comparisons');
+        if (value.length === 1 && value[0]?.length === 1 && value[0][0] !== null) {
+          value = value[0][0];
+        } else {
+          throw new FormulaParseError('Ranges cannot be used directly in expressions or comparisons');
+        }
       }
 
       return { value, error: null };
@@ -57,8 +68,9 @@ export class FormulaCalculator {
 
   /**
    * Evaluate an AST node and return its value
+   * Returns: scalar (number/string) or 2D array for cell refs/ranges
    */
-  private evaluate(node: ASTNode): number | string | (number | string)[] {
+  private evaluate(node: ASTNode): ScalarOrRange {
     // Number literal
     if (isNumberNode(node)) {
       return node.value;
@@ -69,7 +81,7 @@ export class FormulaCalculator {
       return node.value;
     }
 
-    // Cell reference
+    // Cell reference - return as 1x1 2D array
     if (isCellRefNode(node)) {
       const cellResult = this.getCellResult(node.cellId);
       if (!cellResult) {
@@ -81,38 +93,51 @@ export class FormulaCalculator {
       if (cellResult.value === null) {
         throw new CellReferenceError(node.cellId, 'has no value');
       }
-      return cellResult.value;
+      // Return as 1x1 2D array for consistency
+      return [[cellResult.value]];
     }
 
-    // Range reference
+    // Range reference - return as 2D array
     if (isRangeNode(node)) {
-      const values: (number | string)[] = [];
-      for (const cellId of node.cells) {
-        const cellResult = this.getCellResult(cellId);
-        // Skip empty cells in ranges (they don't contribute to calculations)
-        if (cellResult && !cellResult.error && cellResult.value !== null) {
-          values.push(cellResult.value);
+      const values: (number | string | null)[][] = [];
+      for (const row of node.cells) {
+        const rowValues: (number | string | null)[] = [];
+        for (const cellId of row) {
+          const cellResult = this.getCellResult(cellId);
+          // Preserve structure for 2D ranges - include null for empty/error cells
+          // Functions can choose to skip or handle nulls as needed
+          if (cellResult && !cellResult.error && cellResult.value !== null) {
+            rowValues.push(cellResult.value);
+          } else {
+            rowValues.push(null);
+          }
         }
+        values.push(rowValues);
       }
       return values;
     }
 
     // Binary operation
     if (isBinaryOpNode(node)) {
-      const left = this.evaluate(node.left);
-      const right = this.evaluate(node.right);
+      let left = this.evaluate(node.left);
+      let right = this.evaluate(node.right);
 
-      // Arrays (from ranges) can't be used in operations directly
+      // Unwrap 1x1 2D arrays (from single cell references)
+      left = this.unwrapSingleCell(left);
+      right = this.unwrapSingleCell(right);
+
+      // Multi-cell arrays (ranges) can't be used in operations directly
       if (Array.isArray(left) || Array.isArray(right)) {
         throw new FormulaParseError('Ranges cannot be used directly in expressions or comparisons');
       }
 
       // Arithmetic operators
-      if (['+', '-', '*', '/'].includes(node.operator)) {
+      const arithmeticOps: ArithmeticOperator[] = ['+', '-', '*', '/'];
+      if (arithmeticOps.includes(node.operator as ArithmeticOperator)) {
         const leftNum = this.toNumber(left);
         const rightNum = this.toNumber(right);
 
-        switch (node.operator) {
+        switch (node.operator as ArithmeticOperator) {
           case '+':
             return leftNum + rightNum;
           case '-':
@@ -128,10 +153,11 @@ export class FormulaCalculator {
       }
 
       // Comparison operators
-      if (['=', '<>', '<', '>', '<=', '>='].includes(node.operator)) {
+      const comparisonOps: ComparisonOperator[] = ['=', '<>', '<', '>', '<=', '>='];
+      if (comparisonOps.includes(node.operator as ComparisonOperator)) {
         let compResult: boolean;
 
-        switch (node.operator) {
+        switch (node.operator as ComparisonOperator) {
           case '=':
             compResult = left === right;
             break;
@@ -150,8 +176,6 @@ export class FormulaCalculator {
           case '>=':
             compResult = this.toNumber(left) >= this.toNumber(right);
             break;
-          default:
-            throw new FormulaParseError(`Unknown comparison operator: ${node.operator}`);
         }
 
         // Return 1 for true, 0 for false (like Excel)
@@ -163,7 +187,10 @@ export class FormulaCalculator {
 
     // Unary operation
     if (isUnaryOpNode(node)) {
-      const operand = this.evaluate(node.operand);
+      let operand = this.evaluate(node.operand);
+
+      // Unwrap 1x1 2D arrays (from single cell references)
+      operand = this.unwrapSingleCell(operand);
 
       if (Array.isArray(operand)) {
         throw new FormulaParseError('Ranges cannot be used directly in expressions or comparisons');
@@ -179,17 +206,28 @@ export class FormulaCalculator {
     // Function call
     if (isFunctionCallNode(node)) {
       const args = node.args.map(arg => this.evaluate(arg));
-      const flattenedArgs = flattenArgs(args);
-      return executeFunction(node.name, flattenedArgs);
+      // Functions now receive 2D arrays directly - no flattening
+      return executeFunction(node.name, args);
     }
 
     throw new FormulaParseError(`Unknown AST node type: ${(node as ASTNode).type}`);
   }
 
   /**
+   * Unwrap a 1x1 2D array (from single cell reference) back to scalar
+   * Returns the value as-is if it's not a 1x1 array
+   */
+  private unwrapSingleCell(value: ScalarOrRange): ScalarOrRange {
+    if (Array.isArray(value) && value.length === 1 && value[0]?.length === 1 && value[0][0] !== null) {
+      return value[0][0];
+    }
+    return value;
+  }
+
+  /**
    * Convert a value to a number (helper for expression evaluation)
    */
-  private toNumber(value: number | string): number {
+  private toNumber(value: CellValue): number {
     if (typeof value === 'number') {
       return value;
     }

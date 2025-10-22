@@ -1,4 +1,4 @@
-import { CellID } from '../types/core';
+import { CellID, RangeReference, CellGrid } from '../types/core';
 import { FormulaParseError } from '../errors/FormulaParseError';
 import { columnToNumber, numberToColumn } from '../utils/column-utils';
 
@@ -7,17 +7,21 @@ import { columnToNumber, numberToColumn } from '../utils/column-utils';
  */
 
 /**
- * Expand a range reference (e.g., "A1:B3") into individual cell references.
- * Cells are expanded column-by-column, then row-by-row (matching Excel/Google Sheets).
+ * Expand a range reference (e.g., "A1:B3") into a 2D array of cell references.
+ * Returns cells in row-major order: array of rows, where each row is an array of cell IDs.
  *
  * @example
- * expandRange("A1:B2") // Returns: ["A1", "A2", "B1", "B2"]
- * expandRange("A1:C1") // Returns: ["A1", "B1", "C1"]
+ * expandRange("A1:C2") // Returns: [["A1", "B1", "C1"], ["A2", "B2", "C2"]]
+ * expandRange("A1:A3") // Returns: [["A1"], ["A2"], ["A3"]]
+ * expandRange("A1:C1") // Returns: [["A1", "B1", "C1"]]
+ * expandRange("A1")    // Returns: [["A1"]] (single cell as 1x1 2D array)
  */
-export function expandRange(range: string): CellID[] {
+export function expandRange(range: RangeReference): CellGrid {
   const [start, end] = range.split(':');
-  if (!start || !end) {
-    throw new FormulaParseError(`Invalid range: ${range}`);
+
+  // Single cell reference (no colon)
+  if (!end) {
+    return [[start]];
   }
 
   // Parse start cell
@@ -43,13 +47,15 @@ export function expandRange(range: string): CellID[] {
     throw new FormulaParseError(`Invalid range: start must be before end in ${range}`);
   }
 
-  // Expand range into individual cells (column-by-column, then row-by-row)
-  const cells: CellID[] = [];
-  for (let col = startColNum; col <= endColNum; col++) {
-    for (let row = startRow; row <= endRow; row++) {
+  // Expand range into 2D array (row-major order)
+  const cells: CellGrid = [];
+  for (let row = startRow; row <= endRow; row++) {
+    const rowCells: CellID[] = [];
+    for (let col = startColNum; col <= endColNum; col++) {
       const colLetter = numberToColumn(col);
-      cells.push(`${colLetter}${row}`);
+      rowCells.push(`${colLetter}${row}`);
     }
+    cells.push(rowCells);
   }
 
   return cells;

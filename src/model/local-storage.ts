@@ -3,15 +3,19 @@
  */
 
 import { CellMap } from './spreadsheet';
-import { CellID, CellFormat } from '../types/core';
+import {
+  ColumnWidthEntry,
+  RowHeightEntry,
+  CellFormatEntry,
+} from '../types/core';
 
 const STORAGE_KEY = 'spreadsheet-state';
 
 export interface SpreadsheetState {
   cells: CellMap;
-  columnWidths: Array<[number, number]>; // Array of [colIndex, width] tuples
-  rowHeights: Array<[number, number]>; // Array of [rowIndex, height] tuples
-  cellFormats?: Array<[CellID, CellFormat]>; // Array of [cellId, format] tuples
+  columnWidths: ColumnWidthEntry[];
+  rowHeights: RowHeightEntry[];
+  cellFormats?: CellFormatEntry[];
   selectedCell: string | null;
 }
 

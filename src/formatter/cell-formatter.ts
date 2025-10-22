@@ -1,4 +1,4 @@
-import { CellFormat } from '../types/core';
+import { CellFormat, CellValueNullable } from '../types/core';
 import { formatAsNumber } from './format-number';
 import { formatAsCurrency } from './format-currency';
 import { formatAsPercentage } from './format-percentage';
@@ -10,7 +10,7 @@ import { formatAsRaw } from './format-raw';
 /**
  * Apply cell formatting to a value
  */
-export function formatCellValue(value: number | string | null, format: CellFormat): string {
+export function formatCellValue(value: CellValueNullable, format: CellFormat): string {
   switch (format) {
     case CellFormat.Number:
       return formatAsNumber(value);

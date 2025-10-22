@@ -1,4 +1,4 @@
-import { FunctionInfo } from '../../types/core';
+import { FunctionInfo, FunctionArgs, CellValue } from '../../types/core';
 import { InvalidFunctionError } from '../../errors/InvalidFunctionError';
 
 // Import all function implementations
@@ -109,8 +109,9 @@ export const SUPPORTED_FUNCTIONS: FunctionInfo[] = [
 
 /**
  * Execute a built-in spreadsheet function
+ * Args can be scalars (number/string) or 2D arrays from cell refs/ranges
  */
-export function executeFunction(name: string, args: (number | string)[]): number | string {
+export function executeFunction(name: string, args: FunctionArgs): CellValue {
   const upperName = name.toUpperCase();
 
   // Validate function name before executing
@@ -185,5 +186,5 @@ export function executeFunction(name: string, args: (number | string)[]): number
   }
 }
 
-// Re-export helpers for backward compatibility
-export { flattenArgs, toNumber, toBoolean } from './helpers';
+// Re-export helpers
+export { expandArgs, expand2DArray, toNumber, toBoolean } from './helpers';

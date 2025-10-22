@@ -5,6 +5,8 @@
  * separating parsing from evaluation.
  */
 
+import { CellGrid } from './core';
+
 /**
  * Base interface for all AST nodes
  */
@@ -30,6 +32,7 @@ export interface StringNode extends ASTNode {
 
 /**
  * Cell reference (e.g., A1, B5)
+ * Represented as a 1x1 2D array for consistency with ranges
  */
 export interface CellRefNode extends ASTNode {
   type: 'CellRef';
@@ -38,10 +41,14 @@ export interface CellRefNode extends ASTNode {
 
 /**
  * Range reference (e.g., A1:B3)
+ * Stored as a 2D array in row-major order
+ * Example: A1:C2 → [["A1", "B1", "C1"], ["A2", "B2", "C2"]]
  */
 export interface RangeNode extends ASTNode {
   type: 'Range';
-  cells: string[];
+  cells: CellGrid;    // 2D array: rows of columns
+  rows: number;       // Number of rows
+  cols: number;       // Number of columns
 }
 
 /**

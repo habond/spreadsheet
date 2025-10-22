@@ -1,11 +1,14 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import { FunctionArgs } from '../../types/core';
+import { expandArgs } from './helpers';
 
 /**
  * CONCATENATE/CONCAT function - Join text strings
  */
-export function concatenate(args: (number | string)[]): string {
+export function concatenate(args: FunctionArgs): string {
   if (args.length === 0) {
     throw new FunctionArgumentError('CONCATENATE', 'requires at least one argument');
   }
-  return args.map(String).join('');
+  const values = expandArgs(args);
+  return values.map(String).join('');
 }

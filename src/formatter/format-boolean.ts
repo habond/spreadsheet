@@ -1,7 +1,9 @@
+import { CellValueNullable } from '../types/core';
+
 /**
  * Format a value as a boolean: 1 -> True, 0 -> False, else fall back to Raw
  */
-export function formatAsBoolean(value: number | string | null): string {
+export function formatAsBoolean(value: CellValueNullable): string {
   if (value === null) return '';
 
   // Check for exact numeric match

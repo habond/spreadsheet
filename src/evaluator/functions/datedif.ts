@@ -1,16 +1,18 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import { toNumber } from './helpers';
+import { FunctionArgs } from '../../types/core';
+import { toNumber, expandArgs } from './helpers';
 
 /**
  * DATEDIF function - Calculate difference between dates
  */
-export function datedif(args: (number | string)[]): number {
+export function datedif(args: FunctionArgs): number {
   if (args.length !== 3) {
     throw new FunctionArgumentError('DATEDIF', 'requires exactly 3 arguments (start, end, unit)');
   }
-  const start = toNumber(args[0]);
-  const end = toNumber(args[1]);
-  const unit = String(args[2]).toUpperCase();
+  const values = expandArgs(args);
+  const start = toNumber(values[0]);
+  const end = toNumber(values[1]);
+  const unit = String(values[2]).toUpperCase();
 
   const startDate = new Date(start);
   const endDate = new Date(end);

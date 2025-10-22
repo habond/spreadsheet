@@ -3,7 +3,14 @@
  * Simple data store for cell content - does NOT handle evaluation
  */
 
-import { CellID, CellFormat } from '../types/core';
+import {
+  CellID,
+  CellFormat,
+  CellPosition,
+  ColumnWidthEntry,
+  RowHeightEntry,
+  CellFormatEntry,
+} from '../types/core';
 import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_ROW_HEIGHT,
@@ -93,7 +100,7 @@ export class Spreadsheet {
   /**
    * Parse a cell ID into row and column indices
    */
-  parseCellId(cellId: CellID): { row: number; col: number } | null {
+  parseCellId(cellId: CellID): CellPosition | null {
     const match = cellId.match(/^([A-Z]+)(\d+)$/);
     if (!match) return null;
 
@@ -228,9 +235,9 @@ export class Spreadsheet {
    */
   importState(state: {
     cells: CellMap;
-    columnWidths: Array<[number, number]>;
-    rowHeights: Array<[number, number]>;
-    cellFormats?: Array<[CellID, CellFormat]>;
+    columnWidths: ColumnWidthEntry[];
+    rowHeights: RowHeightEntry[];
+    cellFormats?: CellFormatEntry[];
     selectedCell: CellID | null;
   }): void {
     this.cells = { ...state.cells };

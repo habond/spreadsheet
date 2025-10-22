@@ -1,9 +1,10 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import { FunctionArgs } from '../../types/core';
 
 /**
  * TODAY function - Current date as timestamp
  */
-export function today(_args: (number | string)[]): number {
+export function today(_args: FunctionArgs): number {
   if (_args.length !== 0) {
     throw new FunctionArgumentError('TODAY', 'requires no arguments');
   }

@@ -59,7 +59,10 @@ describe('ASTParser', () => {
       const ast = parser.parse();
 
       expect(ast.type).toBe('Range');
-      expect((ast as RangeNode).cells).toEqual(['A1', 'A2', 'B1', 'B2']);
+      expect((ast as RangeNode).cells).toEqual([
+        ['A1', 'B1'], // First row
+        ['A2', 'B2'], // Second row
+      ]);
     });
 
     it('should parse a multi-letter column range', () => {
@@ -68,7 +71,10 @@ describe('ASTParser', () => {
       const ast = parser.parse();
 
       expect(ast.type).toBe('Range');
-      expect((ast as RangeNode).cells).toEqual(['AA1', 'AA2', 'AB1', 'AB2']);
+      expect((ast as RangeNode).cells).toEqual([
+        ['AA1', 'AB1'], // First row
+        ['AA2', 'AB2'], // Second row
+      ]);
     });
   });
 

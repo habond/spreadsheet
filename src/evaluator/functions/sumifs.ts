@@ -1,11 +1,12 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import { toNumber } from './helpers';
+import { FunctionArgs, CellValue } from '../../types/core';
+import { toNumber, expand2DArray } from './helpers';
 
 /**
  * SUMIFS function - Sum cells that meet multiple criteria
  * Syntax: SUMIFS(sum_range, criteria_range1, criteria1, [criteria_range2, criteria2], ...)
  */
-export function sumifs(args: (number | string | (number | string)[])[]): number {
+export function sumifs(args: FunctionArgs): number {
   // Must have at least sum_range, one criteria_range, and one criteria (3 arguments)
   // Additional criteria come in pairs, so total arguments must be odd
   if (args.length < 3 || args.length % 2 === 0) {
@@ -15,18 +16,20 @@ export function sumifs(args: (number | string | (number | string)[])[]): number 
     );
   }
 
-  const sumRange = args[0];
+  const sumRangeArg = args[0];
 
-  // sumRange must be an array
-  if (!Array.isArray(sumRange)) {
+  // sumRange must be a 2D array
+  if (!Array.isArray(sumRangeArg) || !Array.isArray(sumRangeArg[0])) {
     throw new FunctionArgumentError('SUMIFS', 'sum_range must be a range');
   }
 
+  // Expand 2D array to 1D
+  const sumRange = expand2DArray(sumRangeArg);
   const rangeSize = sumRange.length;
 
   // Parse criteria pairs
   const criteriaPairs: Array<{
-    range: (number | string)[];
+    range: CellValue[];
     criteria: string;
     operator?: string;
     value?: number;
@@ -34,12 +37,16 @@ export function sumifs(args: (number | string | (number | string)[])[]): number 
   }> = [];
 
   for (let i = 1; i < args.length; i += 2) {
-    const criteriaRange = args[i];
-    const criteria = String(args[i + 1]);
+    const criteriaRangeArg = args[i];
+    const criteriaArg = args[i + 1];
 
-    if (!Array.isArray(criteriaRange)) {
+    if (!Array.isArray(criteriaRangeArg) || !Array.isArray(criteriaRangeArg[0])) {
       throw new FunctionArgumentError('SUMIFS', `criteria_range${(i + 1) / 2} must be a range`);
     }
+
+    // Expand 2D array to 1D
+    const criteriaRange = expand2DArray(criteriaRangeArg);
+    const criteria = String(criteriaArg);
 
     if (criteriaRange.length !== rangeSize) {
       throw new FunctionArgumentError('SUMIFS', 'all ranges must be the same size');

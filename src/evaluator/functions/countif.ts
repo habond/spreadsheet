@@ -1,21 +1,27 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import { FunctionArgs } from '../../types/core';
+import { expand2DArray } from './helpers';
 
 /**
  * COUNTIF function - Count cells that meet a criteria
  * Supports numeric comparisons (>, <, >=, <=, =, <>) and exact text matches
  */
-export function countif(args: (number | string | (number | string)[])[]): number {
+export function countif(args: FunctionArgs): number {
   if (args.length !== 2) {
     throw new FunctionArgumentError('COUNTIF', 'requires exactly 2 arguments');
   }
 
-  const range = args[0];
-  const criteria = String(args[1]);
+  const rangeArg = args[0];
+  const criteriaArg = args[1];
 
-  // Range must be an array
-  if (!Array.isArray(range)) {
+  // Range must be a 2D array
+  if (!Array.isArray(rangeArg) || !Array.isArray(rangeArg[0])) {
     throw new FunctionArgumentError('COUNTIF', 'first argument must be a range');
   }
+
+  // Expand 2D array to 1D
+  const range = expand2DArray(rangeArg);
+  const criteria = String(criteriaArg);
 
   // Parse criteria - check if it's a comparison operator
   // Note: <> must be checked before < to avoid partial match

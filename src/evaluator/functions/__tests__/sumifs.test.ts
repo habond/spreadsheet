@@ -1,19 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { sumifs } from '../sumifs';
 import { FunctionArgumentError } from '../../../errors/FunctionArgumentError';
+import { to2D } from './test-utils';
 
 describe('SUMIFS function', () => {
   describe('single criteria', () => {
     it('should sum with one criteria range', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange1 = [10, 20, 30, 40, 50];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange1 = to2D([10, 20, 30, 40, 50]);
       const result = sumifs([sumRange, criteriaRange1, '>30']);
       expect(result).toBe(900); // 400 + 500
     });
 
     it('should handle exact match criteria', () => {
-      const sumRange = [100, 200, 300, 200, 100];
-      const criteriaRange1 = ['apple', 'banana', 'apple', 'cherry', 'apple'];
+      const sumRange = to2D([100, 200, 300, 200, 100]);
+      const criteriaRange1 = to2D(['apple', 'banana', 'apple', 'cherry', 'apple']);
       const result = sumifs([sumRange, criteriaRange1, 'apple']);
       expect(result).toBe(500); // 100 + 300 + 100
     });
@@ -21,18 +22,18 @@ describe('SUMIFS function', () => {
 
   describe('multiple criteria', () => {
     it('should sum with two criteria ranges (AND logic)', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange1 = [10, 20, 30, 40, 50];
-      const criteriaRange2 = ['A', 'B', 'A', 'A', 'B'];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange1 = to2D([10, 20, 30, 40, 50]);
+      const criteriaRange2 = to2D(['A', 'B', 'A', 'A', 'B']);
       const result = sumifs([sumRange, criteriaRange1, '>20', criteriaRange2, 'A']);
       expect(result).toBe(700); // 300 (30>20 && A) + 400 (40>20 && A)
     });
 
     it('should sum with three criteria ranges', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange1 = [10, 20, 30, 40, 50];
-      const criteriaRange2 = ['A', 'B', 'A', 'A', 'B'];
-      const criteriaRange3 = [1, 2, 1, 1, 2];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange1 = to2D([10, 20, 30, 40, 50]);
+      const criteriaRange2 = to2D(['A', 'B', 'A', 'A', 'B']);
+      const criteriaRange3 = to2D([1, 2, 1, 1, 2]);
       const result = sumifs([
         sumRange,
         criteriaRange1,
@@ -46,9 +47,9 @@ describe('SUMIFS function', () => {
     });
 
     it('should return 0 when no rows match all criteria', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange1 = [10, 20, 30, 40, 50];
-      const criteriaRange2 = ['A', 'B', 'A', 'A', 'B'];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange1 = to2D([10, 20, 30, 40, 50]);
+      const criteriaRange2 = to2D(['A', 'B', 'A', 'A', 'B']);
       const result = sumifs([sumRange, criteriaRange1, '<10', criteriaRange2, 'C']);
       expect(result).toBe(0);
     });
@@ -56,43 +57,43 @@ describe('SUMIFS function', () => {
 
   describe('comparison operators', () => {
     it('should handle > operator', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange = [10, 20, 30, 40, 50];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange = to2D([10, 20, 30, 40, 50]);
       const result = sumifs([sumRange, criteriaRange, '>30']);
       expect(result).toBe(900); // 400 + 500
     });
 
     it('should handle < operator', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange = [10, 20, 30, 40, 50];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange = to2D([10, 20, 30, 40, 50]);
       const result = sumifs([sumRange, criteriaRange, '<30']);
       expect(result).toBe(300); // 100 + 200
     });
 
     it('should handle >= operator', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange = [10, 20, 30, 40, 50];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange = to2D([10, 20, 30, 40, 50]);
       const result = sumifs([sumRange, criteriaRange, '>=30']);
       expect(result).toBe(1200); // 300 + 400 + 500
     });
 
     it('should handle <= operator', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange = [10, 20, 30, 40, 50];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange = to2D([10, 20, 30, 40, 50]);
       const result = sumifs([sumRange, criteriaRange, '<=30']);
       expect(result).toBe(600); // 100 + 200 + 300
     });
 
     it('should handle = operator', () => {
-      const sumRange = [100, 200, 300, 200, 100];
-      const criteriaRange = [10, 20, 30, 20, 10];
+      const sumRange = to2D([100, 200, 300, 200, 100]);
+      const criteriaRange = to2D([10, 20, 30, 20, 10]);
       const result = sumifs([sumRange, criteriaRange, '=20']);
       expect(result).toBe(400); // 200 + 200
     });
 
     it('should handle <> operator', () => {
-      const sumRange = [100, 200, 300, 200, 100];
-      const criteriaRange = [10, 20, 30, 20, 10];
+      const sumRange = to2D([100, 200, 300, 200, 100]);
+      const criteriaRange = to2D([10, 20, 30, 20, 10]);
       const result = sumifs([sumRange, criteriaRange, '<>20']);
       expect(result).toBe(500); // 100 + 300 + 100
     });
@@ -100,9 +101,9 @@ describe('SUMIFS function', () => {
 
   describe('mixed criteria types', () => {
     it('should handle mix of comparison and exact match criteria', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const numRange = [10, 20, 30, 40, 50];
-      const textRange = ['A', 'B', 'A', 'A', 'B'];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const numRange = to2D([10, 20, 30, 40, 50]);
+      const textRange = to2D(['A', 'B', 'A', 'A', 'B']);
       const result = sumifs([sumRange, numRange, '>25', textRange, 'A']);
       expect(result).toBe(700); // 300 (30>25 && A) + 400 (40>25 && A)
     });
@@ -120,26 +121,26 @@ describe('SUMIFS function', () => {
     });
 
     it('should require sum_range to be a range', () => {
-      expect(() => sumifs([10, [1, 2, 3], '>5'])).toThrow(FunctionArgumentError);
-      expect(() => sumifs([10, [1, 2, 3], '>5'])).toThrow('sum_range must be a range');
+      expect(() => sumifs([10, [[1], [2], [3]], '>5'])).toThrow(FunctionArgumentError);
+      expect(() => sumifs([10, [[1], [2], [3]], '>5'])).toThrow('sum_range must be a range');
     });
 
     it('should require criteria_range to be a range', () => {
-      const sumRange = [100, 200, 300];
+      const sumRange = to2D([100, 200, 300]);
       expect(() => sumifs([sumRange, 10, '>5'])).toThrow(FunctionArgumentError);
       expect(() => sumifs([sumRange, 10, '>5'])).toThrow('criteria_range1 must be a range');
     });
 
     it('should require all ranges to be same size', () => {
-      const sumRange = [100, 200, 300];
-      const criteriaRange = [10, 20];
+      const sumRange = to2D([100, 200, 300]);
+      const criteriaRange = to2D([10, 20]);
       expect(() => sumifs([sumRange, criteriaRange, '>5'])).toThrow(FunctionArgumentError);
       expect(() => sumifs([sumRange, criteriaRange, '>5'])).toThrow('all ranges must be the same size');
     });
 
     it('should throw error for invalid comparison value', () => {
-      const sumRange = [100, 200, 300];
-      const criteriaRange = [10, 20, 30];
+      const sumRange = to2D([100, 200, 300]);
+      const criteriaRange = to2D([10, 20, 30]);
       expect(() => sumifs([sumRange, criteriaRange, '>abc'])).toThrow(FunctionArgumentError);
       expect(() => sumifs([sumRange, criteriaRange, '>abc'])).toThrow('invalid comparison value');
     });
@@ -147,28 +148,28 @@ describe('SUMIFS function', () => {
 
   describe('edge cases', () => {
     it('should handle empty ranges', () => {
-      const result = sumifs([[], [], '10']);
+      const result = sumifs([[[]], [[]], '10']);
       expect(result).toBe(0);
     });
 
     it('should skip non-numeric values in criteria range for comparisons', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange = [10, 'apple', 30, 'banana', 50];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange = to2D([10, 'apple', 30, 'banana', 50]);
       const result = sumifs([sumRange, criteriaRange, '>20']);
       expect(result).toBe(800); // 300 + 500 (skips 'apple' and 'banana')
     });
 
     it('should handle text matching (case-insensitive)', () => {
-      const sumRange = [100, 200, 300, 400];
-      const criteriaRange = ['Apple', 'BANANA', 'apple', 'Cherry'];
+      const sumRange = to2D([100, 200, 300, 400]);
+      const criteriaRange = to2D(['Apple', 'BANANA', 'apple', 'Cherry']);
       const result = sumifs([sumRange, criteriaRange, 'apple']);
       expect(result).toBe(400); // 100 + 300
     });
 
     it('should handle all criteria being exact matches', () => {
-      const sumRange = [100, 200, 300, 400, 500];
-      const criteriaRange1 = ['A', 'B', 'A', 'A', 'B'];
-      const criteriaRange2 = [1, 2, 1, 2, 1];
+      const sumRange = to2D([100, 200, 300, 400, 500]);
+      const criteriaRange1 = to2D(['A', 'B', 'A', 'A', 'B']);
+      const criteriaRange2 = to2D([1, 2, 1, 2, 1]);
       const result = sumifs([sumRange, criteriaRange1, 'A', criteriaRange2, '1']);
       expect(result).toBe(400); // 100 (A && 1) + 300 (A && 1)
     });

@@ -1,25 +1,46 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
+import { CellValue, CellRangeValues, FunctionArgs } from '../../types/core';
 
 /**
- * Flatten arguments that may contain arrays (from ranges) into a single array
+ * Expand a 2D array (from cell ref or range) into a flat 1D array, skipping null values
+ * @param arr - 2D array where null represents empty/error cells
+ * @returns Flat array with only non-null values
  */
-export function flattenArgs(args: (number | string | (number | string)[])[]): (number | string)[] {
-  const flattened: (number | string)[] = [];
-  for (const arg of args) {
-    if (Array.isArray(arg)) {
-      flattened.push(...arg);
-    } else {
-      flattened.push(arg);
+export function expand2DArray(arr: CellRangeValues): CellValue[] {
+  const result: CellValue[] = [];
+  for (const row of arr) {
+    for (const value of row) {
+      if (value !== null) {
+        result.push(value);
+      }
     }
   }
-  return flattened;
+  return result;
+}
+
+/**
+ * Expand all function arguments (scalars and 2D arrays) into a flat 1D array
+ * Scalars are included as-is, 2D arrays are expanded and nulls are skipped
+ */
+export function expandArgs(args: FunctionArgs): CellValue[] {
+  const result: CellValue[] = [];
+  for (const arg of args) {
+    if (Array.isArray(arg)) {
+      // 2D array - expand it
+      result.push(...expand2DArray(arg));
+    } else {
+      // Scalar value
+      result.push(arg);
+    }
+  }
+  return result;
 }
 
 /**
  * Convert a value to a number
  */
-export function toNumber(value: number | string): number {
+export function toNumber(value: CellValue): number {
   if (typeof value === 'number') {
     return value;
   }
@@ -33,7 +54,7 @@ export function toNumber(value: number | string): number {
 /**
  * Convert a value to a boolean
  */
-export function toBoolean(value: number | string): boolean {
+export function toBoolean(value: CellValue): boolean {
   if (typeof value === 'number') {
     return value !== 0;
   }
@@ -91,11 +112,12 @@ export function createBinaryOperation(
   name: string,
   operation: (a: number, b: number) => number,
   validate?: (a: number, b: number) => void
-): (args: (number | string)[]) => number {
-  return (args: (number | string)[]): number => {
+): (args: FunctionArgs) => number {
+  return (args: FunctionArgs): number => {
     requireExactly(name, args, 2);
-    const a = toNumber(args[0]);
-    const b = toNumber(args[1]);
+    const values = expandArgs(args);
+    const a = toNumber(values[0]);
+    const b = toNumber(values[1]);
     validate?.(a, b);
     return operation(a, b);
   };
@@ -107,9 +129,10 @@ export function createBinaryOperation(
 export function createUnaryStringOperation(
   name: string,
   operation: (str: string) => string
-): (args: (number | string)[]) => string {
-  return (args: (number | string)[]): string => {
+): (args: FunctionArgs) => string {
+  return (args: FunctionArgs): string => {
     requireExactly(name, args, 1);
-    return operation(String(args[0]));
+    const values = expandArgs(args);
+    return operation(String(values[0]));
   };
 }

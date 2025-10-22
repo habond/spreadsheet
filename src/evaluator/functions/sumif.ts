@@ -1,26 +1,32 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import { toNumber } from './helpers';
+import { FunctionArgs } from '../../types/core';
+import { toNumber, expand2DArray } from './helpers';
 
 /**
  * SUMIF function - Sum cells that meet a criteria
  * Supports numeric comparisons (>, <, >=, <=, =, <>) and exact text matches
  */
-export function sumif(args: (number | string | (number | string)[])[]): number {
+export function sumif(args: FunctionArgs): number {
   if (args.length < 2 || args.length > 3) {
     throw new FunctionArgumentError('SUMIF', 'requires 2 or 3 arguments');
   }
 
-  const range = args[0];
-  const criteria = String(args[1]);
-  const sumRange = args.length === 3 ? args[2] : range;
+  const rangeArg = args[0];
+  const criteriaArg = args[1];
+  const sumRangeArg = args.length === 3 ? args[2] : rangeArg;
 
-  // Both range and sumRange must be arrays
-  if (!Array.isArray(range)) {
+  // Both range and sumRange must be 2D arrays
+  if (!Array.isArray(rangeArg) || !Array.isArray(rangeArg[0])) {
     throw new FunctionArgumentError('SUMIF', 'first argument must be a range');
   }
-  if (!Array.isArray(sumRange)) {
+  if (!Array.isArray(sumRangeArg) || !Array.isArray(sumRangeArg[0])) {
     throw new FunctionArgumentError('SUMIF', 'sum_range must be a range');
   }
+
+  // Expand 2D arrays to 1D
+  const range = expand2DArray(rangeArg);
+  const sumRange = expand2DArray(sumRangeArg);
+  const criteria = String(criteriaArg);
 
   // If sumRange is provided, it must be the same size as range
   if (args.length === 3 && range.length !== sumRange.length) {

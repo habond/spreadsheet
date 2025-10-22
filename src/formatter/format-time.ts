@@ -1,9 +1,10 @@
+import { CellValueNullable } from '../types/core';
 import { toNumberOrFallback } from './helpers';
 
 /**
  * Format a Unix timestamp (in milliseconds) as time (uses browser locale)
  */
-export function formatAsTime(value: number | string | null): string {
+export function formatAsTime(value: CellValueNullable): string {
   const numValue = toNumberOrFallback(value);
   if (numValue === null) {
     // If not a valid number, fall back to Raw formatting
