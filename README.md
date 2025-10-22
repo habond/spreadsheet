@@ -17,7 +17,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Formula support** with Excel-like syntax
 - **Arithmetic operators**: `+`, `-`, `*`, `/` with proper precedence
 - **Comparison operators**: `>`, `<`, `>=`, `<=`, `=`, `<>`
-- **Built-in functions**: Math (`SUM`, `AVERAGE`, `MIN`, `MAX`), Logic (`IF`), Count (`COUNT`, `COUNTIF`), Conditional (`SUMIF`, `SUMIFS`), Lookup (`VLOOKUP`), String (`CONCATENATE`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`), Date/Time (`NOW`, `TODAY`, `DATE`, `DATEDIF`)
+- **Built-in functions**: Math (`SUM`, `AVERAGE`, `MIN`, `MAX`), Logic (`IF`), Count (`COUNT`, `COUNTIF`), Conditional (`SUMIF`, `SUMIFS`), Lookup (`VLOOKUP`, `HLOOKUP`, `INDEX`, `MATCH`), String (`CONCATENATE`, `LEFT`, `RIGHT`, `TRIM`, `UPPER`, `LOWER`), Date/Time (`NOW`, `TODAY`, `DATE`, `DATEDIF`)
 - **Range expressions**: `A1:B10` for operating on multiple cells at once
 - **Dependency tracking** with automatic cascading updates
 - **Circular dependency detection** with clear error messages
@@ -172,6 +172,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 
 #### Lookup Functions
 
+**VLOOKUP** - Vertical lookup in tables
 ```
 =VLOOKUP("Product A", A1:C10, 2, 0)       Look up "Product A" in column A, return value from column B (exact match)
 =VLOOKUP("Product A", A1:C10, 3)          Same as above, return value from column C (exact match is default)
@@ -180,15 +181,35 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 =VLOOKUP("E001", A1:D50, 2)               Employee lookup: find "E001" in column A, return name from column B
 ```
 
+**HLOOKUP** - Horizontal lookup in tables
+```
+=HLOOKUP("Q2", A1:E3, 2, 0)               Look up "Q2" in first row, return value from row 2 (exact match)
+=HLOOKUP(100, A1:D5, 3, 1)                Look up 100 in first row, return value from row 3 (approximate match)
+```
+
+**INDEX** - Return value at specified row/column position
+```
+=INDEX(A1:C5, 2, 3)                       Return value from row 2, column 3 of range
+=INDEX(A1:A10, 5)                         Return value from position 5 in single column range
+=INDEX(A1:C1, 1, 2)                       Return value from row 1, column 2 of single row range
+```
+
+**MATCH** - Find position of value in range
+```
+=MATCH(5, A1:A10, 0)                      Find exact position of 5 in range (exact match)
+=MATCH(7, A1:A10, 1)                      Find position of largest value ≤ 7 (sorted ascending)
+=MATCH(3, A1:A10, -1)                     Find position of smallest value ≥ 3 (sorted descending)
+```
+
 **Parameters:**
-- `lookup_value`: The value to search for in the first column
-- `table_range`: The 2D range to search (must be a range, not individual cells)
-- `col_index_num`: Column number (1-based) to return the value from
-- `range_lookup`: Optional. 0 or FALSE for exact match (default), 1 or TRUE for approximate match
+- **VLOOKUP**: `lookup_value`, `table_range`, `col_index_num`, `[range_lookup]`
+- **HLOOKUP**: `lookup_value`, `table_range`, `row_index_num`, `[range_lookup]`
+- **INDEX**: `array`, `row_num`, `[column_num]`
+- **MATCH**: `lookup_value`, `lookup_array`, `[match_type]` (0=exact, 1=≤, -1=≥)
 
 **Notes:**
-- Exact match (default): Searches for exact value, case-insensitive for text
-- Approximate match: Finds largest value ≤ lookup_value (assumes sorted data)
+- Exact match: Searches for exact value, case-insensitive for text
+- Approximate match: Finds largest/smallest value based on match_type (assumes sorted data)
 - Returns error if no match found or if result cell is empty
 
 #### String Functions
@@ -505,7 +526,6 @@ The spreadsheet automatically saves all data to browser localStorage:
 
 Potential additions to explore:
 
-- **Additional range-based functions**: `HLOOKUP`, `INDEX`, `MATCH`
 - **Conditional formatting**: Color cells based on values
 - **Advanced cell formatting**: Colors, fonts, alignment, custom number formats
 - **Multiple sheets**: Tabs for different worksheets

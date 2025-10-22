@@ -39,6 +39,7 @@ src/
 │       ├── sum.ts, average.ts, min.ts, max.ts, add.ts, sub.ts, mul.ts, div.ts, count.ts
 │       ├── if.ts            # Logic functions
 │       ├── countif.ts, sumif.ts, sumifs.ts  # Conditional functions
+│       ├── vlookup.ts, hlookup.ts, index.ts, match.ts  # Lookup functions
 │       ├── concatenate.ts, left.ts, right.ts, trim.ts, upper.ts, lower.ts
 │       ├── now.ts, today.ts, date.ts, datedif.ts
 │       ├── helpers.ts       # flattenArgs, toNumber, toBoolean
@@ -454,13 +455,33 @@ LocalStorage integration for automatic state persistence:
 
 **Performance optimization**: Debouncing prevents localStorage writes on every keystroke, reducing I/O operations and potential quota issues.
 
+## Standard Development Practices
+
+**Before Committing Code:**
+
+1. **Run tests**: `npm run test:run` - Ensure all tests pass
+2. **Run lint**: `npm run lint` - Check for ESLint warnings
+3. **Run format**: `npm run format` - Apply Prettier formatting
+4. **Build verification**: `npm run build` - Verify TypeScript compilation
+5. **Update documentation**: Update README.md and CLAUDE.md as needed
+
+**Type Safety:**
+
+- ❌ **Never use `any` type** - Use proper TypeScript types
+- ✅ For intentionally invalid test inputs, use `@ts-expect-error` with explanatory comments
+- Example:
+  ```typescript
+  // @ts-expect-error - Testing invalid input (1D array instead of 2D)
+  expect(() => hlookup([1, [1, 2, 3], 2, 0])).toThrow(FunctionArgumentError);
+  ```
+
 ## What NOT to Do
 
 ❌ Don't add console.log (use debug tools instead)
 ❌ Don't make properties public without reason
 ❌ Don't create TODOs (fix or file issue)
 ❌ Don't skip type annotations
-❌ Don't use `any` type unless necessary
+❌ Don't use `any` type (use `@ts-expect-error` with comments for test edge cases)
 ❌ Don't import with circular dependencies
 ❌ Don't create inline styles (use CSS classes from styles.css)
 ❌ Don't ignore ESLint warnings (especially react-hooks/exhaustive-deps)

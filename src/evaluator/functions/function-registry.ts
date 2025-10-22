@@ -26,6 +26,9 @@ import { countif } from './countif';
 import { sumif } from './sumif';
 import { sumifs } from './sumifs';
 import { vlookup } from './vlookup';
+import { hlookup } from './hlookup';
+import { index } from './index';
+import { match } from './match';
 
 /**
  * Function name constants for type safety
@@ -53,6 +56,9 @@ export const FunctionName = {
   SUMIFS: 'SUMIFS',
   // Lookup functions
   VLOOKUP: 'VLOOKUP',
+  HLOOKUP: 'HLOOKUP',
+  INDEX: 'INDEX',
+  MATCH: 'MATCH',
   // String functions
   CONCATENATE: 'CONCATENATE',
   CONCAT: 'CONCAT',
@@ -102,6 +108,18 @@ export const SUPPORTED_FUNCTIONS: FunctionInfo[] = [
   {
     name: FunctionName.VLOOKUP,
     description: 'VLOOKUP(lookup_value, table_range, col_index_num, [range_lookup])',
+  },
+  {
+    name: FunctionName.HLOOKUP,
+    description: 'HLOOKUP(lookup_value, table_range, row_index_num, [range_lookup])',
+  },
+  {
+    name: FunctionName.INDEX,
+    description: 'INDEX(array, row_num, [column_num]) - Return value at position',
+  },
+  {
+    name: FunctionName.MATCH,
+    description: 'MATCH(lookup_value, lookup_array, [match_type]) - Find position',
   },
   // String functions
   { name: FunctionName.CONCATENATE, description: 'Join text strings' },
@@ -166,6 +184,12 @@ export function executeFunction(name: string, args: FunctionArgs): CellValue {
     // Lookup functions
     case FunctionName.VLOOKUP:
       return vlookup(args);
+    case FunctionName.HLOOKUP:
+      return hlookup(args);
+    case FunctionName.INDEX:
+      return index(args);
+    case FunctionName.MATCH:
+      return match(args);
 
     // Logical functions
     case FunctionName.IF:
