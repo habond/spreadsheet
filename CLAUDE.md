@@ -61,7 +61,7 @@ src/
 │   ├── format-boolean.ts    # Boolean format (True/False)
 │   └── cell-formatter.ts    # Main formatter orchestrator
 ├── model/                   # Data model layer
-│   ├── spreadsheet.ts       # Cell storage & navigation
+│   ├── spreadsheet.ts       # Cell storage, navigation & clipboard (copy/paste/cut)
 │   ├── cell-result-store.ts # Evaluation cache with JSDoc
 │   └── local-storage.ts     # LocalStorage persistence
 ├── ui/                      # React UI layer
@@ -77,7 +77,7 @@ src/
 │   │   └── SpreadsheetContext.tsx  # Main spreadsheet state (minimal, optimized)
 │   └── hooks/               # Custom hooks
 │       ├── useCellValue.tsx       # Granular cell subscription with useSyncExternalStore
-│       ├── useKeyboardNavigation.tsx
+│       ├── useKeyboardNavigation.tsx  # Arrow keys, Tab, Enter, Delete, Copy/Paste/Cut shortcuts
 │       ├── useClickOutside.tsx  # Reusable click-outside handler
 │       └── useDebounce.tsx      # Debounce hook for performance
 └── main.tsx                 # React entry point
@@ -375,9 +375,10 @@ const { spreadsheet, evalEngine, selectCell, updateCell } = useSpreadsheet();
 Encapsulate reusable logic:
 
 ```typescript
-// Keyboard navigation
+// Keyboard navigation (Arrow keys, Tab, Enter, Delete, Copy/Paste/Cut)
 function useKeyboardNavigation(inputRef: RefObject<HTMLInputElement | null>) {
-  // Hook implementation
+  // Handles navigation, cell editing, and clipboard operations
+  // Cmd/Ctrl+C/X/V for copy/cut/paste (only when formula bar not focused)
 }
 
 // Click outside detection
@@ -493,6 +494,43 @@ LocalStorage integration for automatic state persistence:
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Copy/Paste/Cut Implementation**: Added full clipboard functionality with keyboard shortcuts and visual feedback
+  - **Clipboard state management**:
+    - `ClipboardData` interface with `content`, `format`, and `sourceCellId`
+    - Internal clipboard stores snapshot of cell content and format at copy time (not references)
+    - Transient state (not persisted to localStorage)
+  - **Spreadsheet model methods**:
+    - `copyCell()` - Captures selected cell content and format as snapshot
+    - `cutCell()` - Copies then clears original cell and resets format
+    - `pasteCell()` - Pastes clipboard content to selected cell (returns boolean)
+    - `getCopiedCell()` - Returns source cell ID for visual feedback
+    - `clearClipboard()` - Clears clipboard and copied cell indicator
+  - **Context integration**:
+    - Exposed `copyCell`, `cutCell`, `pasteCell`, `clearClipboard` methods
+    - Added `copiedCell` state with React state updates for visual feedback
+    - Proper debounced save after cut/paste operations
+  - **Keyboard shortcuts** (in `useKeyboardNavigation`):
+    - **Cmd/Ctrl+C**: Copy selected cell
+    - **Cmd/Ctrl+X**: Cut selected cell
+    - **Cmd/Ctrl+V**: Paste clipboard content
+    - **Escape**: Clear clipboard indicator
+    - Only active when formula bar is NOT focused (preserves text editing in formula bar)
+  - **Visual feedback**:
+    - Animated dashed green border on copied cells (.cell.copied CSS class)
+    - "Marching ants" animation effect with keyframes
+    - Border automatically clears after paste or Escape key
+  - **Test coverage**:
+    - Added 23 comprehensive unit tests for Spreadsheet clipboard methods
+    - Added 5 keyboard shortcut integration tests
+    - All 930 tests passing
+  - **Documentation**:
+    - Updated README with copy/paste feature and keyboard shortcuts
+    - Updated CLAUDE.md with implementation details
+    - Moved "smart paste with reference adjustment" to future roadmap
+  - **Benefits**: Enables efficient cell duplication with content and formatting, standard spreadsheet UX with familiar keyboard shortcuts
+
+### Previous
 
 - **Performance Optimization with Pub-Sub Architecture**: Implemented granular re-rendering using React's `useSyncExternalStore`
   - **CellResultStore pub-sub**:

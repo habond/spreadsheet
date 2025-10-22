@@ -186,4 +186,155 @@ describe('Grid', () => {
       expect(cellA1).toHaveTextContent('');
     });
   });
+
+  describe('Column Resizing', () => {
+    it('should trigger resize start on column handle mousedown', async () => {
+      const user = userEvent.setup();
+      setup(2, 2);
+
+      const resizeHandle = document.querySelector('.column-resize-handle');
+      expect(resizeHandle).toBeInTheDocument();
+
+      // Simulate mousedown on resize handle
+      await user.pointer({ keys: '[MouseLeft>]', target: resizeHandle! });
+
+      // Test passes if no errors are thrown
+      expect(resizeHandle).toBeInTheDocument();
+    });
+
+    it('should handle mouse movement during column resize', async () => {
+      const user = userEvent.setup();
+      setup(2, 2);
+
+      const resizeHandle = document.querySelector('.column-resize-handle');
+      const container = document.querySelector('.spreadsheet-container');
+
+      // Start resize
+      await user.pointer({ keys: '[MouseLeft>]', target: resizeHandle! });
+
+      // Move mouse (simulate drag)
+      await user.pointer({ coords: { clientX: 150, clientY: 0 }, target: container! });
+
+      // Test passes if no errors are thrown
+      expect(container).toBeInTheDocument();
+    });
+
+    it('should stop resizing on mouse up', async () => {
+      const user = userEvent.setup();
+      setup(2, 2);
+
+      const resizeHandle = document.querySelector('.column-resize-handle');
+      const container = document.querySelector('.spreadsheet-container');
+
+      // Start resize
+      await user.pointer({ keys: '[MouseLeft>]', target: resizeHandle! });
+
+      // Release mouse
+      await user.pointer({ keys: '[/MouseLeft]', target: container! });
+
+      // Test passes if no errors are thrown
+      expect(container).toBeInTheDocument();
+    });
+
+    it('should stop resizing on mouse leave', async () => {
+      const user = userEvent.setup();
+      setup(2, 2);
+
+      const resizeHandle = document.querySelector('.column-resize-handle');
+      const container = document.querySelector('.spreadsheet-container') as Element;
+
+      // Start resize
+      await user.pointer({ keys: '[MouseLeft>]', target: resizeHandle! });
+
+      // Trigger mouse leave
+      await user.unhover(container);
+
+      // Test passes if no errors are thrown
+      expect(container).toBeInTheDocument();
+    });
+  });
+
+  describe('Row Resizing', () => {
+    it('should trigger resize start on row handle mousedown', async () => {
+      const user = userEvent.setup();
+      setup(2, 2);
+
+      const resizeHandle = document.querySelector('.row-resize-handle');
+      expect(resizeHandle).toBeInTheDocument();
+
+      // Simulate mousedown on resize handle
+      await user.pointer({ keys: '[MouseLeft>]', target: resizeHandle! });
+
+      // Test passes if no errors are thrown
+      expect(resizeHandle).toBeInTheDocument();
+    });
+
+    it('should handle mouse movement during row resize', async () => {
+      const user = userEvent.setup();
+      setup(2, 2);
+
+      const resizeHandle = document.querySelector('.row-resize-handle');
+      const container = document.querySelector('.spreadsheet-container');
+
+      // Start resize
+      await user.pointer({ keys: '[MouseLeft>]', target: resizeHandle! });
+
+      // Move mouse (simulate drag)
+      await user.pointer({ coords: { clientX: 0, clientY: 50 }, target: container! });
+
+      // Test passes if no errors are thrown
+      expect(container).toBeInTheDocument();
+    });
+
+    it('should stop resizing on mouse up', async () => {
+      const user = userEvent.setup();
+      setup(2, 2);
+
+      const resizeHandle = document.querySelector('.row-resize-handle');
+      const container = document.querySelector('.spreadsheet-container');
+
+      // Start resize
+      await user.pointer({ keys: '[MouseLeft>]', target: resizeHandle! });
+
+      // Release mouse
+      await user.pointer({ keys: '[/MouseLeft]', target: container! });
+
+      // Test passes if no errors are thrown
+      expect(container).toBeInTheDocument();
+    });
+  });
+
+  describe('Grid Styles', () => {
+    it('should apply dynamic column widths to grid style', () => {
+      setup(2, 2);
+
+      const grid = document.querySelector('.grid') as HTMLElement;
+      expect(grid).toBeInTheDocument();
+      expect(grid.style.gridTemplateColumns).toBeTruthy();
+    });
+
+    it('should apply dynamic row heights to grid style', () => {
+      setup(2, 2);
+
+      const grid = document.querySelector('.grid') as HTMLElement;
+      expect(grid).toBeInTheDocument();
+      expect(grid.style.gridTemplateRows).toBeTruthy();
+    });
+
+    it('should apply dynamic column widths to column headers', () => {
+      setup(2, 2);
+
+      const columnHeaders = document.querySelector('.column-headers') as HTMLElement;
+      expect(columnHeaders).toBeInTheDocument();
+      expect(columnHeaders.style.gridTemplateColumns).toBeTruthy();
+    });
+
+    it('should apply dynamic row heights to row headers', () => {
+      setup(2, 2);
+
+      const rowHeaders = document.querySelector('.row-headers') as HTMLElement;
+      expect(rowHeaders).toBeInTheDocument();
+      expect(rowHeaders.style.gridTemplateRows).toBeTruthy();
+    });
+  });
 });

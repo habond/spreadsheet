@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Spreadsheet } from '../spreadsheet';
+import { CellFormat } from '../../types/core';
 
 describe('Spreadsheet', () => {
   let spreadsheet: Spreadsheet;
@@ -333,6 +334,177 @@ describe('Spreadsheet', () => {
           expect(parsed).toEqual({ row, col });
         }
       }
+    });
+  });
+
+  describe('copy/paste functionality', () => {
+    beforeEach(() => {
+      spreadsheet.setCellContent('A1', '42');
+      spreadsheet.setCellFormat('A1', CellFormat.Number);
+      spreadsheet.selectCell('A1');
+    });
+
+    describe('copyCell', () => {
+      it('should copy the selected cell content and format', () => {
+        spreadsheet.copyCell();
+        expect(spreadsheet.getCopiedCell()).toBe('A1');
+      });
+
+      it('should capture content at the moment of copying', () => {
+        spreadsheet.copyCell();
+
+        // Change the original cell after copying
+        spreadsheet.setCellContent('A1', '100');
+
+        // Paste should use the old value (42), not the new value (100)
+        spreadsheet.selectCell('B1');
+        spreadsheet.pasteCell();
+        expect(spreadsheet.getCellContent('B1')).toBe('42');
+      });
+
+      it('should not copy if no cell is selected', () => {
+        const emptySpreadsheet = new Spreadsheet(10, 10);
+        emptySpreadsheet.copyCell();
+        expect(emptySpreadsheet.getCopiedCell()).toBeNull();
+      });
+
+      it('should preserve format when copying', () => {
+        spreadsheet.copyCell();
+        spreadsheet.selectCell('B1');
+        spreadsheet.pasteCell();
+        expect(spreadsheet.getCellFormat('B1')).toBe(CellFormat.Number);
+      });
+    });
+
+    describe('cutCell', () => {
+      it('should copy the cell and clear the original', () => {
+        spreadsheet.cutCell();
+
+        expect(spreadsheet.getCopiedCell()).toBe('A1');
+        expect(spreadsheet.getCellContent('A1')).toBe('');
+        expect(spreadsheet.getCellFormat('A1')).toBe(CellFormat.Raw);
+      });
+
+      it('should allow pasting after cut', () => {
+        spreadsheet.cutCell();
+        spreadsheet.selectCell('B1');
+        const result = spreadsheet.pasteCell();
+
+        expect(result).toBe(true);
+        expect(spreadsheet.getCellContent('B1')).toBe('42');
+        expect(spreadsheet.getCellFormat('B1')).toBe(CellFormat.Number);
+      });
+
+      it('should not cut if no cell is selected', () => {
+        const emptySpreadsheet = new Spreadsheet(10, 10);
+        emptySpreadsheet.cutCell();
+        expect(emptySpreadsheet.getCopiedCell()).toBeNull();
+      });
+    });
+
+    describe('pasteCell', () => {
+      it('should paste copied content to selected cell', () => {
+        spreadsheet.copyCell();
+        spreadsheet.selectCell('B1');
+        const result = spreadsheet.pasteCell();
+
+        expect(result).toBe(true);
+        expect(spreadsheet.getCellContent('B1')).toBe('42');
+        expect(spreadsheet.getCellFormat('B1')).toBe(CellFormat.Number);
+      });
+
+      it('should return false if clipboard is empty', () => {
+        spreadsheet.selectCell('B1');
+        const result = spreadsheet.pasteCell();
+        expect(result).toBe(false);
+      });
+
+      it('should return false if no cell is selected', () => {
+        spreadsheet.copyCell();
+        const emptySpreadsheet = new Spreadsheet(10, 10);
+        const result = emptySpreadsheet.pasteCell();
+        expect(result).toBe(false);
+      });
+
+      it('should overwrite existing cell content', () => {
+        spreadsheet.setCellContent('B1', 'original');
+        spreadsheet.copyCell();
+        spreadsheet.selectCell('B1');
+        spreadsheet.pasteCell();
+
+        expect(spreadsheet.getCellContent('B1')).toBe('42');
+      });
+
+      it('should allow pasting multiple times', () => {
+        spreadsheet.copyCell();
+
+        spreadsheet.selectCell('B1');
+        spreadsheet.pasteCell();
+
+        spreadsheet.selectCell('C1');
+        spreadsheet.pasteCell();
+
+        expect(spreadsheet.getCellContent('B1')).toBe('42');
+        expect(spreadsheet.getCellContent('C1')).toBe('42');
+      });
+
+      it('should handle formula content', () => {
+        spreadsheet.setCellContent('A1', '=SUM(B1:B3)');
+        spreadsheet.copyCell();
+        spreadsheet.selectCell('A2');
+        spreadsheet.pasteCell();
+
+        expect(spreadsheet.getCellContent('A2')).toBe('=SUM(B1:B3)');
+      });
+    });
+
+    describe('getCopiedCell', () => {
+      it('should return null initially', () => {
+        const emptySpreadsheet = new Spreadsheet(10, 10);
+        expect(emptySpreadsheet.getCopiedCell()).toBeNull();
+      });
+
+      it('should return the copied cell ID', () => {
+        spreadsheet.copyCell();
+        expect(spreadsheet.getCopiedCell()).toBe('A1');
+      });
+
+      it('should return null after clearing clipboard', () => {
+        spreadsheet.copyCell();
+        spreadsheet.clearClipboard();
+        expect(spreadsheet.getCopiedCell()).toBeNull();
+      });
+    });
+
+    describe('clearClipboard', () => {
+      it('should clear the clipboard', () => {
+        spreadsheet.copyCell();
+        spreadsheet.clearClipboard();
+
+        expect(spreadsheet.getCopiedCell()).toBeNull();
+        spreadsheet.selectCell('B1');
+        const result = spreadsheet.pasteCell();
+        expect(result).toBe(false);
+      });
+
+      it('should be safe to call multiple times', () => {
+        spreadsheet.copyCell();
+        spreadsheet.clearClipboard();
+        spreadsheet.clearClipboard();
+        expect(spreadsheet.getCopiedCell()).toBeNull();
+      });
+
+      it('should be safe to call when clipboard is empty', () => {
+        expect(() => spreadsheet.clearClipboard()).not.toThrow();
+      });
+    });
+
+    describe('clear', () => {
+      it('should clear clipboard when clearing spreadsheet', () => {
+        spreadsheet.copyCell();
+        spreadsheet.clear();
+        expect(spreadsheet.getCopiedCell()).toBeNull();
+      });
     });
   });
 });

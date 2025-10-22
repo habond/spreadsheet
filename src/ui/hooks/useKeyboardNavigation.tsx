@@ -2,7 +2,16 @@ import { useEffect, RefObject } from 'react';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 
 export function useKeyboardNavigation(formulaInputRef: RefObject<HTMLInputElement | null> | null) {
-  const { spreadsheet, selectCell, selectedCell, updateCell } = useSpreadsheet();
+  const {
+    spreadsheet,
+    selectCell,
+    selectedCell,
+    updateCell,
+    copyCell,
+    cutCell,
+    pasteCell,
+    clearClipboard,
+  } = useSpreadsheet();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,6 +49,34 @@ export function useKeyboardNavigation(formulaInputRef: RefObject<HTMLInputElemen
 
         return false;
       };
+
+      // Handle copy/paste/cut shortcuts
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifierKey = isMac ? e.metaKey : e.ctrlKey;
+
+      if (modifierKey && !isFormulaInputFocused) {
+        if (e.key === 'c' || e.key === 'C') {
+          e.preventDefault();
+          copyCell();
+          return;
+        }
+        if (e.key === 'x' || e.key === 'X') {
+          e.preventDefault();
+          cutCell();
+          return;
+        }
+        if (e.key === 'v' || e.key === 'V') {
+          e.preventDefault();
+          pasteCell();
+          return;
+        }
+      }
+
+      // Handle Escape to clear copied cell indicator
+      if (e.key === 'Escape') {
+        clearClipboard();
+        return;
+      }
 
       // Handle Tab and Shift+Tab for cell navigation (always)
       if (e.key === 'Tab' && selectedCell) {
@@ -119,5 +156,15 @@ export function useKeyboardNavigation(formulaInputRef: RefObject<HTMLInputElemen
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [spreadsheet, selectCell, selectedCell, updateCell, formulaInputRef]);
+  }, [
+    spreadsheet,
+    selectCell,
+    selectedCell,
+    updateCell,
+    copyCell,
+    cutCell,
+    pasteCell,
+    clearClipboard,
+    formulaInputRef,
+  ]);
 }

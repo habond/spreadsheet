@@ -9,12 +9,13 @@ interface CellProps {
 }
 
 export function Cell({ cellId, row, col }: CellProps) {
-  const { selectedCell, selectCell, formulaInputRef } = useSpreadsheet();
+  const { selectedCell, copiedCell, selectCell, formulaInputRef } = useSpreadsheet();
 
   // Use the optimized hook - only this cell will re-render when its value changes
   const { displayValue, error } = useCellValue(cellId);
 
   const isSelected = selectedCell === cellId;
+  const isCopied = copiedCell === cellId;
 
   const handleClick = () => {
     selectCell(cellId);
@@ -28,7 +29,7 @@ export function Cell({ cellId, row, col }: CellProps) {
 
   return (
     <div
-      className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}`}
+      className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}${isCopied ? ' copied' : ''}`}
       data-cell-id={cellId}
       data-row={row}
       data-col={col}

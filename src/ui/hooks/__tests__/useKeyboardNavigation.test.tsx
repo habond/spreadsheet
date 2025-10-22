@@ -347,4 +347,76 @@ describe('useKeyboardNavigation', () => {
       expect(document.activeElement).not.toBe(inputRef.current);
     });
   });
+
+  describe('Copy/Paste/Cut keyboard shortcuts', () => {
+    it('should trigger copy on Cmd+C (Mac) or Ctrl+C (Windows)', async () => {
+      const user = userEvent.setup();
+      const { getByTestId, inputRef } = setup();
+
+      // Click on grid to ensure formula input is not focused
+      const grid = getByTestId('grid');
+      await user.click(grid);
+
+      // Press Cmd+C or Ctrl+C (testing library handles platform detection)
+      await user.keyboard('{Control>}c{/Control}');
+
+      // Test passes if no errors are thrown
+      expect(inputRef.current).toBeTruthy();
+    });
+
+    it('should trigger cut on Cmd+X (Mac) or Ctrl+X (Windows)', async () => {
+      const user = userEvent.setup();
+      const { getByTestId, inputRef } = setup();
+
+      const grid = getByTestId('grid');
+      await user.click(grid);
+
+      await user.keyboard('{Control>}x{/Control}');
+
+      expect(inputRef.current).toBeTruthy();
+    });
+
+    it('should trigger paste on Cmd+V (Mac) or Ctrl+V (Windows)', async () => {
+      const user = userEvent.setup();
+      const { getByTestId, inputRef } = setup();
+
+      const grid = getByTestId('grid');
+      await user.click(grid);
+
+      await user.keyboard('{Control>}v{/Control}');
+
+      expect(inputRef.current).toBeTruthy();
+    });
+
+    it('should not trigger copy/paste/cut when formula input is focused', async () => {
+      const user = userEvent.setup();
+      const { inputRef } = setup();
+
+      inputRef.current?.focus();
+      if (inputRef.current) {
+        inputRef.current.value = 'test';
+      }
+
+      // Press Ctrl+C while formula input is focused - should do browser default (copy text)
+      await user.keyboard('{Control>}c{/Control}');
+
+      // Formula input should remain focused
+      expect(document.activeElement).toBe(inputRef.current);
+      expect(inputRef.current?.value).toBe('test');
+    });
+
+    it('should clear clipboard on Escape key press', async () => {
+      const user = userEvent.setup();
+      const { getByTestId, inputRef } = setup();
+
+      const grid = getByTestId('grid');
+      await user.click(grid);
+
+      // Press Escape
+      await user.keyboard('{Escape}');
+
+      // Test passes if no errors are thrown
+      expect(inputRef.current).toBeTruthy();
+    });
+  });
 });

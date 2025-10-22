@@ -22,12 +22,17 @@ interface SpreadsheetContextType {
   evalEngine: EvalEngine;
   cellResultStore: CellResultStore;
   selectedCell: CellID | null;
+  copiedCell: CellID | null;
   selectCell: (cellId: CellID) => void;
   updateCell: (cellId: CellID, content: string) => void;
   setColumnWidth: (colIndex: number, width: number) => void;
   setRowHeight: (rowIndex: number, height: number) => void;
   setCellFormat: (cellId: CellID, format: CellFormat) => void;
   clearSpreadsheet: () => void;
+  copyCell: () => void;
+  cutCell: () => void;
+  pasteCell: () => void;
+  clearClipboard: () => void;
   formulaInputRef: RefObject<HTMLInputElement | null> | null;
 }
 
@@ -90,6 +95,8 @@ export function SpreadsheetProvider({
     const savedState = loadSpreadsheetState();
     return savedState?.selectedCell || 'A1';
   });
+
+  const [copiedCell, setCopiedCell] = useState<CellID | null>(null);
 
   // Create a debounced save function
   const debouncedSave = useMemo(() => {
@@ -156,30 +163,69 @@ export function SpreadsheetProvider({
     state.cellResultStore.clear();
     clearSpreadsheetState();
     setSelectedCell('A1');
+    setCopiedCell(null);
     // No need to save - clearSpreadsheetState already clears localStorage
   }, [state.spreadsheet, state.cellResultStore]);
+
+  const copyCell = useCallback(() => {
+    state.spreadsheet.copyCell();
+    setCopiedCell(state.spreadsheet.getCopiedCell());
+  }, [state.spreadsheet]);
+
+  const cutCell = useCallback(() => {
+    state.spreadsheet.cutCell();
+    setCopiedCell(state.spreadsheet.getCopiedCell());
+    state.evalEngine.onCellChanged(selectedCell!);
+    debouncedSave();
+  }, [state.spreadsheet, state.evalEngine, selectedCell, debouncedSave]);
+
+  const pasteCell = useCallback(() => {
+    const success = state.spreadsheet.pasteCell();
+    if (success && selectedCell) {
+      state.evalEngine.onCellChanged(selectedCell);
+      debouncedSave();
+      // Clear the copied cell indicator after paste
+      state.spreadsheet.clearClipboard();
+      setCopiedCell(null);
+    }
+  }, [state.spreadsheet, state.evalEngine, selectedCell, debouncedSave]);
+
+  const clearClipboard = useCallback(() => {
+    state.spreadsheet.clearClipboard();
+    setCopiedCell(null);
+  }, [state.spreadsheet]);
 
   const contextValue: SpreadsheetContextType = useMemo(
     () => ({
       ...state,
       selectedCell,
+      copiedCell,
       selectCell,
       updateCell,
       setColumnWidth,
       setRowHeight,
       setCellFormat,
       clearSpreadsheet,
+      copyCell,
+      cutCell,
+      pasteCell,
+      clearClipboard,
       formulaInputRef,
     }),
     [
       state,
       selectedCell,
+      copiedCell,
       selectCell,
       updateCell,
       setColumnWidth,
       setRowHeight,
       setCellFormat,
       clearSpreadsheet,
+      copyCell,
+      cutCell,
+      pasteCell,
+      clearClipboard,
       formulaInputRef,
     ]
   );

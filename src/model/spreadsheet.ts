@@ -38,6 +38,12 @@ export interface CellMap {
   [cellId: CellID]: CellData;
 }
 
+export interface ClipboardData {
+  content: string;
+  format: CellFormat;
+  sourceCellId: CellID; // For visual feedback (dashed border)
+}
+
 export class Spreadsheet {
   readonly rows: number;
   readonly cols: number;
@@ -46,6 +52,7 @@ export class Spreadsheet {
   private columnWidths: Map<number, number>;
   private rowHeights: Map<number, number>;
   private cellFormats: Map<CellID, CellFormat>;
+  private clipboard: ClipboardData | null;
   private defaultColumnWidth = DEFAULT_COLUMN_WIDTH;
   private defaultRowHeight = DEFAULT_ROW_HEIGHT;
 
@@ -57,6 +64,7 @@ export class Spreadsheet {
     this.columnWidths = new Map();
     this.rowHeights = new Map();
     this.cellFormats = new Map();
+    this.clipboard = null;
   }
 
   /**
@@ -267,5 +275,58 @@ export class Spreadsheet {
     this.rowHeights.clear();
     this.cellFormats.clear();
     this.selectedCell = 'A1';
+    this.clipboard = null;
+  }
+
+  /**
+   * Copy the currently selected cell to clipboard
+   * Captures the content and format at the time of copying (not a reference)
+   */
+  copyCell(): void {
+    if (!this.selectedCell) return;
+
+    // Capture the values at this moment (snapshot, not reference)
+    this.clipboard = {
+      content: this.getCellContent(this.selectedCell),
+      format: this.getCellFormat(this.selectedCell),
+      sourceCellId: this.selectedCell,
+    };
+  }
+
+  /**
+   * Cut the currently selected cell (copy + clear)
+   */
+  cutCell(): void {
+    if (!this.selectedCell) return;
+
+    this.copyCell();
+    this.setCellContent(this.selectedCell, '');
+    this.setCellFormat(this.selectedCell, CellFormat.Raw);
+  }
+
+  /**
+   * Paste clipboard content to the currently selected cell
+   * Returns true if paste was successful, false otherwise
+   */
+  pasteCell(): boolean {
+    if (!this.selectedCell || !this.clipboard) return false;
+
+    this.setCellContent(this.selectedCell, this.clipboard.content);
+    this.setCellFormat(this.selectedCell, this.clipboard.format);
+    return true;
+  }
+
+  /**
+   * Get the cell ID that was copied (for visual feedback)
+   */
+  getCopiedCell(): CellID | null {
+    return this.clipboard?.sourceCellId ?? null;
+  }
+
+  /**
+   * Clear the clipboard and copied cell indicator
+   */
+  clearClipboard(): void {
+    this.clipboard = null;
   }
 }
