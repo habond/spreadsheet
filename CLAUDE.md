@@ -61,14 +61,14 @@ src/
 │   ├── format-boolean.ts    # Boolean format (True/False)
 │   └── cell-formatter.ts    # Main formatter orchestrator
 ├── model/                   # Data model layer
-│   ├── spreadsheet.ts       # Cell storage, navigation & clipboard (copy/paste/cut)
+│   ├── spreadsheet.ts       # Cell storage, navigation, clipboard (copy/paste/cut), fill handle
 │   ├── cell-result-store.ts # Evaluation cache with JSDoc
 │   └── local-storage.ts     # LocalStorage persistence
 ├── ui/                      # React UI layer
 │   ├── components/          # React components
 │   │   ├── App.tsx          # Main app layout with ErrorBoundary
-│   │   ├── Grid.tsx         # Spreadsheet grid with local render trigger
-│   │   ├── Cell.tsx         # Individual cell (uses useCellValue for granular updates)
+│   │   ├── Grid.tsx         # Spreadsheet grid with resize & fill handle drag logic
+│   │   ├── Cell.tsx         # Individual cell with fill handle UI (uses useCellValue)
 │   │   ├── FormulaBar.tsx   # Formula input with function & format menus
 │   │   ├── FunctionMenu.tsx # Function dropdown with useClickOutside
 │   │   ├── InfoButton.tsx   # Info popover with cell display
@@ -494,6 +494,44 @@ LocalStorage integration for automatic state persistence:
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Fill Handle Implementation**: Added Excel/Google Sheets-style fill handle for copying cell content and formatting
+  - **Fill handle UI** ([Cell.tsx:43](src/ui/components/Cell.tsx#L43)):
+    - Small blue square (8x8px) appears in bottom-right corner of selected cell
+    - Crosshair cursor with hover effect (enlarges to 10x10px)
+    - Only visible when cell is selected
+  - **Drag interaction** ([Grid.tsx:15-18,51-66,68-88](src/ui/components/Grid.tsx#L15-L18)):
+    - Click and drag fill handle to select range
+    - Supports horizontal and vertical fills (not diagonal)
+    - Visual preview with blue highlighting during drag
+    - Uses capture phase (`onMouseDownCapture`) to intercept events before cell click
+  - **Spreadsheet model methods** ([spreadsheet.ts:338-388](src/model/spreadsheet.ts#L338-L388)):
+    - `getFillRangeCells(startCellId, endCellId)` - Returns array of cell IDs for preview (no side effects)
+    - `fillRange(startCellId, endCellId)` - Fills cells and returns array of affected cell IDs
+    - Copies both cell content (values/formulas) and cell format
+    - Supports bi-directional fills (drag left/right/up/down)
+  - **Context integration** ([SpreadsheetContext.tsx:199-211](src/ui/contexts/SpreadsheetContext.tsx#L199-L211)):
+    - Exposed `fillRange` method in context
+    - Triggers formula re-evaluation for all affected cells
+    - Debounced save to localStorage after fill
+  - **Visual feedback** (styles.css:195-220):
+    - Blue fill handle with white border (`.fill-handle`)
+    - Blue background and outline on cells being filled (`.cell.fill-highlight`)
+    - Clear indication of fill direction and range
+  - **Code quality improvements**:
+    - Eliminated duplication by using `getFillRangeCells()` for both preview and actual fill
+    - Clean separation between preview logic (Grid) and fill logic (Spreadsheet)
+    - Transient drag state kept local to Grid component (not persisted)
+  - **Test coverage**:
+    - Added 18 comprehensive unit tests for fill range functionality
+    - Tests cover horizontal/vertical fills, reverse direction, edge cases, large ranges
+    - All 959 tests passing (up from 941)
+  - **Documentation**:
+    - Updated README with fill handle feature description
+    - Updated CLAUDE.md with implementation details
+  - **Benefits**: Excel/Google Sheets-like UX for quickly duplicating cell content and formatting across ranges
+
+### Previous
 
 - **Copy/Paste/Cut Implementation**: Added full clipboard functionality with keyboard shortcuts and visual feedback
   - **Clipboard state management**:

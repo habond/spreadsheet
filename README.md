@@ -1,7 +1,7 @@
 # Simple Spreadsheet
 
 [![CI](https://github.com/habond/spreadsheet/workflows/CI/badge.svg)](https://github.com/habond/spreadsheet/actions)
-[![Tests](https://img.shields.io/badge/tests-941%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
+[![Tests](https://img.shields.io/badge/tests-959%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![Coverage](https://img.shields.io/badge/coverage-90.51%25-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
@@ -32,6 +32,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Resizable rows** - Drag row header edges to resize
 - **Keyboard navigation** - Arrow keys, Enter, Tab for efficient editing
 - **Copy/paste/cut** - Cmd/Ctrl+C/V/X shortcuts with visual feedback
+- **Fill handle** - Drag the blue square to copy cell content and format to adjacent cells
 - **Auto-save** - Automatic debounced persistence to localStorage
 - **Clear button** - Reset all data with confirmation dialog
 - **Clean, modern UI** - Streamlined interface with popovers for additional info
@@ -49,7 +50,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
   - **Memoization**: Context values and expensive calculations are memoized
   - **Debouncing**: LocalStorage writes are debounced to reduce I/O
 - **ESLint** with React and React Hooks rules
-- **Comprehensive test coverage** with Vitest + React Testing Library (941 tests including render optimization, clipboard, and resize tests)
+- **Comprehensive test coverage** with Vitest + React Testing Library (959 tests including render optimization, clipboard, fill handle, and resize tests)
 
 ## Getting Started
 
@@ -98,6 +99,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
      - **Cmd/Ctrl+V**: Paste clipboard content to selected cell
      - **Escape**: Clear copied cell indicator (removes dashed border)
      - **Visual feedback**: Copied cells show animated dashed green border
+   - **Fill handle**: Click and drag the small blue square in the bottom-right corner of a selected cell to copy its content and format to adjacent cells (horizontal or vertical)
    - **Resizing**: Hover over column/row header edges and drag to resize
    - **Persistence**: All changes auto-save to browser localStorage
    - **Clear data**: Click the red "Clear" button to reset all data (requires confirmation)

@@ -172,6 +172,7 @@ h1 {
   outline: 2px solid #1a73e8;
   outline-offset: -2px;
   background-color: #e8f0fe;
+  position: relative;
 }
 
 .cell.copied {
@@ -189,6 +190,33 @@ h1 {
 .cell.error {
   background-color: #fce8e6;
   color: #d93025;
+}
+
+/* Fill handle - small square in bottom right of selected cell */
+.fill-handle {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  background-color: #1a73e8;
+  cursor: crosshair;
+  border: 1px solid white;
+  z-index: 10;
+}
+
+.fill-handle:hover {
+  width: 10px;
+  height: 10px;
+  bottom: -2px;
+  right: -2px;
+}
+
+/* Fill highlight - cells being filled during drag */
+.cell.fill-highlight {
+  background-color: #d2e3fc;
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
 }
 
 .formula-bar {

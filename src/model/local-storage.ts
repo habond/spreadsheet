@@ -11,7 +11,7 @@ export interface SpreadsheetState {
   cells: CellMap;
   columnWidths: ColumnWidthEntry[];
   rowHeights: RowHeightEntry[];
-  cellFormats?: CellFormatEntry[];
+  cellFormats: CellFormatEntry[];
   selectedCell: string | null;
 }
 

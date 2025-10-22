@@ -1,15 +1,21 @@
 import { useState, MouseEvent, useMemo, useCallback } from 'react';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { Cell } from './Cell';
+import { CellID } from '../../types/core';
 
 export function Grid() {
-  const { spreadsheet, setColumnWidth, setRowHeight } = useSpreadsheet();
+  const { spreadsheet, setColumnWidth, setRowHeight, fillRange } = useSpreadsheet();
   const [resizingColumn, setResizingColumn] = useState<number | null>(null);
   const [resizingRow, setResizingRow] = useState<number | null>(null);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [startWidth, setStartWidth] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
+
+  // Fill handle drag state
+  const [fillDragging, setFillDragging] = useState(false);
+  const [fillStartCell, setFillStartCell] = useState<CellID | null>(null);
+  const [fillEndCell, setFillEndCell] = useState<CellID | null>(null);
 
   // Local state to trigger re-renders when sizes change
   const [, setRenderTrigger] = useState(0);
@@ -19,6 +25,14 @@ export function Grid() {
   const cols = spreadsheet.cols;
   const columnWidths = spreadsheet.getAllColumnWidths();
   const rowHeights = spreadsheet.getAllRowHeights();
+
+  // Compute which cells should be highlighted during fill drag
+  const fillHighlightCells = useMemo(() => {
+    if (!fillDragging || !fillStartCell || !fillEndCell) return new Set<CellID>();
+
+    const cells = spreadsheet.getFillRangeCells(fillStartCell, fillEndCell);
+    return new Set(cells);
+  }, [fillDragging, fillStartCell, fillEndCell, spreadsheet]);
 
   const handleColumnResizeStart = (col: number, e: MouseEvent) => {
     e.preventDefault();
@@ -34,7 +48,24 @@ export function Grid() {
     setStartHeight(spreadsheet.getRowHeight(row));
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleFillHandleStart = useCallback(
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('fill-handle')) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent cell click handler from firing
+        const selectedCell = spreadsheet.getSelectedCell();
+        if (selectedCell) {
+          setFillDragging(true);
+          setFillStartCell(selectedCell);
+          setFillEndCell(selectedCell);
+        }
+      }
+    },
+    [spreadsheet]
+  );
+
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (resizingColumn !== null) {
       const delta = e.clientX - startX;
       const newWidth = startWidth + delta;
@@ -45,12 +76,36 @@ export function Grid() {
       const newHeight = startHeight + delta;
       setRowHeight(resizingRow, newHeight);
       forceRender(); // Re-render Grid to show new size
+    } else if (fillDragging) {
+      // Track which cell the mouse is over during fill drag
+      const target = e.target as HTMLElement;
+      const cell = target.closest('[data-cell-id]') as HTMLElement | null;
+      if (cell) {
+        const cellId = cell.getAttribute('data-cell-id') as CellID;
+        setFillEndCell(cellId);
+      }
     }
   };
 
   const handleMouseUp = () => {
-    setResizingColumn(null);
-    setResizingRow(null);
+    // Handle resize end
+    if (resizingColumn !== null || resizingRow !== null) {
+      setResizingColumn(null);
+      setResizingRow(null);
+    }
+
+    // Handle fill drag end
+    if (fillDragging && fillStartCell && fillEndCell) {
+      fillRange(fillStartCell, fillEndCell);
+      setFillDragging(false);
+      setFillStartCell(null);
+      setFillEndCell(null);
+    } else if (fillDragging) {
+      // Cancel drag if no end cell
+      setFillDragging(false);
+      setFillStartCell(null);
+      setFillEndCell(null);
+    }
   };
 
   const columnHeadersStyle = useMemo(
@@ -78,6 +133,7 @@ export function Grid() {
   return (
     <div
       className="spreadsheet-container"
+      onMouseDownCapture={handleFillHandleStart}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -111,7 +167,16 @@ export function Grid() {
           {Array.from({ length: rows }, (_, row) =>
             Array.from({ length: cols }, (_, col) => {
               const cellId = spreadsheet.getCellId(row, col);
-              return <Cell key={cellId} cellId={cellId} row={row} col={col} />;
+              const isFillHighlighted = fillHighlightCells.has(cellId);
+              return (
+                <Cell
+                  key={cellId}
+                  cellId={cellId}
+                  row={row}
+                  col={col}
+                  isFillHighlighted={isFillHighlighted}
+                />
+              );
             })
           )}
         </div>

@@ -33,6 +33,7 @@ interface SpreadsheetContextType {
   cutCell: () => void;
   pasteCell: () => void;
   clearClipboard: () => void;
+  fillRange: (startCellId: CellID, endCellId: CellID) => void;
   formulaInputRef: RefObject<HTMLInputElement | null> | null;
 }
 
@@ -195,6 +196,20 @@ export function SpreadsheetProvider({
     setCopiedCell(null);
   }, [state.spreadsheet]);
 
+  const fillRange = useCallback(
+    (startCellId: CellID, endCellId: CellID) => {
+      const affectedCells = state.spreadsheet.fillRange(startCellId, endCellId);
+      if (affectedCells.length > 0) {
+        // Re-evaluate all affected cells
+        affectedCells.forEach(cellId => {
+          state.evalEngine.onCellChanged(cellId);
+        });
+        debouncedSave();
+      }
+    },
+    [state.spreadsheet, state.evalEngine, debouncedSave]
+  );
+
   const contextValue: SpreadsheetContextType = useMemo(
     () => ({
       ...state,
@@ -210,6 +225,7 @@ export function SpreadsheetProvider({
       cutCell,
       pasteCell,
       clearClipboard,
+      fillRange,
       formulaInputRef,
     }),
     [
@@ -226,6 +242,7 @@ export function SpreadsheetProvider({
       cutCell,
       pasteCell,
       clearClipboard,
+      fillRange,
       formulaInputRef,
     ]
   );

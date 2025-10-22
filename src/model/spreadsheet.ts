@@ -256,13 +256,13 @@ export class Spreadsheet {
     cells: CellMap;
     columnWidths: ColumnWidthEntry[];
     rowHeights: RowHeightEntry[];
-    cellFormats?: CellFormatEntry[];
+    cellFormats: CellFormatEntry[];
     selectedCell: CellID | null;
   }): void {
     this.cells = { ...state.cells };
     this.columnWidths = new Map(state.columnWidths);
     this.rowHeights = new Map(state.rowHeights);
-    this.cellFormats = new Map(state.cellFormats ?? []);
+    this.cellFormats = new Map(state.cellFormats);
     this.selectedCell = state.selectedCell;
   }
 
@@ -328,5 +328,62 @@ export class Spreadsheet {
    */
   clearClipboard(): void {
     this.clipboard = null;
+  }
+
+  /**
+   * Get the cell IDs that would be affected by a fill operation
+   * Supports linear fills (horizontal or vertical only, not diagonal)
+   * Returns array of cell IDs, empty array if invalid range
+   */
+  getFillRangeCells(startCellId: CellID, endCellId: CellID): CellID[] {
+    const startPos = this.parseCellId(startCellId);
+    const endPos = this.parseCellId(endCellId);
+    if (!startPos || !endPos) return [];
+
+    const cells: CellID[] = [];
+
+    // Determine if filling horizontally or vertically
+    if (startPos.row === endPos.row) {
+      // Horizontal fill
+      const minCol = Math.min(startPos.col, endPos.col);
+      const maxCol = Math.max(startPos.col, endPos.col);
+      for (let col = minCol; col <= maxCol; col++) {
+        cells.push(this.getCellId(startPos.row, col));
+      }
+      return cells;
+    } else if (startPos.col === endPos.col) {
+      // Vertical fill
+      const minRow = Math.min(startPos.row, endPos.row);
+      const maxRow = Math.max(startPos.row, endPos.row);
+      for (let row = minRow; row <= maxRow; row++) {
+        cells.push(this.getCellId(row, startPos.col));
+      }
+      return cells;
+    }
+
+    // Diagonal or invalid fill - not supported
+    return [];
+  }
+
+  /**
+   * Fill a range of cells with the content and format from the start cell
+   * Supports linear fills (horizontal or vertical only, not diagonal)
+   * Returns array of affected cell IDs if successful, empty array otherwise
+   */
+  fillRange(startCellId: CellID, endCellId: CellID): CellID[] {
+    const affectedCells = this.getFillRangeCells(startCellId, endCellId);
+    if (affectedCells.length === 0) return [];
+
+    // Get source cell content and format
+    const sourceContent = this.getCellContent(startCellId);
+    const sourceFormat = this.getCellFormat(startCellId);
+
+    // Fill all cells in the range
+    affectedCells.forEach(cellId => {
+      this.setCellContent(cellId, sourceContent);
+      this.setCellFormat(cellId, sourceFormat);
+    });
+
+    return affectedCells;
   }
 }

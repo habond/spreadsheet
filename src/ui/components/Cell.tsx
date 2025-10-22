@@ -6,9 +6,10 @@ interface CellProps {
   cellId: CellID;
   row: number;
   col: number;
+  isFillHighlighted?: boolean;
 }
 
-export function Cell({ cellId, row, col }: CellProps) {
+export function Cell({ cellId, row, col, isFillHighlighted = false }: CellProps) {
   const { selectedCell, copiedCell, selectCell, formulaInputRef } = useSpreadsheet();
 
   // Use the optimized hook - only this cell will re-render when its value changes
@@ -29,7 +30,7 @@ export function Cell({ cellId, row, col }: CellProps) {
 
   return (
     <div
-      className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}${isCopied ? ' copied' : ''}`}
+      className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}${isCopied ? ' copied' : ''}${isFillHighlighted ? ' fill-highlight' : ''}`}
       data-cell-id={cellId}
       data-row={row}
       data-col={col}
@@ -39,6 +40,7 @@ export function Cell({ cellId, row, col }: CellProps) {
       title={error || ''}
     >
       {displayValue}
+      {isSelected && <div className="fill-handle" data-testid={`fill-handle-${cellId}`} />}
     </div>
   );
 }

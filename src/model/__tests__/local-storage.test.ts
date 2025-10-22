@@ -119,6 +119,7 @@ describe('local-storage', () => {
         cells: { A1: { content: '42' } },
         columnWidths: [],
         rowHeights: [],
+        cellFormats: [],
         selectedCell: 'A1',
       };
 
@@ -190,6 +191,7 @@ describe('local-storage', () => {
         cells: { A1: { content: '42' } },
         columnWidths: [],
         rowHeights: [],
+        cellFormats: [],
         selectedCell: 'A1',
       };
 
@@ -252,6 +254,7 @@ describe('local-storage', () => {
         cells: { A1: { content: '42' } },
         columnWidths: [],
         rowHeights: [],
+        cellFormats: [],
         selectedCell: 'A1',
       };
 
@@ -267,6 +270,7 @@ describe('local-storage', () => {
         cells: { A1: { content: '10' } },
         columnWidths: [],
         rowHeights: [],
+        cellFormats: [],
         selectedCell: 'A1',
       };
 
@@ -274,6 +278,7 @@ describe('local-storage', () => {
         cells: { B2: { content: '20' } },
         columnWidths: [[1, 150]],
         rowHeights: [[1, 50]],
+        cellFormats: [],
         selectedCell: 'B2',
       };
 
@@ -285,19 +290,20 @@ describe('local-storage', () => {
       expect(loaded).not.toEqual(state1);
     });
 
-    it('should handle state without optional cellFormats', () => {
-      const stateWithoutFormats: SpreadsheetState = {
+    it('should handle state with cellFormats', () => {
+      const stateWithFormats: SpreadsheetState = {
         cells: { A1: { content: '42' } },
         columnWidths: [],
         rowHeights: [],
+        cellFormats: [],
         selectedCell: 'A1',
       };
 
-      saveSpreadsheetState(stateWithoutFormats);
+      saveSpreadsheetState(stateWithFormats);
       const loaded = loadSpreadsheetState();
 
-      expect(loaded).toEqual(stateWithoutFormats);
-      expect(loaded?.cellFormats).toBeUndefined();
+      expect(loaded).toEqual(stateWithFormats);
+      expect(loaded?.cellFormats).toEqual([]);
     });
 
     it('should handle large state with many cells', () => {
