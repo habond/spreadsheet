@@ -89,7 +89,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
      - **Boolean**: Display 1 as "True", 0 as "False"
    - **Cell info**: Click the **ⓘ button** to view current cell details (raw value, display value, errors)
    - **Keyboard navigation**:
-     - **Arrow keys**: Navigate between cells (works anytime, even while editing)
+     - **Arrow keys**: Save value and navigate between cells (works anytime, even while editing)
      - **Enter**: Save value and move down (Shift+Enter moves up)
      - **Tab**: Save value and move right (Shift+Tab moves left)
      - **Delete/Backspace**: Clear cell contents (when cell is focused but formula bar is not)
@@ -507,10 +507,9 @@ The spreadsheet provides clear error messages:
 
 ### Keyboard Shortcuts
 
-- **Enter** - Commit value and move down
-- **Tab** - Commit value and move right
-- **Shift+Tab** - Commit value and move left
-- **Arrow Keys** - Navigate between cells
+- **Enter** - Commit value and move down (Shift+Enter moves up)
+- **Tab** - Commit value and move right (Shift+Tab moves left)
+- **Arrow Keys** - Commit value and navigate between cells (Up/Down/Left/Right)
 
 ## Development
 

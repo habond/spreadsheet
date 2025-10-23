@@ -118,6 +118,10 @@ export function useKeyboardNavigation(formulaInputRef: RefObject<HTMLInputElemen
         };
 
         e.preventDefault();
+        // Save current formula input value before navigating
+        if (isFormulaInputFocused && formulaInput) {
+          updateCell(selectedCell, formulaInput.value);
+        }
         navigateAndBlur(navigationMap[e.key]);
         return;
       }

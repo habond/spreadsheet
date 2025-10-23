@@ -546,6 +546,16 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **Arrow Key Navigation Enhancement**: Improved cell editing behavior to commit values on arrow key navigation
+  - **Auto-commit on arrow navigation** ([useKeyboardNavigation.tsx:121-124](src/ui/hooks/useKeyboardNavigation.tsx#L121-L124)):
+    - Arrow keys (Up/Down/Left/Right) now save the current formula input value before navigating
+    - Matches existing behavior for Tab and Enter keys for consistency
+    - Example: Type a value in A1, press arrow key → value is committed and cell navigates
+  - **Consistent UX**: All navigation methods (Enter, Tab, Arrow keys) now commit values before moving
+  - **Benefits**: Excel/Google Sheets-like behavior where users don't lose data when navigating away
+
+### Previous
+
 - **Comprehensive ESLint Configuration**: Added industry-standard linting rules for code quality
   - **Import Organization**: Auto-sorts imports alphabetically, enforces `import type` for types
     - Fixed all duplicate imports across codebase (combined into single import statements)
