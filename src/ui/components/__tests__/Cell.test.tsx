@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { userEvent } from '@testing-library/user-event';
@@ -14,6 +14,11 @@ describe('Cell', () => {
     row: 0,
     col: 0,
   };
+
+  // Reset scrollIntoView mock before each test
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   const renderCell = (props = defaultProps) => {
     return render(
@@ -55,5 +60,41 @@ describe('Cell', () => {
     renderCell();
     const cell = screen.getByTestId('cell-A1');
     expect(cell).toBeInTheDocument();
+  });
+
+  it('should call scrollIntoView when cell becomes selected', async () => {
+    const user = userEvent.setup();
+
+    // Mock scrollIntoView
+    const scrollIntoViewMock = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoViewMock;
+
+    // Render two cells
+    render(
+      <SpreadsheetProvider rows={20} cols={10} formulaInputRef={mockRef}>
+        <Cell cellId="A1" row={0} col={0} />
+        <Cell cellId="B2" row={1} col={1} />
+      </SpreadsheetProvider>
+    );
+
+    // A1 is initially selected, scrollIntoView should be called once
+    expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({
+      block: 'nearest',
+      inline: 'nearest',
+      behavior: 'smooth',
+    });
+
+    // Click B2 to select it
+    const cellB2 = screen.getByTestId('cell-B2');
+    await user.click(cellB2);
+
+    // scrollIntoView should be called again for B2
+    expect(scrollIntoViewMock).toHaveBeenCalledTimes(2);
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({
+      block: 'nearest',
+      inline: 'nearest',
+      behavior: 'smooth',
+    });
   });
 });

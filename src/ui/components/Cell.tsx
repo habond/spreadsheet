@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { CellID } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { useCellValue } from '../hooks/useCellValue';
@@ -18,6 +19,20 @@ export function Cell({ cellId, row, col, isFillHighlighted = false }: CellProps)
   const isSelected = selectedCell === cellId;
   const isCopied = copiedCell === cellId;
 
+  // Ref to the cell div element
+  const cellRef = useRef<HTMLDivElement>(null);
+
+  // Scroll the selected cell into view when it becomes selected
+  useEffect(() => {
+    if (isSelected && cellRef.current && cellRef.current.scrollIntoView) {
+      cellRef.current.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest',
+        behavior: 'smooth',
+      });
+    }
+  }, [isSelected]);
+
   const handleClick = () => {
     selectCell(cellId);
   };
@@ -30,6 +45,7 @@ export function Cell({ cellId, row, col, isFillHighlighted = false }: CellProps)
 
   return (
     <div
+      ref={cellRef}
       role="gridcell"
       tabIndex={isSelected ? 0 : -1}
       className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}${isCopied ? ' copied' : ''}${isFillHighlighted ? ' fill-highlight' : ''}`}

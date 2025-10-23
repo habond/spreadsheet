@@ -546,6 +546,22 @@ LocalStorage integration for automatic state persistence:
 
 ### Latest (Current)
 
+- **Auto-Scroll on Cell Navigation**: Added automatic scrolling to keep focused cells in view
+  - **scrollIntoView implementation** ([Cell.tsx:26-34](src/ui/components/Cell.tsx#L26-L34)):
+    - Cell component uses `useEffect` with `cellRef.current.scrollIntoView()` when selected
+    - Scrolls smoothly to keep selected cell visible during keyboard navigation
+    - Uses `block: 'nearest'` and `inline: 'nearest'` to minimize unnecessary scrolling
+    - Safe check for `scrollIntoView` existence (compatible with test environments)
+  - **Works with all navigation methods**:
+    - Arrow keys (Up/Down/Left/Right)
+    - Tab and Shift+Tab
+    - Enter and Shift+Enter
+    - Mouse clicks
+  - **Test coverage**: Added test case to verify `scrollIntoView` is called with correct options
+  - **Benefits**: Excel/Google Sheets-like UX where navigating to off-screen cells automatically scrolls the container
+
+### Previous
+
 - **Arrow Key Navigation Enhancement**: Improved cell editing behavior to commit values on arrow key navigation
   - **Auto-commit on arrow navigation** ([useKeyboardNavigation.tsx:121-124](src/ui/hooks/useKeyboardNavigation.tsx#L121-L124)):
     - Arrow keys (Up/Down/Left/Right) now save the current formula input value before navigating

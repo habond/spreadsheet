@@ -1,7 +1,7 @@
 # Simple Spreadsheet
 
 [![CI](https://github.com/habond/spreadsheet/workflows/CI/badge.svg)](https://github.com/habond/spreadsheet/actions)
-[![Tests](https://img.shields.io/badge/tests-989%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
+[![Tests](https://img.shields.io/badge/tests-990%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![Coverage](https://img.shields.io/badge/coverage-90.51%25-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
@@ -30,7 +30,8 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Info popover** (ⓘ button) - View current cell information
 - **Resizable columns** - Drag column header edges to resize
 - **Resizable rows** - Drag row header edges to resize
-- **Keyboard navigation** - Arrow keys, Enter, Tab for efficient editing
+- **Keyboard navigation** - Arrow keys, Enter, Tab for efficient editing with auto-scroll
+- **Auto-scroll** - Container automatically scrolls to keep focused cells in view
 - **Copy/paste/cut** - Cmd/Ctrl+C/V/X shortcuts with visual feedback
 - **Fill handle** - Drag the blue square to copy cell content and format to adjacent cells
 - **Auto-save** - Automatic debounced persistence to localStorage
@@ -50,7 +51,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
   - **Memoization**: Context values and expensive calculations are memoized
   - **Debouncing**: LocalStorage writes are debounced to reduce I/O
 - **ESLint** with React and React Hooks rules
-- **Comprehensive test coverage** with Vitest + React Testing Library (989 tests including render optimization, clipboard, fill handle, formula translation, and resize tests)
+- **Comprehensive test coverage** with Vitest + React Testing Library (990 tests including render optimization, clipboard, fill handle, formula translation, resize, and auto-scroll tests)
 
 ## Getting Started
 
