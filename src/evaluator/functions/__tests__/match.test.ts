@@ -95,7 +95,7 @@ describe('MATCH function', () => {
   describe('Argument validation', () => {
     it('should throw error with fewer than 2 arguments', () => {
       expect(() => match([5])).toThrow(FunctionArgumentError);
-      expect(() => match([5])).toThrow('MATCH requires 2 or 3 arguments');
+      expect(() => match([5])).toThrow('requires between 2 and 3 arguments');
     });
 
     it('should throw error with more than 3 arguments', () => {

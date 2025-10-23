@@ -136,7 +136,7 @@ describe('HLOOKUP function', () => {
   describe('Argument validation', () => {
     it('should throw error with fewer than 3 arguments', () => {
       expect(() => hlookup([1, [[1, 2]]])).toThrow(FunctionArgumentError);
-      expect(() => hlookup([1, [[1, 2]]])).toThrow('HLOOKUP requires 3 or 4 arguments');
+      expect(() => hlookup([1, [[1, 2]]])).toThrow('requires between 3 and 4 arguments');
     });
 
     it('should throw error with more than 4 arguments', () => {

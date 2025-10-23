@@ -31,7 +31,7 @@ describe('NOW function', () => {
 
   it('should require no arguments', () => {
     expect(() => now([1])).toThrow(FunctionArgumentError);
-    expect(() => now([1])).toThrow('requires no arguments');
+    expect(() => now([1])).toThrow('requires exactly 0 arguments');
   });
 
   it('should return a valid date timestamp', () => {

@@ -1,14 +1,11 @@
-import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { FunctionArgs } from '../../types/core';
-import { toNumber, expandArgs } from './helpers';
+import { expandArgs, requireExactly, toNumber } from './helpers';
 
 /**
  * DATE function - Create date from year, month, day
  */
 export function date(args: FunctionArgs): number {
-  if (args.length !== 3) {
-    throw new FunctionArgumentError('DATE', 'requires exactly 3 arguments (year, month, day)');
-  }
+  requireExactly('DATE', args, 3);
   const values = expandArgs(args);
   const year = toNumber(values[0]);
   const month = toNumber(values[1]);

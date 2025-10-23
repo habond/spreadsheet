@@ -1,6 +1,6 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { CellValueNullable, FunctionArgs } from '../../types/core';
-import { toNumber } from './helpers';
+import { requireRange, toNumber } from './helpers';
 
 /**
  * MATCH - Find the position of a value in a range
@@ -21,10 +21,7 @@ import { toNumber } from './helpers';
  * - MATCH(3, A1:A10, -1) → finds position of smallest value >= 3 (sorted descending)
  */
 export function match(args: FunctionArgs): number | string {
-  // Validate argument count (2 or 3 arguments)
-  if (args.length < 2 || args.length > 3) {
-    throw new FunctionArgumentError('MATCH', 'MATCH requires 2 or 3 arguments');
-  }
+  requireRange('MATCH', args, 2, 3);
 
   // Extract arguments - ensure they are scalars
   const lookupValue = args[0];

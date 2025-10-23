@@ -1,14 +1,12 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { FunctionArgs } from '../../types/core';
-import { toNumber, expandArgs } from './helpers';
+import { expandArgs, requireExactly, toNumber } from './helpers';
 
 /**
  * DATEDIF function - Calculate difference between dates
  */
 export function datedif(args: FunctionArgs): number {
-  if (args.length !== 3) {
-    throw new FunctionArgumentError('DATEDIF', 'requires exactly 3 arguments (start, end, unit)');
-  }
+  requireExactly('DATEDIF', args, 3);
   const values = expandArgs(args);
   const start = toNumber(values[0]);
   const end = toNumber(values[1]);

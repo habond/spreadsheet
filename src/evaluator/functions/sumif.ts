@@ -1,15 +1,13 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { FunctionArgs } from '../../types/core';
-import { toNumber, expand2DArray } from './helpers';
+import { expand2DArray, requireRange, toNumber } from './helpers';
 
 /**
  * SUMIF function - Sum cells that meet a criteria
  * Supports numeric comparisons (>, <, >=, <=, =, <>) and exact text matches
  */
 export function sumif(args: FunctionArgs): number {
-  if (args.length < 2 || args.length > 3) {
-    throw new FunctionArgumentError('SUMIF', 'requires 2 or 3 arguments');
-  }
+  requireRange('SUMIF', args, 2, 3);
 
   const rangeArg = args[0];
   const criteriaArg = args[1];

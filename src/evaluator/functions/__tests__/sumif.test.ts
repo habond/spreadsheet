@@ -88,7 +88,7 @@ describe('SUMIF function', () => {
   describe('error handling', () => {
     it('should require 2 or 3 arguments', () => {
       expect(() => sumif([1])).toThrow(FunctionArgumentError);
-      expect(() => sumif([1])).toThrow('requires 2 or 3 arguments');
+      expect(() => sumif([1])).toThrow('requires between 2 and 3 arguments');
 
       expect(() => sumif([1, 2, 3, 4])).toThrow(FunctionArgumentError);
     });

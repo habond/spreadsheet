@@ -1,7 +1,7 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import type { FunctionArgs, CellValue } from '../../types/core';
-import { toNumber } from './helpers';
+import type { CellValue, FunctionArgs } from '../../types/core';
+import { requireRange, toNumber } from './helpers';
 
 /**
  * VLOOKUP function - Vertical lookup
@@ -18,10 +18,7 @@ import { toNumber } from './helpers';
  * Searches for "Product A" in column A, returns the value from column B (column 2)
  */
 export function vlookup(args: FunctionArgs): CellValue {
-  // Validate argument count (3 or 4 arguments)
-  if (args.length < 3 || args.length > 4) {
-    throw new FunctionArgumentError('VLOOKUP', 'requires 3 or 4 arguments');
-  }
+  requireRange('VLOOKUP', args, 3, 4);
 
   // Validate and extract lookup_value (must be scalar)
   if (Array.isArray(args[0])) {

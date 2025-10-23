@@ -1,12 +1,10 @@
-import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { FunctionArgs } from '../../types/core';
+import { requireExactly } from './helpers';
 
 /**
  * NOW function - Current date and time as timestamp
  */
-export function now(_args: FunctionArgs): number {
-  if (_args.length !== 0) {
-    throw new FunctionArgumentError('NOW', 'requires no arguments');
-  }
+export function now(args: FunctionArgs): number {
+  requireExactly('NOW', args, 0);
   return Date.now();
 }

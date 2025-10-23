@@ -196,7 +196,7 @@ describe('INDEX function', () => {
   describe('Argument validation', () => {
     it('should throw error with fewer than 2 arguments', () => {
       expect(() => index([[[10, 20]]])).toThrow(FunctionArgumentError);
-      expect(() => index([[[10, 20]]])).toThrow('INDEX requires 2 or 3 arguments');
+      expect(() => index([[[10, 20]]])).toThrow('requires between 2 and 3 arguments');
     });
 
     it('should throw error with more than 3 arguments', () => {

@@ -1,7 +1,7 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import type { FunctionArgs, CellValueNullable, CellValue } from '../../types/core';
-import { toNumber, toBoolean } from './helpers';
+import type { CellValue, CellValueNullable, FunctionArgs } from '../../types/core';
+import { requireRange, toBoolean, toNumber } from './helpers';
 
 /**
  * HLOOKUP - Horizontal lookup function
@@ -24,10 +24,7 @@ import { toNumber, toBoolean } from './helpers';
  * - HLOOKUP(100, A1:E5, 3, TRUE) → finds largest value <= 100 in first row, returns value from row 3
  */
 export function hlookup(args: FunctionArgs): CellValue {
-  // Validate argument count (3 or 4 arguments)
-  if (args.length < 3 || args.length > 4) {
-    throw new FunctionArgumentError('HLOOKUP', 'HLOOKUP requires 3 or 4 arguments');
-  }
+  requireRange('HLOOKUP', args, 3, 4);
 
   const lookupValue = args[0];
   if (Array.isArray(lookupValue)) {

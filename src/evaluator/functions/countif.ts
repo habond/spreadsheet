@@ -1,15 +1,13 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { FunctionArgs } from '../../types/core';
-import { expand2DArray } from './helpers';
+import { expand2DArray, requireExactly } from './helpers';
 
 /**
  * COUNTIF function - Count cells that meet a criteria
  * Supports numeric comparisons (>, <, >=, <=, =, <>) and exact text matches
  */
 export function countif(args: FunctionArgs): number {
-  if (args.length !== 2) {
-    throw new FunctionArgumentError('COUNTIF', 'requires exactly 2 arguments');
-  }
+  requireExactly('COUNTIF', args, 2);
 
   const rangeArg = args[0];
   const criteriaArg = args[1];

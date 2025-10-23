@@ -1,7 +1,7 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import type { FunctionArgs, CellValueNullable, CellValue } from '../../types/core';
-import { toNumber } from './helpers';
+import type { CellValue, CellValueNullable, FunctionArgs } from '../../types/core';
+import { requireRange, toNumber } from './helpers';
 
 /**
  * INDEX - Return a value from a range at a specific position
@@ -21,10 +21,7 @@ import { toNumber } from './helpers';
  * - INDEX(A1:A1, 1) → returns value from single cell
  */
 export function index(args: FunctionArgs): CellValue {
-  // Validate argument count (2 or 3 arguments)
-  if (args.length < 2 || args.length > 3) {
-    throw new FunctionArgumentError('INDEX', 'INDEX requires 2 or 3 arguments');
-  }
+  requireRange('INDEX', args, 2, 3);
 
   const array = args[0];
 
