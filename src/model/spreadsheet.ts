@@ -28,7 +28,11 @@ import {
   type ColumnWidthEntry,
   type RowHeightEntry,
 } from '../types/core';
-import { translateFormulaReferences } from '../utils/cell-reference-translator';
+import {
+  translateFormulaReferences,
+  translateFormulaReferencesForDelete,
+  translateFormulaReferencesForInsert,
+} from '../utils/cell-reference-translator';
 import { columnToNumber, numberToColumn } from '../utils/column-utils';
 
 export interface CellData {
@@ -408,6 +412,342 @@ export class Spreadsheet {
       this.setCellContent(cellId, translatedContent);
       this.setCellFormat(cellId, sourceFormat);
     });
+
+    return affectedCells;
+  }
+
+  /**
+   * Insert a new column to the left of the specified column index
+   * Shifts all cells and data in that column and to the right
+   * Returns array of all affected cell IDs
+   */
+  insertColumnLeft(colIndex: number): CellID[] {
+    if (colIndex < 0 || colIndex >= this.cols) return [];
+
+    const newCells: CellMap = {};
+    const newColumnWidths = new Map<number, number>();
+    const newCellFormats = new Map<CellID, CellFormat>();
+    const affectedCells: CellID[] = [];
+
+    // Shift all cells to the right of the insertion point
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const oldCellId = this.getCellId(row, col);
+        const content = this.getCellContent(oldCellId);
+        const format = this.getCellFormat(oldCellId);
+
+        if (col < colIndex) {
+          // Keep cells to the left unchanged
+          if (content) {
+            newCells[oldCellId] = { content };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(oldCellId, format);
+          }
+        } else if (col === colIndex) {
+          // This is the newly inserted column - add to affected cells for clearing
+          const newCellId = this.getCellId(row, colIndex);
+          affectedCells.push(newCellId);
+
+          // Shift the old cell at this position to the right
+          const shiftedCellId = this.getCellId(row, col + 1);
+          if (content) {
+            const translatedContent = translateFormulaReferencesForInsert(
+              content,
+              'column',
+              colIndex
+            );
+            newCells[shiftedCellId] = { content: translatedContent };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(shiftedCellId, format);
+          }
+          affectedCells.push(shiftedCellId);
+        } else {
+          // Shift cells to the right of insertion point
+          const newCellId = this.getCellId(row, col + 1);
+          if (content) {
+            // Translate cell references in formulas - only shift references to columns >= colIndex
+            const translatedContent = translateFormulaReferencesForInsert(
+              content,
+              'column',
+              colIndex
+            );
+            newCells[newCellId] = { content: translatedContent };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(newCellId, format);
+          }
+          affectedCells.push(newCellId);
+        }
+      }
+    }
+
+    // Shift column widths
+    for (let col = this.cols - 1; col >= colIndex; col--) {
+      const width = this.columnWidths.get(col);
+      if (width !== undefined) {
+        newColumnWidths.set(col + 1, width);
+      }
+    }
+    // Preserve widths to the left
+    for (let col = 0; col < colIndex; col++) {
+      const width = this.columnWidths.get(col);
+      if (width !== undefined) {
+        newColumnWidths.set(col, width);
+      }
+    }
+
+    this.cells = newCells;
+    this.columnWidths = newColumnWidths;
+    this.cellFormats = newCellFormats;
+
+    return affectedCells;
+  }
+
+  /**
+   * Insert a new column to the right of the specified column index
+   * Shifts all cells and data after that column to the right
+   * Returns array of all affected cell IDs
+   */
+  insertColumnRight(colIndex: number): CellID[] {
+    if (colIndex < 0 || colIndex >= this.cols) return [];
+    return this.insertColumnLeft(colIndex + 1);
+  }
+
+  /**
+   * Insert a new row above the specified row index
+   * Shifts all cells and data in that row and below
+   * Returns array of all affected cell IDs
+   */
+  insertRowAbove(rowIndex: number): CellID[] {
+    if (rowIndex < 0 || rowIndex >= this.rows) return [];
+
+    const newCells: CellMap = {};
+    const newRowHeights = new Map<number, number>();
+    const newCellFormats = new Map<CellID, CellFormat>();
+    const affectedCells: CellID[] = [];
+
+    // Shift all cells below the insertion point
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const oldCellId = this.getCellId(row, col);
+        const content = this.getCellContent(oldCellId);
+        const format = this.getCellFormat(oldCellId);
+
+        if (row < rowIndex) {
+          // Keep cells above unchanged
+          if (content) {
+            newCells[oldCellId] = { content };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(oldCellId, format);
+          }
+        } else if (row === rowIndex) {
+          // This is the newly inserted row - add to affected cells for clearing
+          const newCellId = this.getCellId(rowIndex, col);
+          affectedCells.push(newCellId);
+
+          // Shift the old cell at this position down
+          const shiftedCellId = this.getCellId(row + 1, col);
+          if (content) {
+            const translatedContent = translateFormulaReferencesForInsert(content, 'row', rowIndex);
+            newCells[shiftedCellId] = { content: translatedContent };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(shiftedCellId, format);
+          }
+          affectedCells.push(shiftedCellId);
+        } else {
+          // Shift cells below insertion point
+          const newCellId = this.getCellId(row + 1, col);
+          if (content) {
+            // Translate cell references in formulas - only shift references to rows >= rowIndex
+            const translatedContent = translateFormulaReferencesForInsert(content, 'row', rowIndex);
+            newCells[newCellId] = { content: translatedContent };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(newCellId, format);
+          }
+          affectedCells.push(newCellId);
+        }
+      }
+    }
+
+    // Shift row heights
+    for (let row = this.rows - 1; row >= rowIndex; row--) {
+      const height = this.rowHeights.get(row);
+      if (height !== undefined) {
+        newRowHeights.set(row + 1, height);
+      }
+    }
+    // Preserve heights above
+    for (let row = 0; row < rowIndex; row++) {
+      const height = this.rowHeights.get(row);
+      if (height !== undefined) {
+        newRowHeights.set(row, height);
+      }
+    }
+
+    this.cells = newCells;
+    this.rowHeights = newRowHeights;
+    this.cellFormats = newCellFormats;
+
+    return affectedCells;
+  }
+
+  /**
+   * Insert a new row below the specified row index
+   * Shifts all cells and data after that row down
+   * Returns array of all affected cell IDs
+   */
+  insertRowBelow(rowIndex: number): CellID[] {
+    if (rowIndex < 0 || rowIndex >= this.rows) return [];
+    return this.insertRowAbove(rowIndex + 1);
+  }
+
+  /**
+   * Delete a column at the specified index
+   * Shifts all cells to the right of the deleted column left
+   * Formulas referencing the deleted column will show #REF! errors
+   * Returns array of all affected cell IDs
+   */
+  deleteColumn(colIndex: number): CellID[] {
+    if (colIndex < 0 || colIndex >= this.cols) return [];
+
+    const newCells: CellMap = {};
+    const newColumnWidths = new Map<number, number>();
+    const newCellFormats = new Map<CellID, CellFormat>();
+    const affectedCells: CellID[] = [];
+
+    // Remove the column and shift everything left
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const oldCellId = this.getCellId(row, col);
+        const content = this.getCellContent(oldCellId);
+        const format = this.getCellFormat(oldCellId);
+
+        if (col < colIndex) {
+          // Keep cells to the left unchanged
+          if (content) {
+            newCells[oldCellId] = { content };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(oldCellId, format);
+          }
+        } else if (col === colIndex) {
+          // This column is being deleted - skip it
+          // Don't copy any content or format
+          continue;
+        } else {
+          // Shift cells to the right of deletion point left
+          const newCellId = this.getCellId(row, col - 1);
+          if (content) {
+            // Translate cell references in formulas
+            const translatedContent = translateFormulaReferencesForDelete(
+              content,
+              'column',
+              colIndex
+            );
+            newCells[newCellId] = { content: translatedContent };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(newCellId, format);
+          }
+          affectedCells.push(newCellId);
+        }
+      }
+    }
+
+    // Shift column widths left
+    for (let col = colIndex + 1; col < this.cols; col++) {
+      const width = this.columnWidths.get(col);
+      if (width !== undefined) {
+        newColumnWidths.set(col - 1, width);
+      }
+    }
+    // Preserve widths to the left
+    for (let col = 0; col < colIndex; col++) {
+      const width = this.columnWidths.get(col);
+      if (width !== undefined) {
+        newColumnWidths.set(col, width);
+      }
+    }
+
+    this.cells = newCells;
+    this.columnWidths = newColumnWidths;
+    this.cellFormats = newCellFormats;
+
+    return affectedCells;
+  }
+
+  /**
+   * Delete a row at the specified index
+   * Shifts all cells below the deleted row up
+   * Formulas referencing the deleted row will show #REF! errors
+   * Returns array of all affected cell IDs
+   */
+  deleteRow(rowIndex: number): CellID[] {
+    if (rowIndex < 0 || rowIndex >= this.rows) return [];
+
+    const newCells: CellMap = {};
+    const newRowHeights = new Map<number, number>();
+    const newCellFormats = new Map<CellID, CellFormat>();
+    const affectedCells: CellID[] = [];
+
+    // Remove the row and shift everything up
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const oldCellId = this.getCellId(row, col);
+        const content = this.getCellContent(oldCellId);
+        const format = this.getCellFormat(oldCellId);
+
+        if (row < rowIndex) {
+          // Keep cells above unchanged
+          if (content) {
+            newCells[oldCellId] = { content };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(oldCellId, format);
+          }
+        } else if (row === rowIndex) {
+          // This row is being deleted - skip it
+          // Don't copy any content or format
+          continue;
+        } else {
+          // Shift cells below deletion point up
+          const newCellId = this.getCellId(row - 1, col);
+          if (content) {
+            // Translate cell references in formulas
+            const translatedContent = translateFormulaReferencesForDelete(content, 'row', rowIndex);
+            newCells[newCellId] = { content: translatedContent };
+          }
+          if (format !== CellFormat.Raw) {
+            newCellFormats.set(newCellId, format);
+          }
+          affectedCells.push(newCellId);
+        }
+      }
+    }
+
+    // Shift row heights up
+    for (let row = rowIndex + 1; row < this.rows; row++) {
+      const height = this.rowHeights.get(row);
+      if (height !== undefined) {
+        newRowHeights.set(row - 1, height);
+      }
+    }
+    // Preserve heights above
+    for (let row = 0; row < rowIndex; row++) {
+      const height = this.rowHeights.get(row);
+      if (height !== undefined) {
+        newRowHeights.set(row, height);
+      }
+    }
+
+    this.cells = newCells;
+    this.rowHeights = newRowHeights;
+    this.cellFormats = newCellFormats;
 
     return affectedCells;
   }

@@ -1,7 +1,7 @@
 # Simple Spreadsheet
 
 [![CI](https://github.com/habond/spreadsheet/workflows/CI/badge.svg)](https://github.com/habond/spreadsheet/actions)
-[![Tests](https://img.shields.io/badge/tests-990%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
+[![Tests](https://img.shields.io/badge/tests-1024%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![Coverage](https://img.shields.io/badge/coverage-90.51%25-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
@@ -34,6 +34,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Auto-scroll** - Container automatically scrolls to keep focused cells in view
 - **Copy/paste/cut** - Cmd/Ctrl+C/V/X shortcuts with visual feedback
 - **Fill handle** - Drag the blue square to copy cell content and format to adjacent cells
+- **Insert columns/rows** - Right-click column/row headers to insert new columns or rows
 - **Auto-save** - Automatic debounced persistence to localStorage
 - **Clear button** - Reset all data with confirmation dialog
 - **Clean, modern UI** - Streamlined interface with popovers for additional info
@@ -51,7 +52,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
   - **Memoization**: Context values and expensive calculations are memoized
   - **Debouncing**: LocalStorage writes are debounced to reduce I/O
 - **ESLint** with React and React Hooks rules
-- **Comprehensive test coverage** with Vitest + React Testing Library (990 tests including render optimization, clipboard, fill handle, formula translation, resize, and auto-scroll tests)
+- **Comprehensive test coverage** with Vitest + React Testing Library (1040 tests including render optimization, clipboard, fill handle, insert/delete column/row, context menus, formula translation, resize, and auto-scroll tests)
 
 ## Getting Started
 
@@ -104,6 +105,14 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
    - **Fill handle** with automatic formula adjustment:
      - Click and drag the small blue square in the bottom-right corner of a selected cell to copy its content and format to adjacent cells (horizontal or vertical)
      - **Formula translation**: Formulas automatically adjust references as you fill (e.g., dragging `=SUM(B1:B5)` from A1 to A2 and A3 creates `=SUM(B2:B6)` and `=SUM(B3:B7)`)
+   - **Insert/Delete columns/rows** with context menus:
+     - **Right-click** any column header (A, B, C, etc.) for "Insert Column Left", "Insert Column Right", or "Delete Column" options
+     - **Right-click** any row header (1, 2, 3, etc.) for "Insert Row Above", "Insert Row Below", or "Delete Row" options
+     - **Keyboard access**: Tab to a header, then press Enter or Space to open the menu
+     - **Visual distinction**: Green icons (➕) for insert actions, red icons (🗑️) for delete actions
+     - **Formula translation**: All formulas automatically update references when cells are shifted or deleted
+       - References TO deleted columns/rows become #REF! errors
+       - References AFTER deleted columns/rows shift left/up
    - **Resizing**: Hover over column/row header edges and drag to resize
    - **Persistence**: All changes auto-save to browser localStorage
    - **Clear data**: Click the red "Clear" button to reset all data (requires confirmation)
@@ -545,7 +554,6 @@ Potential additions to explore:
 - **Smart paste with reference adjustment**: Automatically adjust cell references when pasting formulas
 - **Export to CSV/Excel**: Download spreadsheet data
 - **Import from CSV/Excel**: Load external spreadsheet data
-- **Column/row insertion/deletion**: Dynamic grid sizing
 - **Freeze panes**: Lock headers while scrolling
 - **Charts and graphs**: Visualize data with charts
 

@@ -50,7 +50,7 @@ src/
 │   └── eval-engine.ts       # Main orchestrator
 ├── utils/                   # Pure utility functions
 │   ├── column-utils.ts      # Column letter/number conversion (columnToNumber, numberToColumn)
-│   ├── cell-reference-translator.ts  # AST-based formula translation for copy/paste/fill
+│   ├── cell-reference-translator.ts  # AST-based formula translation for copy/paste/fill/insert/delete
 │   └── __tests__/           # Unit tests for utilities
 ├── formatter/               # Cell formatting (one per format type)
 │   ├── helpers.ts           # toNumberOrFallback helper
@@ -63,17 +63,18 @@ src/
 │   ├── format-boolean.ts    # Boolean format (True/False)
 │   └── cell-formatter.ts    # Main formatter orchestrator
 ├── model/                   # Data model layer
-│   ├── spreadsheet.ts       # Cell storage, navigation, clipboard (copy/paste/cut), fill handle
+│   ├── spreadsheet.ts       # Cell storage, navigation, clipboard (copy/paste/cut), fill handle, insert/delete column/row
 │   ├── cell-result-store.ts # Evaluation cache with JSDoc
 │   └── local-storage.ts     # LocalStorage persistence
 ├── ui/                      # React UI layer
 │   ├── components/          # React components
 │   │   ├── App.tsx          # Main app layout with ErrorBoundary
-│   │   ├── Grid.tsx         # Spreadsheet grid with resize & fill handle drag logic
+│   │   ├── Grid.tsx         # Spreadsheet grid with resize, fill handle, & context menu logic
 │   │   ├── Cell.tsx         # Individual cell with fill handle UI (uses useCellValue)
 │   │   ├── FormulaBar.tsx   # Formula input with function & format menus
 │   │   ├── FunctionMenu.tsx # Function dropdown with useClickOutside
 │   │   ├── InfoButton.tsx   # Info popover with cell display
+│   │   ├── GridHeaderContextMenu.tsx  # Context menu for column/row insertion/deletion
 │   │   └── ErrorBoundary.tsx # Error handling component
 │   ├── contexts/            # React contexts
 │   │   └── SpreadsheetContext.tsx  # Main spreadsheet state (minimal, optimized)
@@ -165,7 +166,7 @@ The formula evaluation system uses a three-phase architecture:
 **Type Alias System:**
 Core types in `types/core.ts` provide semantic clarity and maintainability:
 - **Identity Types**: `CellID` (cell identifier string)
-- **Position Types**: `CellPosition` (row/col coordinates)
+- **Position Types**: `CellPosition` (row/col coordinates), `Axis` ('column' | 'row' for insert operations)
 - **Value Types**: `CellValue` (number | string), `CellValueNullable` (includes null for empty cells)
 - **Range Types**: `RangeReference` (range string like "A1:B3"), `CellGrid` (2D array of cell IDs), `CellRangeValues` (2D array of values)
 - **Evaluation Types**: `ScalarOrRange` (internal evaluation results), `EvalResult` (computation result)
@@ -545,6 +546,89 @@ LocalStorage integration for automatic state persistence:
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Insert Column/Row Bug Fixes**: Fixed formula translation and stale display values
+  - **Formula translation fix** ([cell-reference-translator.ts:224,231](src/utils/cell-reference-translator.ts#L224)):
+    - Fixed comparison operators from `>` to `>=` for both columns and rows
+    - Now correctly shifts references **at or after** insertion point, not just after
+    - Example: Inserting column at B now correctly shifts `B1` references to `C1`
+  - **Stale display values fix** ([spreadsheet.ts:446-464,545-559](src/model/spreadsheet.ts#L446-L464)):
+    - Modified `insertColumnLeft` and `insertRowAbove` to include newly inserted empty cells in `affectedCells`
+    - When context calls `onCellChanged()` on these cells, they get evaluated as empty
+    - CellResultStore now correctly shows empty values instead of stale data
+  - **CellResultStore enhancement** ([cell-result-store.ts:73-76](src/model/cell-result-store.ts#L73-L76)):
+    - Added `delete()` method for explicitly clearing cell results
+    - Notifies listeners when a cell result is deleted
+  - **UI improvement** ([GridHeaderContextMenu.tsx:78-90](src/ui/components/GridHeaderContextMenu.tsx#L78-L90)):
+    - Updated menu text to be more explicit: "Insert Column Left/Right" and "Insert Row Above/Below"
+  - **Test coverage**:
+    - Added 2 new tests to verify newly inserted cells are in affectedCells and are empty
+    - Added 10 comprehensive tests for GridHeaderContextMenu component
+  - **All 1022 tests passing**: 0 errors, 0 warnings
+  - **Benefits**: Insert operations now work correctly with proper formula translation and clean display
+
+### Previous
+
+- **Insert Column/Row Functionality**: Added context menus for inserting columns and rows
+  - **GridHeaderContextMenu component** ([GridHeaderContextMenu.tsx](src/ui/components/GridHeaderContextMenu.tsx)):
+    - Right-click column headers for "Insert Column Left" or "Insert Column Right" options
+    - Right-click row headers for "Insert Row Above" or "Insert Row Below" options
+    - Click-outside and Escape key support to close menu
+    - Uses spreadsheet context methods for insertion
+  - **Spreadsheet model methods** ([spreadsheet.ts:423-590](src/model/spreadsheet.ts#L423-L590)):
+    - `insertColumnLeft(colIndex)` - Inserts new column, shifts cells right
+    - `insertColumnRight(colIndex)` - Inserts new column after specified column
+    - `insertRowAbove(rowIndex)` - Inserts new row, shifts cells down
+    - `insertRowBelow(rowIndex)` - Inserts new row after specified row
+    - All methods preserve cell content, formulas, formats, and sizes
+    - Formulas automatically translated to maintain correct references
+  - **Grid integration** ([Grid.tsx:181-232](src/ui/components/Grid.tsx#L181-L232)):
+    - Context menu triggers on right-click
+    - Keyboard accessibility with Enter/Space on headers
+    - Visual feedback and proper ARIA attributes
+  - **Context integration** ([SpreadsheetContext.tsx:219-273](src/ui/contexts/SpreadsheetContext.tsx#L219-L273)):
+    - Exposed all insert methods in context
+    - Auto-evaluates affected cells after insertion
+    - Debounced save to localStorage
+  - **Formula translation improvement** ([cell-reference-translator.ts:146](src/utils/cell-reference-translator.ts#L146)):
+    - Removed unnecessary parentheses from formula stringification
+    - Cleaner formula output: `=A1+B1` instead of `=(A1+B1)`
+  - **Test coverage**: Added comprehensive tests for insert operations
+  - **Benefits**: Excel/Google Sheets-like column/row insertion with automatic formula updates
+
+- **Column/Row Deletion**: Added delete functionality with formula translation and visual UI improvements
+  - **Delete methods in Spreadsheet class** ([spreadsheet.ts:608-752](src/model/spreadsheet.ts#L608-L752)):
+    - `deleteColumn(colIndex)` - Deletes column and shifts cells left
+    - `deleteRow(rowIndex)` - Deletes row and shifts cells up
+    - Returns array of affected cell IDs for re-evaluation
+    - Shifts column widths/row heights and cell formats
+  - **Formula translation for deletes** ([cell-reference-translator.ts:341-495](src/utils/cell-reference-translator.ts#L341-L495)):
+    - `translateFormulaReferencesForDelete(formula, axis, deleteIndex)` - AST-based formula translation
+    - References TO deleted columns/rows become #REF! errors
+    - References AFTER deleted columns/rows shift left/up
+    - Range endpoints that are deleted convert entire range to #REF!
+    - Ranges with deleted endpoints adjusted (e.g., A1:D1 with B deleted becomes A1:C1)
+  - **Visual UI improvements** ([styles.css:534-596](public/styles.css#L534-L596)):
+    - Green icons (➕) for insert actions with `.context-menu-item-insert` class
+    - Red icons (🗑️) for delete actions with `.context-menu-item-delete` class
+    - Light red hover background for delete actions (`.context-menu-item-delete:hover`)
+    - Divider between insert and delete sections (`.context-menu-divider`)
+  - **Context menu updates** ([GridHeaderContextMenu.tsx](src/ui/components/GridHeaderContextMenu.tsx)):
+    - Added "Delete Column" and "Delete Row" options to context menus
+    - Icons with proper semantic colors for visual distinction
+    - Delete handlers call context methods and close menu
+  - **SpreadsheetContext integration** ([SpreadsheetContext.tsx:277-303](src/ui/contexts/SpreadsheetContext.tsx#L277-L303)):
+    - Exposed `deleteColumn` and `deleteRow` methods
+    - Re-evaluates all affected cells after deletion
+    - Debounced save to localStorage
+  - **Test coverage** ([column-row-operations.test.ts](src/model/__tests__/column-row-operations.test.ts)):
+    - Renamed from `insert-column-row.test.ts` to be more general
+    - Added 16 comprehensive delete tests (8 for columns, 8 for rows)
+    - Tests cover: basic deletion, formula translation, #REF! errors, dimension shifting, format shifting, edge cases, ranges
+    - All 1040 tests passing (16 new delete tests)
+  - **Benefits**: Excel/Google Sheets-like deletion with proper formula updates and clear visual feedback
+
+### Previous
 
 - **Auto-Scroll on Cell Navigation**: Added automatic scrolling to keep focused cells in view
   - **scrollIntoView implementation** ([Cell.tsx:26-34](src/ui/components/Cell.tsx#L26-L34)):

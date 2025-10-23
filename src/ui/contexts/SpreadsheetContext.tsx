@@ -34,6 +34,12 @@ interface SpreadsheetContextType {
   pasteCell: () => void;
   clearClipboard: () => void;
   fillRange: (startCellId: CellID, endCellId: CellID) => void;
+  insertColumnLeft: (colIndex: number) => void;
+  insertColumnRight: (colIndex: number) => void;
+  insertRowAbove: (rowIndex: number) => void;
+  insertRowBelow: (rowIndex: number) => void;
+  deleteColumn: (colIndex: number) => void;
+  deleteRow: (rowIndex: number) => void;
   formulaInputRef: RefObject<HTMLInputElement | null> | null;
 }
 
@@ -212,6 +218,90 @@ export function SpreadsheetProvider({
     [state.spreadsheet, state.evalEngine, debouncedSave]
   );
 
+  const insertColumnLeft = useCallback(
+    (colIndex: number) => {
+      const affectedCells = state.spreadsheet.insertColumnLeft(colIndex);
+      if (affectedCells.length > 0) {
+        // Re-evaluate all affected cells
+        affectedCells.forEach(cellId => {
+          state.evalEngine.onCellChanged(cellId);
+        });
+        debouncedSave();
+      }
+    },
+    [state.spreadsheet, state.evalEngine, debouncedSave]
+  );
+
+  const insertColumnRight = useCallback(
+    (colIndex: number) => {
+      const affectedCells = state.spreadsheet.insertColumnRight(colIndex);
+      if (affectedCells.length > 0) {
+        // Re-evaluate all affected cells
+        affectedCells.forEach(cellId => {
+          state.evalEngine.onCellChanged(cellId);
+        });
+        debouncedSave();
+      }
+    },
+    [state.spreadsheet, state.evalEngine, debouncedSave]
+  );
+
+  const insertRowAbove = useCallback(
+    (rowIndex: number) => {
+      const affectedCells = state.spreadsheet.insertRowAbove(rowIndex);
+      if (affectedCells.length > 0) {
+        // Re-evaluate all affected cells
+        affectedCells.forEach(cellId => {
+          state.evalEngine.onCellChanged(cellId);
+        });
+        debouncedSave();
+      }
+    },
+    [state.spreadsheet, state.evalEngine, debouncedSave]
+  );
+
+  const insertRowBelow = useCallback(
+    (rowIndex: number) => {
+      const affectedCells = state.spreadsheet.insertRowBelow(rowIndex);
+      if (affectedCells.length > 0) {
+        // Re-evaluate all affected cells
+        affectedCells.forEach(cellId => {
+          state.evalEngine.onCellChanged(cellId);
+        });
+        debouncedSave();
+      }
+    },
+    [state.spreadsheet, state.evalEngine, debouncedSave]
+  );
+
+  const deleteColumn = useCallback(
+    (colIndex: number) => {
+      const affectedCells = state.spreadsheet.deleteColumn(colIndex);
+      if (affectedCells.length > 0) {
+        // Re-evaluate all affected cells
+        affectedCells.forEach(cellId => {
+          state.evalEngine.onCellChanged(cellId);
+        });
+        debouncedSave();
+      }
+    },
+    [state.spreadsheet, state.evalEngine, debouncedSave]
+  );
+
+  const deleteRow = useCallback(
+    (rowIndex: number) => {
+      const affectedCells = state.spreadsheet.deleteRow(rowIndex);
+      if (affectedCells.length > 0) {
+        // Re-evaluate all affected cells
+        affectedCells.forEach(cellId => {
+          state.evalEngine.onCellChanged(cellId);
+        });
+        debouncedSave();
+      }
+    },
+    [state.spreadsheet, state.evalEngine, debouncedSave]
+  );
+
   const contextValue: SpreadsheetContextType = useMemo(
     () => ({
       ...state,
@@ -228,6 +318,12 @@ export function SpreadsheetProvider({
       pasteCell,
       clearClipboard,
       fillRange,
+      insertColumnLeft,
+      insertColumnRight,
+      insertRowAbove,
+      insertRowBelow,
+      deleteColumn,
+      deleteRow,
       formulaInputRef,
     }),
     [
@@ -245,6 +341,12 @@ export function SpreadsheetProvider({
       pasteCell,
       clearClipboard,
       fillRange,
+      insertColumnLeft,
+      insertColumnRight,
+      insertRowAbove,
+      insertRowBelow,
+      deleteColumn,
+      deleteRow,
       formulaInputRef,
     ]
   );

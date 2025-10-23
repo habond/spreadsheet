@@ -455,7 +455,7 @@ describe('Spreadsheet', () => {
         spreadsheet.selectCell('A2');
         spreadsheet.pasteCell();
 
-        expect(spreadsheet.getCellContent('A2')).toBe('=(B2+C2)');
+        expect(spreadsheet.getCellContent('A2')).toBe('=B2+C2');
       });
 
       it('should translate cell references when pasting formula right', () => {
@@ -465,7 +465,7 @@ describe('Spreadsheet', () => {
         spreadsheet.selectCell('B1');
         spreadsheet.pasteCell();
 
-        expect(spreadsheet.getCellContent('B1')).toBe('=(B2+B3)');
+        expect(spreadsheet.getCellContent('B1')).toBe('=B2+B3');
       });
 
       it('should translate range references when pasting', () => {

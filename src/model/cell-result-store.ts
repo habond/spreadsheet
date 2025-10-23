@@ -67,6 +67,15 @@ export class CellResultStore {
   }
 
   /**
+   * Delete the result for a specific cell
+   * @param cellId - The cell identifier to delete
+   */
+  delete(cellId: CellID): void {
+    this.results.delete(cellId);
+    this.notifyListeners(cellId);
+  }
+
+  /**
    * Clear all results from the store
    */
   clear(): void {

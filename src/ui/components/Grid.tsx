@@ -2,6 +2,7 @@ import { type MouseEvent, useCallback, useMemo, useState } from 'react';
 import type { CellID } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { Cell } from './Cell';
+import { GridHeaderContextMenu } from './GridHeaderContextMenu';
 
 export function Grid() {
   const { spreadsheet, setColumnWidth, setRowHeight, fillRange } = useSpreadsheet();
@@ -16,6 +17,14 @@ export function Grid() {
   const [fillDragging, setFillDragging] = useState(false);
   const [fillStartCell, setFillStartCell] = useState<CellID | null>(null);
   const [fillEndCell, setFillEndCell] = useState<CellID | null>(null);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    type: 'column' | 'row';
+    index: number;
+  } | null>(null);
 
   // Local state to trigger re-renders when sizes change
   // eslint-disable-next-line react/hook-use-state
@@ -109,6 +118,30 @@ export function Grid() {
     }
   };
 
+  const handleColumnContextMenu = (col: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      type: 'column',
+      index: col,
+    });
+  };
+
+  const handleRowContextMenu = (row: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      type: 'row',
+      index: row,
+    });
+  };
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
   const columnHeadersStyle = useMemo(
     () => ({
       gridTemplateColumns: `40px ${columnWidths.map(w => `${w}px`).join(' ')}`,
@@ -145,7 +178,20 @@ export function Grid() {
         <div className="column-header" />
         {/* Column headers (A, B, C, ...) */}
         {Array.from({ length: cols }, (_, col) => (
-          <div key={col} className="column-header">
+          <div
+            key={col}
+            className="column-header"
+            role="button"
+            tabIndex={0}
+            onContextMenu={e => handleColumnContextMenu(col, e)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleColumnContextMenu(col, e as unknown as React.MouseEvent);
+              }
+            }}
+            aria-label={`Column ${spreadsheet.columnIndexToLetter(col)}`}
+          >
             {spreadsheet.columnIndexToLetter(col)}
             {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Separator is interactive for resizing */}
             <div
@@ -161,7 +207,20 @@ export function Grid() {
         <div className="row-headers" style={rowHeadersStyle}>
           {/* Row headers (1, 2, 3, ...) */}
           {Array.from({ length: rows }, (_, row) => (
-            <div key={row} className="row-header">
+            <div
+              key={row}
+              className="row-header"
+              role="button"
+              tabIndex={0}
+              onContextMenu={e => handleRowContextMenu(row, e)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleRowContextMenu(row, e as unknown as React.MouseEvent);
+                }
+              }}
+              aria-label={`Row ${row + 1}`}
+            >
               {row + 1}
               {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Separator is interactive for resizing */}
               <div
@@ -192,6 +251,15 @@ export function Grid() {
           )}
         </div>
       </div>
+      {contextMenu && (
+        <GridHeaderContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          type={contextMenu.type}
+          index={contextMenu.index}
+          onClose={closeContextMenu}
+        />
+      )}
     </div>
   );
 }

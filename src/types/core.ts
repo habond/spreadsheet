@@ -12,6 +12,8 @@ export interface CellPosition {
   col: number; // 0-based column index
 }
 
+export type Axis = 'column' | 'row';
+
 /**
  * Cell value types
  */

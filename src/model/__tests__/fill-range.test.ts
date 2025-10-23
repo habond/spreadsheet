@@ -64,8 +64,8 @@ describe('Spreadsheet Fill Range', () => {
 
       expect(affected).toEqual(['A1', 'A2', 'A3']);
       expect(spreadsheet.getCellContent('A1')).toBe('=B1+C1');
-      expect(spreadsheet.getCellContent('A2')).toBe('=(B2+C2)');
-      expect(spreadsheet.getCellContent('A3')).toBe('=(B3+C3)');
+      expect(spreadsheet.getCellContent('A2')).toBe('=B2+C2');
+      expect(spreadsheet.getCellContent('A3')).toBe('=B3+C3');
     });
 
     it('should translate cell references when filling horizontally', () => {
@@ -74,8 +74,8 @@ describe('Spreadsheet Fill Range', () => {
 
       expect(affected).toEqual(['A1', 'B1', 'C1']);
       expect(spreadsheet.getCellContent('A1')).toBe('=A2+A3');
-      expect(spreadsheet.getCellContent('B1')).toBe('=(B2+B3)');
-      expect(spreadsheet.getCellContent('C1')).toBe('=(C2+C3)');
+      expect(spreadsheet.getCellContent('B1')).toBe('=B2+B3');
+      expect(spreadsheet.getCellContent('C1')).toBe('=C2+C3');
     });
 
     it('should translate range references when filling', () => {

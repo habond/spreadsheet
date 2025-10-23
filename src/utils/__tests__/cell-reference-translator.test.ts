@@ -46,7 +46,7 @@ describe('translateFormulaReferences', () => {
     it('should translate formula with multiple cell references', () => {
       const sourcePos = { row: 0, col: 0 }; // A1
       const destPos = { row: 1, col: 0 }; // A2
-      expect(translateFormulaReferences('=B1+C1', sourcePos, destPos)).toBe('=(B2+C2)');
+      expect(translateFormulaReferences('=B1+C1', sourcePos, destPos)).toBe('=B2+C2');
     });
 
     it('should translate formula with no offset', () => {
@@ -58,13 +58,13 @@ describe('translateFormulaReferences', () => {
     it('should translate formula when moving down', () => {
       const sourcePos = { row: 0, col: 0 }; // A1
       const destPos = { row: 2, col: 0 }; // A3
-      expect(translateFormulaReferences('=A1+B1', sourcePos, destPos)).toBe('=(A3+B3)');
+      expect(translateFormulaReferences('=A1+B1', sourcePos, destPos)).toBe('=A3+B3');
     });
 
     it('should translate formula when moving right', () => {
       const sourcePos = { row: 0, col: 0 }; // A1
       const destPos = { row: 0, col: 2 }; // C1
-      expect(translateFormulaReferences('=A1+A2', sourcePos, destPos)).toBe('=(C1+C2)');
+      expect(translateFormulaReferences('=A1+A2', sourcePos, destPos)).toBe('=C1+C2');
     });
 
     it('should translate formula when moving diagonally', () => {
@@ -101,22 +101,20 @@ describe('translateFormulaReferences', () => {
       const sourcePos = { row: 0, col: 0 }; // A1
       const destPos = { row: 1, col: 0 }; // A2
       expect(translateFormulaReferences('=IF(A1>0, SUM(B1:B5), 0)', sourcePos, destPos)).toBe(
-        '=IF((A2>0), SUM(B2:B6), 0)'
+        '=IF(A2>0, SUM(B2:B6), 0)'
       );
     });
 
     it('should translate arithmetic operations', () => {
       const sourcePos = { row: 0, col: 0 }; // A1
       const destPos = { row: 0, col: 1 }; // B1
-      expect(translateFormulaReferences('=A1*B1+C1/D1', sourcePos, destPos)).toBe(
-        '=((B1*C1)+(D1/E1))'
-      );
+      expect(translateFormulaReferences('=A1*B1+C1/D1', sourcePos, destPos)).toBe('=B1*C1+D1/E1');
     });
 
     it('should translate comparison operations', () => {
       const sourcePos = { row: 0, col: 0 }; // A1
       const destPos = { row: 1, col: 0 }; // A2
-      expect(translateFormulaReferences('=A1>B1', sourcePos, destPos)).toBe('=(A2>B2)');
+      expect(translateFormulaReferences('=A1>B1', sourcePos, destPos)).toBe('=A2>B2');
     });
   });
 
@@ -162,13 +160,13 @@ describe('translateFormulaReferences', () => {
     it('should handle multi-letter column references', () => {
       const sourcePos = { row: 0, col: 25 }; // Z1
       const destPos = { row: 0, col: 26 }; // AA1
-      expect(translateFormulaReferences('=Z1+AA1', sourcePos, destPos)).toBe('=(AA1+AB1)');
+      expect(translateFormulaReferences('=Z1+AA1', sourcePos, destPos)).toBe('=AA1+AB1');
     });
 
     it('should handle large row numbers', () => {
       const sourcePos = { row: 98, col: 0 }; // A99
       const destPos = { row: 99, col: 0 }; // A100
-      expect(translateFormulaReferences('=A99+A100', sourcePos, destPos)).toBe('=(A100+A101)');
+      expect(translateFormulaReferences('=A99+A100', sourcePos, destPos)).toBe('=A100+A101');
     });
   });
 });
