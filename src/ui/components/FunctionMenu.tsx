@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { SUPPORTED_FUNCTIONS } from '../../evaluator/formula-evaluator';
+import { SUPPORTED_FUNCTIONS } from '../../formula/formula-evaluator';
 import { useClickOutside } from '../hooks/useClickOutside';
 
 interface FunctionMenuProps {

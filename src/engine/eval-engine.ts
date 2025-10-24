@@ -1,5 +1,5 @@
 import { CircularDependencyError } from '../errors/CircularDependencyError';
-import { FormulaCalculator } from '../evaluator/formula-evaluator';
+import { FormulaCalculator } from '../formula/formula-evaluator';
 import { extractCellReferences } from '../parser/formula-parser';
 import type { CellID, GetCellValueFn, GetCellResultFn, SetCellResultFn } from '../types/core';
 import { DependencyGraph } from './dependency-graph';

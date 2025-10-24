@@ -310,7 +310,7 @@ src/
 │   ├── ast-parser.ts           - Builds AST from tokens
 │   ├── formula-parser.ts       - parse(), extractCellReferences()
 │   └── helpers.ts              - Range expansion utilities
-├── evaluator/                  # Formula evaluation (stateless)
+├── formula/                  # Formula evaluation (stateless)
 │   ├── formula-evaluator.ts    - Evaluates AST nodes
 │   └── functions/              # Function implementations (one per file)
 │       ├── sum.ts, average.ts, min.ts, max.ts, count.ts

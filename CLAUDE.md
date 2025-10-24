@@ -31,7 +31,7 @@ src/
 │   ├── ast-parser.ts        # Builds AST from tokens
 │   ├── formula-parser.ts    # parse(), extractCellReferences()
 │   └── helpers.ts           # expandRange utility
-├── evaluator/               # Formula evaluation (stateless)
+├── formula/               # Formula evaluation (stateless)
 │   ├── formula-evaluator.ts # Evaluates AST nodes
 │   ├── __tests__/           # Integration tests for formula evaluation
 │   │   └── formula-evaluator.test.ts  # Tests operators, precedence, cell refs, function integration
@@ -111,7 +111,7 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 - **Errors**: Custom error classes (one per file)
 - **Constants**: Application-wide configuration values
 - **Parser**: Pure parsing logic (tokenization → AST, range expansion)
-- **Evaluator**: Pure evaluation logic (AST → result, function implementations - one per file)
+- **Formula**: Pure evaluation logic (AST → result, function implementations - one per file)
 - **Engine**: Orchestration (dependency tracking, evaluation order)
 - **Utils**: Pure utility functions (column conversions)
 - **Formatter**: Cell formatting functions (one per format type)
@@ -120,7 +120,7 @@ User Input → FormulaBar → SpreadsheetContext → Spreadsheet (raw) → EvalE
 - **Hooks**: Reusable custom hooks (useCellValue with useSyncExternalStore, useKeyboardNavigation, useClickOutside, useDebounce)
 - **Contexts**: React Context providers (SpreadsheetContext with minimal re-renders)
 
-**Dependency Flow**: `types` → `errors` → `constants` → `utils` → `parser` → `evaluator` → `engine` → `formatter` → `model` → `ui`
+**Dependency Flow**: `types` → `errors` → `constants` → `utils` → `parser` → `formula` → `engine` → `formatter` → `model` → `ui`
 
 ### Formula Evaluation
 
@@ -200,9 +200,9 @@ Benefits: Single source of truth, self-documenting code, easier refactoring, com
 - Operators: `import { ArithmeticOperator, ComparisonOperator } from '../types/core'`
 - Errors: `import { FormulaParseError } from '../errors/FormulaParseError'`
 - Parser: `import { parse } from '../parser/formula-parser'`
-- Evaluator: `import { FormulaCalculator } from '../evaluator/formula-evaluator'`
-- Functions: `import { sum } from '../evaluator/functions/sum'`
-- Function Registry: `import { FunctionName } from '../evaluator/functions/function-registry'`
+- Formula: `import { FormulaCalculator } from '../formula/formula-evaluator'`
+- Functions: `import { sum } from '../formula/functions/sum'`
+- Function Registry: `import { FunctionName } from '../formula/functions/function-registry'`
 - Engine: `import { EvalEngine } from '../engine/eval-engine'`
 - Constants: `import { DEFAULT_COLUMN_WIDTH } from '../constants/app-constants'`
 - Utils: `import { columnToNumber } from '../utils/column-utils'`
@@ -303,7 +303,7 @@ npm run format        # Prettier formatting
 
 ### Add a New Function
 
-1. Create a new file in `src/evaluator/functions/` (e.g., `my-function.ts`)
+1. Create a new file in `src/formula/functions/` (e.g., `my-function.ts`)
 2. Implement the function using helpers from `helpers.ts`:
    - Use `requireExactly()`, `requireAtLeastOne()`, etc. for argument validation
    - Use `toNumber()`, `toBoolean()` for type conversion
@@ -341,9 +341,9 @@ npm run format        # Prettier formatting
 
 ### Add a New Module
 
-1. Place in appropriate layer (types, errors, constants, parser, evaluator, engine, utils, formatter, model, or ui)
+1. Place in appropriate layer (types, errors, constants, parser, formula, engine, utils, formatter, model, or ui)
 2. Import types from `types/core.ts`
-3. Follow the dependency flow: types → errors → constants → utils → parser → evaluator → engine → formatter → model → ui
+3. Follow the dependency flow: types → errors → constants → utils → parser → formula → engine → formatter → model → ui
 4. Maintain separation of concerns
 
 ### Refactor Imports
@@ -365,8 +365,8 @@ npm run test:coverage  # Generate coverage report
 
 **Test Organization:**
 
-- **Integration tests**: `src/evaluator/__tests__/formula-evaluator.test.ts` - Tests operators, precedence, cell references, and function integration
-- **Unit tests**: `src/evaluator/functions/__tests__/*.test.ts` - Individual function tests (one per function)
+- **Integration tests**: `src/formula/__tests__/formula-evaluator.test.ts` - Tests operators, precedence, cell references, and function integration
+- **Unit tests**: `src/formula/functions/__tests__/*.test.ts` - Individual function tests (one per function)
 - **Parser tests**: `src/parser/__tests__/*.test.ts` - Tokenization, AST parsing, range expansion
 - **Engine tests**: `src/engine/__tests__/*.test.ts` - Dependency tracking, evaluation orchestration
 - **Model tests**: `src/model/__tests__/*.test.ts` - Spreadsheet data model, formatting, persistence
@@ -820,7 +820,7 @@ LocalStorage integration for automatic state persistence:
     - `ScalarOrRange` - clearer name for internal evaluation results
     - `ArithmeticOperator`, `ComparisonOperator`, `BinaryOperator`, `UnaryOperator` - type-safe operators
     - Updated all 9 formatters to use `CellValueNullable`
-    - Updated formula evaluator to use `ScalarOrRange` and operator types
+    - Updated formula formula to use `ScalarOrRange` and operator types
   - **Phase 2 - Medium Priority Types** (geometry, range, persistence types):
     - `CellPosition` - replaces inline `{ row: number; col: number }` for cell coordinates
     - `RangeReference` - semantic type for range strings like "A1:B3"
@@ -842,7 +842,7 @@ LocalStorage integration for automatic state persistence:
     - `expandRange()` returns 2D arrays in row-major order
     - `extractCellReferences()` handles 2D structure
     - Single cells handled consistently
-  - **Evaluator updates**:
+  - **Formula evaluator updates**:
     - Unwraps single-cell arrays in operations and at top level
     - Functions receive 2D arrays directly
   - **Function updates**:
@@ -871,7 +871,7 @@ LocalStorage integration for automatic state persistence:
   - **Implemented SUMIFS**: Sum with multiple criteria (AND logic)
     - Example: `=SUMIFS(C1:C10, A1:A10, ">5", B1:B10, "apple")`
   - **Created individual test files**: Split all function tests into individual files (one per function)
-    - 23 function test files in `src/evaluator/functions/__tests__/`
+    - 23 function test files in `src/formula/functions/__tests__/`
     - Each function has comprehensive unit tests
   - **Refactored integration tests**: Cleaned up `formula-evaluator.test.ts`
     - Removed duplicate function tests (now in individual files)
@@ -957,9 +957,9 @@ LocalStorage integration for automatic state persistence:
 
 - **Directory Reorganization**: Completely restructured codebase for better modularity and clarity
   - **Eliminated overloaded `core/` directory**: Replaced with focused, single-responsibility modules
-  - **New flat structure**: `types/`, `errors/`, `parser/`, `evaluator/`, `engine/`, `constants/`, `utils/`, `data/`, `ui/`
+  - **New flat structure**: `types/`, `errors/`, `parser/`, `formula/`, `engine/`, `constants/`, `utils/`, `data/`, `ui/`
   - **Function categorization**: Split function-executor into categorized files (math, logic, string, datetime, helpers)
-  - **Clear dependency flow**: Linear dependencies from types → errors → constants → utils → parser → evaluator → engine → data → UI
+  - **Clear dependency flow**: Linear dependencies from types → errors → constants → utils → parser → formula → engine → data → UI
 
 ### Previous
 
