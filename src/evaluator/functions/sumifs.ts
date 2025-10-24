@@ -1,6 +1,6 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
-import type { FunctionArgs, CellValue } from '../../types/core';
-import { toNumber, expand2DArray } from './helpers';
+import type { CellValue, FunctionArgs } from '../../types/core';
+import { evaluateComparison, expand2DArray, require2DArray, toNumber } from './helpers';
 
 /**
  * SUMIFS function - Sum cells that meet multiple criteria
@@ -19,9 +19,7 @@ export function sumifs(args: FunctionArgs): number {
   const sumRangeArg = args[0];
 
   // sumRange must be a 2D array
-  if (!Array.isArray(sumRangeArg) || !Array.isArray(sumRangeArg[0])) {
-    throw new FunctionArgumentError('SUMIFS', 'sum_range must be a range');
-  }
+  require2DArray(sumRangeArg, 'SUMIFS', 'sum_range');
 
   // Expand 2D array to 1D
   const sumRange = expand2DArray(sumRangeArg);
@@ -40,9 +38,7 @@ export function sumifs(args: FunctionArgs): number {
     const criteriaRangeArg = args[i];
     const criteriaArg = args[i + 1];
 
-    if (!Array.isArray(criteriaRangeArg) || !Array.isArray(criteriaRangeArg[0])) {
-      throw new FunctionArgumentError('SUMIFS', `criteria_range${(i + 1) / 2} must be a range`);
-    }
+    require2DArray(criteriaRangeArg, 'SUMIFS', `criteria_range${(i + 1) / 2}`);
 
     // Expand 2D array to 1D
     const criteriaRange = expand2DArray(criteriaRangeArg);
@@ -109,28 +105,9 @@ export function sumifs(args: FunctionArgs): number {
           break;
         }
 
-        // When operator is set, value is guaranteed to be set (see line 74)
+        // When operator is set, value is guaranteed to be set (see line 69)
         const comparisonValue = pair.value as number;
-        switch (pair.operator) {
-          case '>':
-            matches = numValue > comparisonValue;
-            break;
-          case '<':
-            matches = numValue < comparisonValue;
-            break;
-          case '>=':
-            matches = numValue >= comparisonValue;
-            break;
-          case '<=':
-            matches = numValue <= comparisonValue;
-            break;
-          case '=':
-            matches = numValue === comparisonValue;
-            break;
-          case '<>':
-            matches = numValue !== comparisonValue;
-            break;
-        }
+        matches = evaluateComparison(pair.operator, numValue, comparisonValue);
       } else {
         // Exact match criteria
         if (pair.isNumeric && typeof value === 'number') {

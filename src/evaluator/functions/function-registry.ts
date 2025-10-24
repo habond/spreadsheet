@@ -223,6 +223,3 @@ export function executeFunction(name: string, args: FunctionArgs): CellValue {
       throw new InvalidFunctionError(name);
   }
 }
-
-// Re-export helpers
-export { expandArgs, expand2DArray, toNumber, toBoolean } from './helpers';

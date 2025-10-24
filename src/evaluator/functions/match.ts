@@ -1,6 +1,6 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { CellValueNullable, FunctionArgs } from '../../types/core';
-import { requireRange, toNumber } from './helpers';
+import { requireRange, requireScalar, toNumber } from './helpers';
 
 /**
  * MATCH - Find the position of a value in a range
@@ -25,18 +25,14 @@ export function match(args: FunctionArgs): number | string {
 
   // Extract arguments - ensure they are scalars
   const lookupValue = args[0];
-  if (Array.isArray(lookupValue)) {
-    throw new FunctionArgumentError('MATCH', 'lookup_value must be a single value, not a range');
-  }
+  requireScalar(lookupValue, 'MATCH', 'lookup_value');
 
   const lookupArray = args[1];
 
   let matchType = 1;
   if (args.length === 3) {
     const matchTypeArg = args[2];
-    if (Array.isArray(matchTypeArg)) {
-      throw new FunctionArgumentError('MATCH', 'match_type must be a single value, not a range');
-    }
+    requireScalar(matchTypeArg, 'MATCH', 'match_type');
     matchType = toNumber(matchTypeArg);
   }
 

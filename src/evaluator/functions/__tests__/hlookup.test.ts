@@ -147,12 +147,12 @@ describe('HLOOKUP function', () => {
       // @ts-expect-error - Testing invalid input (1D array instead of 2D)
       expect(() => hlookup([1, [1, 2, 3], 2, 0])).toThrow(FunctionArgumentError);
       // @ts-expect-error - Testing invalid input (1D array instead of 2D)
-      expect(() => hlookup([1, [1, 2, 3], 2, 0])).toThrow('table_array must be a 2D range');
+      expect(() => hlookup([1, [1, 2, 3], 2, 0])).toThrow('table_array must be a range');
     });
 
     it('should throw error when table_array is empty', () => {
       expect(() => hlookup([1, [], 2, 0])).toThrow(FunctionArgumentError);
-      expect(() => hlookup([1, [], 2, 0])).toThrow('table_array must be a 2D range');
+      expect(() => hlookup([1, [], 2, 0])).toThrow('table_array must be a range');
     });
 
     it('should throw error when row_index_num is not positive integer', () => {

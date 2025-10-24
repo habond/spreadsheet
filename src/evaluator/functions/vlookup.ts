@@ -1,7 +1,7 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { CellValue, FunctionArgs } from '../../types/core';
-import { requireRange, toNumber } from './helpers';
+import { require2DArray, requireRange, requireScalar, toNumber } from './helpers';
 
 /**
  * VLOOKUP function - Vertical lookup
@@ -21,9 +21,7 @@ export function vlookup(args: FunctionArgs): CellValue {
   requireRange('VLOOKUP', args, 3, 4);
 
   // Validate and extract lookup_value (must be scalar)
-  if (Array.isArray(args[0])) {
-    throw new FunctionArgumentError('VLOOKUP', 'lookup_value must be a single value, not a range');
-  }
+  requireScalar(args[0], 'VLOOKUP', 'lookup_value');
   const lookupValue = args[0];
 
   const tableRange = args[1];
@@ -31,15 +29,11 @@ export function vlookup(args: FunctionArgs): CellValue {
   const rangeLookup = args.length === 4 ? args[3] : 0; // Default to exact match (FALSE)
 
   // Validate table_range is a 2D array
-  if (!Array.isArray(tableRange) || !Array.isArray(tableRange[0])) {
-    throw new FunctionArgumentError('VLOOKUP', 'table_range must be a 2D range');
-  }
+  require2DArray(tableRange, 'VLOOKUP', 'table_range');
 
   // Validate col_index_num is a positive integer
   // colIndexNum could be a number, string, or 2D array - we only accept scalars
-  if (Array.isArray(colIndexNum)) {
-    throw new FunctionArgumentError('VLOOKUP', 'col_index_num must be a number, not a range');
-  }
+  requireScalar(colIndexNum, 'VLOOKUP', 'col_index_num');
   const colIndex = toNumber(colIndexNum);
   if (!Number.isInteger(colIndex) || colIndex < 1) {
     throw new FunctionArgumentError('VLOOKUP', 'col_index_num must be a positive integer');

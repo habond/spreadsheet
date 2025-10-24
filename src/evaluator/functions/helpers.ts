@@ -141,3 +141,84 @@ export function createUnaryStringOperation(
     return operation(String(values[0]));
   };
 }
+
+/**
+ * Evaluate a comparison operation between two numeric values
+ *
+ * @param operator - Comparison operator (>, <, >=, <=, =, <>)
+ * @param value - The value to compare
+ * @param comparisonValue - The value to compare against
+ * @returns true if comparison succeeds, false otherwise
+ *
+ * @example
+ * evaluateComparison('>', 10, 5) → true
+ * evaluateComparison('<=', 3, 5) → true
+ * evaluateComparison('<>', 5, 5) → false
+ */
+export function evaluateComparison(
+  operator: string,
+  value: number,
+  comparisonValue: number
+): boolean {
+  switch (operator) {
+    case '>':
+      return value > comparisonValue;
+    case '<':
+      return value < comparisonValue;
+    case '>=':
+      return value >= comparisonValue;
+    case '<=':
+      return value <= comparisonValue;
+    case '=':
+      return value === comparisonValue;
+    case '<>':
+      return value !== comparisonValue;
+    default:
+      return false;
+  }
+}
+
+/**
+ * Validate that an argument is a 2D array (range)
+ *
+ * @param arg - The argument to validate
+ * @param functionName - The calling function name
+ * @param argumentName - The argument name for error message (e.g., 'range', 'table_array')
+ * @throws FunctionArgumentError if arg is not a 2D array
+ *
+ * @example
+ * require2DArray(args[0], 'VLOOKUP', 'table_range')
+ */
+export function require2DArray(
+  arg: unknown,
+  functionName: string,
+  argumentName: string
+): asserts arg is CellRangeValues {
+  if (!Array.isArray(arg) || arg.length === 0 || !Array.isArray(arg[0])) {
+    throw new FunctionArgumentError(functionName, `${argumentName} must be a range`);
+  }
+}
+
+/**
+ * Validate that an argument is a scalar (not an array/range)
+ *
+ * @param arg - The argument to validate
+ * @param functionName - The calling function name
+ * @param argumentName - The argument name for error message
+ * @throws FunctionArgumentError if arg is an array
+ *
+ * @example
+ * requireScalar(args[0], 'VLOOKUP', 'lookup_value')
+ */
+export function requireScalar(
+  arg: unknown,
+  functionName: string,
+  argumentName: string
+): asserts arg is CellValue {
+  if (Array.isArray(arg)) {
+    throw new FunctionArgumentError(
+      functionName,
+      `${argumentName} must be a single value, not a range`
+    );
+  }
+}

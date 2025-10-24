@@ -1,6 +1,6 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { FunctionArgs } from '../../types/core';
-import { expand2DArray, requireExactly } from './helpers';
+import { evaluateComparison, expand2DArray, require2DArray, requireExactly } from './helpers';
 
 /**
  * COUNTIF function - Count cells that meet a criteria
@@ -13,9 +13,7 @@ export function countif(args: FunctionArgs): number {
   const criteriaArg = args[1];
 
   // Range must be a 2D array
-  if (!Array.isArray(rangeArg) || !Array.isArray(rangeArg[0])) {
-    throw new FunctionArgumentError('COUNTIF', 'first argument must be a range');
-  }
+  require2DArray(rangeArg, 'COUNTIF', 'first argument');
 
   // Expand 2D array to 1D
   const range = expand2DArray(rangeArg);
@@ -43,22 +41,7 @@ export function countif(args: FunctionArgs): number {
         return false;
       }
 
-      switch (operator) {
-        case '>':
-          return numValue > comparisonValue;
-        case '<':
-          return numValue < comparisonValue;
-        case '>=':
-          return numValue >= comparisonValue;
-        case '<=':
-          return numValue <= comparisonValue;
-        case '=':
-          return numValue === comparisonValue;
-        case '<>':
-          return numValue !== comparisonValue;
-        default:
-          return false;
-      }
+      return evaluateComparison(operator, numValue, comparisonValue);
     }).length;
   } else {
     // Exact match criteria (text or number)

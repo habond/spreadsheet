@@ -1,7 +1,7 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { CellValue, CellValueNullable, FunctionArgs } from '../../types/core';
-import { requireRange, toNumber } from './helpers';
+import { requireRange, requireScalar, toNumber } from './helpers';
 
 /**
  * INDEX - Return a value from a range at a specific position
@@ -27,18 +27,14 @@ export function index(args: FunctionArgs): CellValue {
 
   // Extract row number (must be scalar)
   const rowNumArg = args[1];
-  if (Array.isArray(rowNumArg)) {
-    throw new FunctionArgumentError('INDEX', 'row_num must be a single value, not a range');
-  }
+  requireScalar(rowNumArg, 'INDEX', 'row_num');
   const rowNum = toNumber(rowNumArg);
 
   // Extract column number (optional, must be scalar if provided)
   let colNum: number | null = null;
   if (args.length === 3) {
     const colNumArg = args[2];
-    if (Array.isArray(colNumArg)) {
-      throw new FunctionArgumentError('INDEX', 'column_num must be a single value, not a range');
-    }
+    requireScalar(colNumArg, 'INDEX', 'column_num');
     colNum = toNumber(colNumArg);
   }
 

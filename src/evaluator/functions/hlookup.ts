@@ -1,7 +1,7 @@
 import { FormulaParseError } from '../../errors/FormulaParseError';
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { CellValue, CellValueNullable, FunctionArgs } from '../../types/core';
-import { requireRange, toBoolean, toNumber } from './helpers';
+import { require2DArray, requireRange, requireScalar, toBoolean, toNumber } from './helpers';
 
 /**
  * HLOOKUP - Horizontal lookup function
@@ -27,34 +27,23 @@ export function hlookup(args: FunctionArgs): CellValue {
   requireRange('HLOOKUP', args, 3, 4);
 
   const lookupValue = args[0];
-  if (Array.isArray(lookupValue)) {
-    throw new FunctionArgumentError('HLOOKUP', 'lookup_value must be a single value, not a range');
-  }
+  requireScalar(lookupValue, 'HLOOKUP', 'lookup_value');
 
   const tableArray = args[1];
 
   const rowIndexNumArg = args[2];
-  if (Array.isArray(rowIndexNumArg)) {
-    throw new FunctionArgumentError('HLOOKUP', 'row_index_num must be a single value, not a range');
-  }
+  requireScalar(rowIndexNumArg, 'HLOOKUP', 'row_index_num');
   const rowIndexNum = toNumber(rowIndexNumArg);
 
   let rangeLookup = true;
   if (args.length === 4) {
     const rangeLookupArg = args[3];
-    if (Array.isArray(rangeLookupArg)) {
-      throw new FunctionArgumentError(
-        'HLOOKUP',
-        'range_lookup must be a single value, not a range'
-      );
-    }
+    requireScalar(rangeLookupArg, 'HLOOKUP', 'range_lookup');
     rangeLookup = toBoolean(rangeLookupArg);
   }
 
   // Validate table_array is a 2D array
-  if (!Array.isArray(tableArray) || tableArray.length === 0 || !Array.isArray(tableArray[0])) {
-    throw new FunctionArgumentError('HLOOKUP', 'table_array must be a 2D range');
-  }
+  require2DArray(tableArray, 'HLOOKUP', 'table_array');
 
   const table = tableArray as CellValueNullable[][];
 

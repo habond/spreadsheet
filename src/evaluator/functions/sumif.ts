@@ -1,6 +1,12 @@
 import { FunctionArgumentError } from '../../errors/FunctionArgumentError';
 import type { FunctionArgs } from '../../types/core';
-import { expand2DArray, requireRange, toNumber } from './helpers';
+import {
+  evaluateComparison,
+  expand2DArray,
+  require2DArray,
+  requireRange,
+  toNumber,
+} from './helpers';
 
 /**
  * SUMIF function - Sum cells that meet a criteria
@@ -14,12 +20,8 @@ export function sumif(args: FunctionArgs): number {
   const sumRangeArg = args.length === 3 ? args[2] : rangeArg;
 
   // Both range and sumRange must be 2D arrays
-  if (!Array.isArray(rangeArg) || !Array.isArray(rangeArg[0])) {
-    throw new FunctionArgumentError('SUMIF', 'first argument must be a range');
-  }
-  if (!Array.isArray(sumRangeArg) || !Array.isArray(sumRangeArg[0])) {
-    throw new FunctionArgumentError('SUMIF', 'sum_range must be a range');
-  }
+  require2DArray(rangeArg, 'SUMIF', 'first argument');
+  require2DArray(sumRangeArg, 'SUMIF', 'sum_range');
 
   // Expand 2D arrays to 1D
   const range = expand2DArray(rangeArg);
@@ -56,29 +58,7 @@ export function sumif(args: FunctionArgs): number {
         continue;
       }
 
-      let matches = false;
-      switch (operator) {
-        case '>':
-          matches = numValue > comparisonValue;
-          break;
-        case '<':
-          matches = numValue < comparisonValue;
-          break;
-        case '>=':
-          matches = numValue >= comparisonValue;
-          break;
-        case '<=':
-          matches = numValue <= comparisonValue;
-          break;
-        case '=':
-          matches = numValue === comparisonValue;
-          break;
-        case '<>':
-          matches = numValue !== comparisonValue;
-          break;
-      }
-
-      if (matches) {
+      if (evaluateComparison(operator, numValue, comparisonValue)) {
         sum += toNumber(sumRange[i]);
       }
     }
