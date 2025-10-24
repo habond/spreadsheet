@@ -25,6 +25,8 @@ import {
   type CellFormatEntry,
   type CellID,
   type CellPosition,
+  type CellStyle,
+  type CellStyleEntry,
   type ColumnWidthEntry,
   type RowHeightEntry,
 } from '../types/core';
@@ -57,6 +59,7 @@ export class Spreadsheet {
   private columnWidths: Map<number, number>;
   private rowHeights: Map<number, number>;
   private cellFormats: Map<CellID, CellFormat>;
+  private cellStyles: Map<CellID, CellStyle>;
   private clipboard: ClipboardData | null;
   private defaultColumnWidth = DEFAULT_COLUMN_WIDTH;
   private defaultRowHeight = DEFAULT_ROW_HEIGHT;
@@ -69,6 +72,7 @@ export class Spreadsheet {
     this.columnWidths = new Map();
     this.rowHeights = new Map();
     this.cellFormats = new Map();
+    this.cellStyles = new Map();
     this.clipboard = null;
   }
 
@@ -220,6 +224,35 @@ export class Spreadsheet {
   }
 
   /**
+   * Get the style of a cell (returns undefined if not set)
+   */
+  getCellStyle(cellId: CellID): CellStyle | undefined {
+    return this.cellStyles.get(cellId);
+  }
+
+  /**
+   * Set the style of a cell
+   */
+  setCellStyle(cellId: CellID, style: CellStyle): void {
+    this.cellStyles.set(cellId, style);
+  }
+
+  /**
+   * Update specific style properties for a cell (merges with existing style)
+   */
+  updateCellStyle(cellId: CellID, styleUpdates: Partial<CellStyle>): void {
+    const currentStyle = this.cellStyles.get(cellId) || {};
+    this.cellStyles.set(cellId, { ...currentStyle, ...styleUpdates });
+  }
+
+  /**
+   * Clear the style of a cell
+   */
+  clearCellStyle(cellId: CellID): void {
+    this.cellStyles.delete(cellId);
+  }
+
+  /**
    * Get all column widths for grid rendering
    */
   getAllColumnWidths(): number[] {
@@ -250,6 +283,7 @@ export class Spreadsheet {
       columnWidths: Array.from(this.columnWidths.entries()),
       rowHeights: Array.from(this.rowHeights.entries()),
       cellFormats: Array.from(this.cellFormats.entries()),
+      cellStyles: Array.from(this.cellStyles.entries()),
       selectedCell: this.selectedCell,
     };
   }
@@ -262,12 +296,14 @@ export class Spreadsheet {
     columnWidths: ColumnWidthEntry[];
     rowHeights: RowHeightEntry[];
     cellFormats: CellFormatEntry[];
+    cellStyles: CellStyleEntry[];
     selectedCell: CellID | null;
   }): void {
     this.cells = { ...state.cells };
     this.columnWidths = new Map(state.columnWidths);
     this.rowHeights = new Map(state.rowHeights);
     this.cellFormats = new Map(state.cellFormats);
+    this.cellStyles = new Map(state.cellStyles);
     this.selectedCell = state.selectedCell;
   }
 
@@ -279,6 +315,7 @@ export class Spreadsheet {
     this.columnWidths.clear();
     this.rowHeights.clear();
     this.cellFormats.clear();
+    this.cellStyles.clear();
     this.selectedCell = 'A1';
     this.clipboard = null;
   }

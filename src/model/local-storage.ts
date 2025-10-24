@@ -2,7 +2,12 @@
  * LocalStorage utility for persisting spreadsheet state
  */
 
-import type { ColumnWidthEntry, RowHeightEntry, CellFormatEntry } from '../types/core';
+import type {
+  CellFormatEntry,
+  CellStyleEntry,
+  ColumnWidthEntry,
+  RowHeightEntry,
+} from '../types/core';
 import type { CellMap } from './spreadsheet';
 
 const STORAGE_KEY = 'spreadsheet-state';
@@ -12,6 +17,7 @@ export interface SpreadsheetState {
   columnWidths: ColumnWidthEntry[];
   rowHeights: RowHeightEntry[];
   cellFormats: CellFormatEntry[];
+  cellStyles: CellStyleEntry[];
   selectedCell: string | null;
 }
 

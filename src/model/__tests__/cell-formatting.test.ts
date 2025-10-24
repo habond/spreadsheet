@@ -104,6 +104,7 @@ describe('Cell Formatting', () => {
           ['A1', CellFormat.Date],
           ['C3', CellFormat.Date],
         ] as Array<[string, CellFormat]>,
+        cellStyles: [],
         selectedCell: 'A1' as string | null,
       };
 

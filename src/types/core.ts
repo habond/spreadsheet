@@ -85,9 +85,50 @@ export enum CellFormat {
 }
 
 /**
+ * Cell styling options
+ */
+export enum TextAlign {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
+}
+
+export enum FontFamily {
+  Arial = 'Arial, sans-serif',
+  TimesNewRoman = 'Times New Roman, serif',
+  Courier = 'Courier New, monospace',
+  Verdana = 'Verdana, sans-serif',
+  Georgia = 'Georgia, serif',
+  ComicSans = 'Comic Sans MS, cursive',
+}
+
+/**
+ * Cell style properties
+ * All properties are optional - undefined means inherit/default
+ */
+export interface CellStyle {
+  // Text alignment
+  textAlign?: TextAlign;
+
+  // Typeface modifiers
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+
+  // Font
+  fontFamily?: FontFamily;
+  fontSize?: number; // In pixels
+
+  // Colors
+  textColor?: string; // CSS color string (e.g., "#000000", "rgb(0,0,0)")
+  backgroundColor?: string; // CSS color string
+}
+
+/**
  * Persistence/serialization types
  * Tuple types for serializing Map structures to JSON
  */
 export type ColumnWidthEntry = [colIndex: number, width: number];
 export type RowHeightEntry = [rowIndex: number, height: number];
 export type CellFormatEntry = [cellId: CellID, format: CellFormat];
+export type CellStyleEntry = [cellId: CellID, style: CellStyle];

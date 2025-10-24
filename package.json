@@ -43,6 +43,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "lucide-react": "^0.546.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   }

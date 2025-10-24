@@ -15,7 +15,7 @@ import {
   clearSpreadsheetState,
 } from '../../model/local-storage';
 import { Spreadsheet } from '../../model/spreadsheet';
-import type { CellID, CellFormat } from '../../types/core';
+import type { CellFormat, CellID, CellStyle } from '../../types/core';
 
 interface SpreadsheetContextType {
   spreadsheet: Spreadsheet;
@@ -28,6 +28,7 @@ interface SpreadsheetContextType {
   setColumnWidth: (colIndex: number, width: number) => void;
   setRowHeight: (rowIndex: number, height: number) => void;
   setCellFormat: (cellId: CellID, format: CellFormat) => void;
+  updateCellStyle: (cellId: CellID, styleUpdates: Partial<CellStyle>) => void;
   clearSpreadsheet: () => void;
   copyCell: () => void;
   cutCell: () => void;
@@ -162,6 +163,18 @@ export function SpreadsheetProvider({
         state.cellResultStore.set(cellId, result);
       }
       debouncedSave(); // Save after format changes
+    },
+    [state.spreadsheet, state.cellResultStore, debouncedSave]
+  );
+
+  const updateCellStyle = useCallback(
+    (cellId: CellID, styleUpdates: Partial<CellStyle>) => {
+      state.spreadsheet.updateCellStyle(cellId, styleUpdates);
+      // Notify the specific cell's subscribers about the style change
+      // We need to notify even for cells without results (empty cells with only styles)
+      const result = state.cellResultStore.get(cellId) || { value: null, error: null };
+      state.cellResultStore.set(cellId, result);
+      debouncedSave(); // Save after style changes
     },
     [state.spreadsheet, state.cellResultStore, debouncedSave]
   );
@@ -312,6 +325,7 @@ export function SpreadsheetProvider({
       setColumnWidth,
       setRowHeight,
       setCellFormat,
+      updateCellStyle,
       clearSpreadsheet,
       copyCell,
       cutCell,
@@ -335,6 +349,7 @@ export function SpreadsheetProvider({
       setColumnWidth,
       setRowHeight,
       setCellFormat,
+      updateCellStyle,
       clearSpreadsheet,
       copyCell,
       cutCell,

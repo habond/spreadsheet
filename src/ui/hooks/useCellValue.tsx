@@ -1,5 +1,5 @@
-import { useSyncExternalStore, useCallback, useRef } from 'react';
-import type { CellID } from '../../types/core';
+import { useCallback, useRef, useSyncExternalStore } from 'react';
+import type { CellID, CellStyle } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 
 /**
@@ -8,15 +8,20 @@ import { useSpreadsheet } from '../contexts/SpreadsheetContext';
  * Only the cells that actually change will re-render
  *
  * @param cellId - The cell identifier to subscribe to
- * @returns Object containing the cell's display value and error state
+ * @returns Object containing the cell's display value, error state, and style
  */
 export function useCellValue(cellId: CellID) {
-  const { cellResultStore } = useSpreadsheet();
+  const { cellResultStore, spreadsheet } = useSpreadsheet();
 
   // Cache the last snapshot to prevent infinite loops
-  const snapshotRef = useRef<{ displayValue: string; error: string | null }>({
+  const snapshotRef = useRef<{
+    displayValue: string;
+    error: string | null;
+    style: CellStyle | undefined;
+  }>({
     displayValue: '',
     error: null,
+    style: undefined,
   });
 
   // Subscribe to changes for this specific cell
@@ -27,21 +32,28 @@ export function useCellValue(cellId: CellID) {
     [cellResultStore, cellId]
   );
 
-  // Get the current snapshot of the cell data (with caching)
+  // Get the current snapshot of the cell data
+  // We include style in the snapshot so style changes trigger re-renders
   const getSnapshot = useCallback(() => {
     const result = cellResultStore.get(cellId);
     const displayValue = cellResultStore.getDisplayValue(cellId);
     const error = result?.error || null;
+    const style = spreadsheet.getCellStyle(cellId);
 
     // Only create a new object if the values actually changed
-    if (snapshotRef.current.displayValue === displayValue && snapshotRef.current.error === error) {
+    // Compare by reference for style object (it's a new object when it changes)
+    if (
+      snapshotRef.current.displayValue === displayValue &&
+      snapshotRef.current.error === error &&
+      snapshotRef.current.style === style
+    ) {
       return snapshotRef.current;
     }
 
     // Values changed, create and cache new snapshot
-    snapshotRef.current = { displayValue, error };
+    snapshotRef.current = { displayValue, error, style };
     return snapshotRef.current;
-  }, [cellResultStore, cellId]);
+  }, [cellResultStore, cellId, spreadsheet]);
 
   // Use useSyncExternalStore to efficiently subscribe to this cell
   const cellData = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);

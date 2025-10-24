@@ -55,7 +55,9 @@ describe('App', () => {
     render(<App />);
 
     // Check for column headers (A through J = 10 columns)
-    expect(screen.getByText('A')).toBeInTheDocument();
+    // Use getAllByText since "A" now appears in both column header and StyleToolbar
+    const aElements = screen.getAllByText('A');
+    expect(aElements.length).toBeGreaterThan(0);
     expect(screen.getByText('J')).toBeInTheDocument();
 
     // Check for row numbers (1 through 20)

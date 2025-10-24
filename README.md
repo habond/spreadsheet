@@ -1,7 +1,7 @@
 # Simple Spreadsheet
 
 [![CI](https://github.com/habond/spreadsheet/workflows/CI/badge.svg)](https://github.com/habond/spreadsheet/actions)
-[![Tests](https://img.shields.io/badge/tests-1024%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
+[![Tests](https://img.shields.io/badge/tests-1060%20passing-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![Coverage](https://img.shields.io/badge/coverage-90.51%25-brightgreen.svg)](https://github.com/habond/spreadsheet/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
@@ -23,11 +23,20 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
 - **Circular dependency detection** with clear error messages
 - **Comprehensive error handling** for all edge cases
 - **Cell formatting**: Number (1,234.56), Currency ($1,234.56), Percentage (75.00%), Date, Time, Boolean (1→True, 0→False)
+- **Cell styling**: Text alignment (left/center/right), typeface modifiers (bold/italic/underline), font families, font colors, and background colors
 
 ### User Interface
 
+- **Style toolbar** - Comprehensive styling controls for selected cells with professional Lucide icons:
+  - Format dropdown (Normal, Number, Currency, Percentage, Date, Time, Boolean)
+  - Font family selection (Arial, Times New Roman, Courier, Verdana, Georgia, Comic Sans)
+  - Text formatting buttons (Bold, Italic, Underline) with icon buttons
+  - Text alignment buttons (Left, Center, Right) with icon buttons
+  - Text color picker with icon
+  - Background color picker with icon
+  - Clear formatting button (eraser icon)
 - **Function menu** (ƒx button) - Quick access to all supported functions
-- **Info popover** (ⓘ button) - View current cell information
+- **Info popover** (info icon) - View current cell information
 - **Resizable columns** - Drag column header edges to resize
 - **Resizable rows** - Drag row header edges to resize
 - **Keyboard navigation** - Arrow keys, Enter, Tab for efficient editing with auto-scroll
@@ -52,7 +61,7 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
   - **Memoization**: Context values and expensive calculations are memoized
   - **Debouncing**: LocalStorage writes are debounced to reduce I/O
 - **ESLint** with React and React Hooks rules
-- **Comprehensive test coverage** with Vitest + React Testing Library (1040 tests including render optimization, clipboard, fill handle, insert/delete column/row, context menus, formula translation, resize, and auto-scroll tests)
+- **Comprehensive test coverage** with Vitest + React Testing Library (1060 tests including render optimization, clipboard, fill handle, insert/delete column/row, context menus, formula translation, resize, auto-scroll, and style toolbar tests)
 
 ## Getting Started
 
@@ -89,6 +98,15 @@ A fully-featured spreadsheet implementation with a robust evaluation engine, bui
      - **Date**: Format timestamps as localized date
      - **Time**: Format timestamps as localized time
      - **Boolean**: Display 1 as "True", 0 as "False"
+   - **Cell styling**: Style toolbar provides visual formatting controls (select a cell to use):
+     - **Font family**: Choose from 6 font options (Arial, Times New Roman, Courier, Verdana, Georgia, Comic Sans)
+     - **Bold**: Toggle bold text with the **B** button
+     - **Italic**: Toggle italic text with the **I** button
+     - **Underline**: Toggle underlined text with the **U** button
+     - **Text alignment**: Align text left (⇤), center (≡), or right (⇥)
+     - **Text color**: Click the **A** button to pick text color
+     - **Background color**: Click the **▦** button to pick background color
+     - Styles persist with cell and are saved to localStorage
    - **Cell info**: Click the **ⓘ button** to view current cell details (raw value, display value, errors)
    - **Keyboard navigation**:
      - **Arrow keys**: Save value and navigate between cells (works anytime, even while editing)

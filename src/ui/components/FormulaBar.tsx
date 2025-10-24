@@ -1,21 +1,17 @@
-import { useState, useEffect, forwardRef } from 'react';
-import { CellFormat } from '../../types/core';
+import { forwardRef, useEffect, useState } from 'react';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { FunctionMenu } from './FunctionMenu';
 import { InfoButton } from './InfoButton';
 
 export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_props, ref) {
-  const { spreadsheet, selectedCell, setCellFormat } = useSpreadsheet();
+  const { spreadsheet, selectedCell } = useSpreadsheet();
   const [formulaValue, setFormulaValue] = useState('');
-  const [currentFormat, setCurrentFormat] = useState<CellFormat>(CellFormat.Raw);
 
-  // Update formula value and format when selected cell changes or cell content changes
+  // Update formula value when selected cell changes or cell content changes
   useEffect(() => {
     if (selectedCell) {
       const content = spreadsheet.getCellContent(selectedCell);
-      const format = spreadsheet.getCellFormat(selectedCell);
       setFormulaValue(content);
-      setCurrentFormat(format);
     }
   }, [selectedCell, spreadsheet]);
 
@@ -34,33 +30,9 @@ export const FormulaBar = forwardRef<HTMLInputElement>(function FormulaBar(_prop
     }
   };
 
-  const handleFormatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (!selectedCell) return;
-    const format = e.target.value as CellFormat;
-    setCurrentFormat(format);
-    setCellFormat(selectedCell, format);
-  };
-
   return (
     <div className="formula-bar">
       <FunctionMenu onFunctionSelect={handleFunctionSelect} />
-      <select
-        className="format-dropdown"
-        value={currentFormat}
-        onChange={handleFormatChange}
-        title="Cell format"
-      >
-        <option value={CellFormat.Raw}>{CellFormat.Raw}</option>
-        <option disabled>──────────</option>
-        <option value={CellFormat.Number}>{CellFormat.Number}</option>
-        <option value={CellFormat.Currency}>{CellFormat.Currency}</option>
-        <option value={CellFormat.Percentage}>{CellFormat.Percentage}</option>
-        <option disabled>──────────</option>
-        <option value={CellFormat.Date}>{CellFormat.Date}</option>
-        <option value={CellFormat.Time}>{CellFormat.Time}</option>
-        <option disabled>──────────</option>
-        <option value={CellFormat.Boolean}>{CellFormat.Boolean}</option>
-      </select>
       <input
         ref={ref}
         type="text"

@@ -167,38 +167,4 @@ describe('FormulaBar', () => {
       expect(input).toHaveValue('=SUM()');
     });
   });
-
-  describe('Format selection', () => {
-    it('should change format when dropdown option selected', async () => {
-      const user = userEvent.setup();
-      setup();
-
-      const formatDropdown = screen.getByTitle('Cell format');
-
-      // Change to Number format
-      await user.selectOptions(formatDropdown, 'Number');
-      expect(formatDropdown).toHaveValue('Number');
-
-      // Change to Currency format
-      await user.selectOptions(formatDropdown, 'Currency');
-      expect(formatDropdown).toHaveValue('Currency');
-    });
-
-    it('should update format for different formats', async () => {
-      const user = userEvent.setup();
-      setup();
-
-      const formatDropdown = screen.getByTitle('Cell format');
-
-      // Try different formats
-      await user.selectOptions(formatDropdown, 'Percentage');
-      expect(formatDropdown).toHaveValue('Percentage');
-
-      await user.selectOptions(formatDropdown, 'Date');
-      expect(formatDropdown).toHaveValue('Date');
-
-      await user.selectOptions(formatDropdown, 'Boolean');
-      expect(formatDropdown).toHaveValue('Boolean');
-    });
-  });
 });

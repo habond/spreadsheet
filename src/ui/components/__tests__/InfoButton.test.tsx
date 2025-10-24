@@ -22,7 +22,6 @@ describe('InfoButton', () => {
 
       const button = screen.getByTitle(/show cell info/i);
       expect(button).toBeInTheDocument();
-      expect(button).toHaveTextContent('ⓘ');
     });
 
     it('should not show popover initially', () => {

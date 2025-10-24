@@ -6,7 +6,7 @@ Quick reference for AI assistants working on this codebase.
 
 A TypeScript spreadsheet with formula evaluation, dependency tracking, and cycle detection.
 
-**Tech Stack**: TypeScript, React, Vite
+**Tech Stack**: TypeScript, React, Vite, Lucide React (icons)
 **Build**: `npm run build` (tsc + vite)
 **Dev**: `npm run dev` (Vite dev server, typically http://localhost:5173)
 
@@ -546,6 +546,32 @@ LocalStorage integration for automatic state persistence:
 ## Recent Changes
 
 ### Latest (Current)
+
+- **Icon Standardization with Lucide React**: Added professional icon library and fixed StyleToolbar reactivity bug
+  - **Lucide React integration** ([StyleToolbar.tsx](src/ui/components/StyleToolbar.tsx), [InfoButton.tsx](src/ui/components/InfoButton.tsx)):
+    - Installed `lucide-react` library for professional, scalable icons
+    - StyleToolbar now uses icon components: Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Type, Palette, Eraser
+    - InfoButton uses Info icon (replaced ⓘ Unicode character)
+    - FunctionMenu kept original "ƒx" text (user preference)
+    - All icons sized consistently at 16px
+  - **StyleToolbar bug fix** ([StyleToolbar.tsx:27-37](src/ui/components/StyleToolbar.tsx#L27-L37)):
+    - **Problem**: Format dropdown wasn't updating when switching between cells with different formats
+    - **Root cause**: Component used local state with `useEffect` instead of subscribing to cell changes
+    - **Solution**: Implemented pub-sub pattern using `cellResultStore.subscribe()` to force re-renders
+    - Now reads style/format directly from spreadsheet and subscribes to the selected cell's changes
+    - Formats and styles update immediately when switching cells
+  - **UI improvements**:
+    - Changed "Raw" format label to "Normal" in dropdown
+    - Matched dropdown styling between format and font-family selectors
+    - Professional icon library improves visual clarity and consistency
+  - **Test coverage** ([StyleToolbar.test.tsx](src/ui/components/__tests__/StyleToolbar.test.tsx)):
+    - Created comprehensive test suite with 22 test cases
+    - Tests cover rendering, format dropdown, font family, typeface buttons, alignment, colors, clear formatting, and style persistence
+    - All tests updated to work with new reactivity model
+  - **All 1060 tests passing**: 0 errors, 1 acceptable warning (intentional unused state variable)
+  - **Benefits**: Professional icons, immediate style updates, comprehensive test coverage
+
+### Previous
 
 - **Insert Column/Row Bug Fixes**: Fixed formula translation and stale display values
   - **Formula translation fix** ([cell-reference-translator.ts:224,231](src/utils/cell-reference-translator.ts#L224)):

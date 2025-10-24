@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
+import { Info } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 
@@ -21,7 +22,7 @@ export function InfoButton() {
   return (
     <div className="info-button-container" ref={popoverRef}>
       <button className="info-button" onClick={() => setIsOpen(!isOpen)} title="Show cell info">
-        ⓘ
+        <Info size={16} />
       </button>
       {isOpen && (
         <div className="info-popover">

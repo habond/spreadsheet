@@ -4,6 +4,7 @@ import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { ErrorBoundary } from './ErrorBoundary';
 import { FormulaBar } from './FormulaBar';
 import { Grid } from './Grid';
+import { StyleToolbar } from './StyleToolbar';
 
 function SpreadsheetApp() {
   const { formulaInputRef, clearSpreadsheet } = useSpreadsheet();
@@ -27,6 +28,7 @@ function SpreadsheetApp() {
           Clear Spreadsheet
         </button>
       </div>
+      <StyleToolbar />
       <FormulaBar ref={formulaInputRef} />
       <Grid />
     </div>

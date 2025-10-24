@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { styleToCss } from '../../styles/cell-styles';
 import type { CellID } from '../../types/core';
 import { useSpreadsheet } from '../contexts/SpreadsheetContext';
 import { useCellValue } from '../hooks/useCellValue';
@@ -13,14 +14,17 @@ interface CellProps {
 export function Cell({ cellId, row, col, isFillHighlighted = false }: CellProps) {
   const { selectedCell, copiedCell, selectCell, formulaInputRef } = useSpreadsheet();
 
-  // Use the optimized hook - only this cell will re-render when its value changes
-  const { displayValue, error } = useCellValue(cellId);
+  // Use the optimized hook - only this cell will re-render when its value OR style changes
+  const { displayValue, error, style } = useCellValue(cellId);
 
   const isSelected = selectedCell === cellId;
   const isCopied = copiedCell === cellId;
 
   // Ref to the cell div element
   const cellRef = useRef<HTMLDivElement>(null);
+
+  // Convert cell style to CSS
+  const cellStyle = style ? styleToCss(style) : {};
 
   // Scroll the selected cell into view when it becomes selected
   useEffect(() => {
@@ -49,6 +53,7 @@ export function Cell({ cellId, row, col, isFillHighlighted = false }: CellProps)
       role="gridcell"
       tabIndex={isSelected ? 0 : -1}
       className={`cell${isSelected ? ' selected' : ''}${error ? ' error' : ''}${isCopied ? ' copied' : ''}${isFillHighlighted ? ' fill-highlight' : ''}`}
+      style={cellStyle}
       data-cell-id={cellId}
       data-row={row}
       data-col={col}

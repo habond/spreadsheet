@@ -46,6 +46,7 @@ describe('local-storage', () => {
         ],
         rowHeights: [[0, 40]],
         cellFormats: [['A1', CellFormat.Number]],
+        cellStyles: [],
         selectedCell: 'A1',
       };
 
@@ -63,6 +64,7 @@ describe('local-storage', () => {
         columnWidths: [],
         rowHeights: [],
         cellFormats: [],
+        cellStyles: [],
         selectedCell: null,
       };
 
@@ -97,6 +99,7 @@ describe('local-storage', () => {
           ['A2', CellFormat.Number],
           ['A3', CellFormat.Number],
         ],
+        cellStyles: [],
         selectedCell: 'A3',
       };
 
@@ -120,6 +123,7 @@ describe('local-storage', () => {
         columnWidths: [],
         rowHeights: [],
         cellFormats: [],
+        cellStyles: [],
         selectedCell: 'A1',
       };
 
@@ -138,6 +142,7 @@ describe('local-storage', () => {
         ],
         rowHeights: [[0, 40]],
         cellFormats: [['A1', CellFormat.Number]],
+        cellStyles: [],
         selectedCell: 'A1',
       };
 
@@ -192,6 +197,7 @@ describe('local-storage', () => {
         columnWidths: [],
         rowHeights: [],
         cellFormats: [],
+        cellStyles: [],
         selectedCell: 'A1',
       };
 
@@ -240,6 +246,7 @@ describe('local-storage', () => {
           ['A2', CellFormat.Currency],
           ['A3', CellFormat.Percentage],
         ],
+        cellStyles: [],
         selectedCell: 'B1',
       };
 
@@ -255,6 +262,7 @@ describe('local-storage', () => {
         columnWidths: [],
         rowHeights: [],
         cellFormats: [],
+        cellStyles: [],
         selectedCell: 'A1',
       };
 
@@ -271,6 +279,7 @@ describe('local-storage', () => {
         columnWidths: [],
         rowHeights: [],
         cellFormats: [],
+        cellStyles: [],
         selectedCell: 'A1',
       };
 
@@ -279,6 +288,7 @@ describe('local-storage', () => {
         columnWidths: [[1, 150]],
         rowHeights: [[1, 50]],
         cellFormats: [],
+        cellStyles: [],
         selectedCell: 'B2',
       };
 
@@ -296,6 +306,7 @@ describe('local-storage', () => {
         columnWidths: [],
         rowHeights: [],
         cellFormats: [],
+        cellStyles: [],
         selectedCell: 'A1',
       };
 
@@ -322,6 +333,7 @@ describe('local-storage', () => {
         columnWidths: [[0, 100]],
         rowHeights: Array.from({ length: 100 }, (_, i) => [i, 32]),
         cellFormats: largeFormats,
+        cellStyles: [],
         selectedCell: 'A50',
       };
 
